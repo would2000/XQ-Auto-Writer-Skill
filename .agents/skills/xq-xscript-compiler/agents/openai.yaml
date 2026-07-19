@@ -1,0 +1,4 @@
+interface:
+  display_name: "XQ XScript 自動撰寫與編譯"
+  short_description: "自動開啟 XScript、建立腳本並修正至編譯成功"
+  default_prompt: "Use $xq-xscript-compiler to create and compile an XScript in XQ until it passes."

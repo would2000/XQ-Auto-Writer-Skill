@@ -1,0 +1,96 @@
+{
+  "calibrated": false,
+  "executable": "",
+  "window": {
+    "title_re": "^XScript.*"
+  },
+  "connect_timeout_seconds": 15,
+  "open_compiler_keys": "",
+  "open_wait_seconds": 1,
+  "launcher": {
+    "xq_window": {
+      "title_re": "^XQ全球贏家"
+    },
+    "strategy_menu": {
+      "title": "策略(D)",
+      "control_type": "MenuItem"
+    },
+    "menu_wait_seconds": 0.3,
+    "open_xscript_keys": "{END}{ENTER}"
+  },
+  "new_script_dialog": {
+    "title": "新增腳本",
+    "class_name": "#32770",
+    "open_file_menu_keys": "%f",
+    "menu_wait_seconds": 0.3,
+    "new_script_keys": "{HOME}{ENTER}",
+    "type_control_ids": {
+      "indicator": 30048,
+      "screener": 30050,
+      "alert": 30049,
+      "autotrade": 30051,
+      "function": 30047
+    },
+    "name_control_id": 30021,
+    "function_return_type_control_ids": {
+      "number": 30041,
+      "string": 30042,
+      "boolean": 30043
+    },
+    "confirm_control_id": 30001,
+    "cancel_control_id": 30002
+  },
+  "requires_preopened_script": true,
+  "verified_preopened_types": [],
+  "verified_function_return_types": [],
+  "function_return_type_labels": {
+    "number": "數值",
+    "boolean": "邏輯值",
+    "string": "字串"
+  },
+  "active_type_title_regex": {
+    "indicator": "\\(指標\\)",
+    "screener": "\\(選股\\)",
+    "alert": "\\(警示\\)",
+    "function": "\\(函數\\)",
+    "autotrade": "\\((?:自動交易|交易)\\)"
+  },
+  "actions_by_type": {
+    "indicator": [],
+    "screener": [],
+    "alert": [],
+    "function": [],
+    "autotrade": []
+  },
+  "editor": {
+    "active_mdi": true,
+    "mdi_selector": {
+      "control_type": "Window",
+      "class_name": "AfxFrameOrView140"
+    },
+    "content_selector": {
+      "auto_id": "9999",
+      "control_type": "Pane",
+      "class_name": "Scintilla"
+    }
+  },
+  "compile_button": {
+    "title_re": "^(編譯|Compile)$",
+    "control_type": "Button"
+  },
+  "result": {
+    "backend": "win32",
+    "control_id": 59751,
+    "class_name": "Scintilla"
+  },
+  "error_report": {
+    "backend": "win32",
+    "control_id": 59752,
+    "class_name": "XTPReport",
+    "select_all_title": "全部選取",
+    "copy_title": "複製"
+  },
+  "compile_timeout_seconds": 30,
+  "success_regex": "編譯成功|沒有錯誤|無錯誤|0\\s*(個)?錯誤|compile(d)?\\s+success",
+  "error_regex": "編譯錯誤|錯誤|error"
+}

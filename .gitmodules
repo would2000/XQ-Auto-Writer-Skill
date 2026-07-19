@@ -1,0 +1,6 @@
+[submodule "third_party/sysjust-xq/XScript_Preset"]
+	path = third_party/sysjust-xq/XScript_Preset
+	url = https://github.com/sysjust-xq/XScript_Preset.git
+[submodule "third_party/sysjust-xq/XQStrategy"]
+	path = third_party/sysjust-xq/XQStrategy
+	url = https://github.com/sysjust-xq/XQStrategy.git
