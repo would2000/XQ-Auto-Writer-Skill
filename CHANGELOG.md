@@ -6,6 +6,16 @@
 
 ### 新增
 
+### 變更
+
+### 修正
+
+### 安全性
+
+## [0.2.0] - 2026-07-19
+
+### 新增
+
 - 加入唯讀的 Windows GitHub Actions CI，在 Pull Request、`main` push 與人工觸發時驗證版本 metadata、儲存庫衛生、單元測試、Python 語法及 submodule 狀態。
 - 加入單人維護流程與可重現的公開儲存庫檢查器。
 
@@ -20,6 +30,8 @@
 ### 安全性
 
 - CI 使用唯讀 GitHub 權限、不保存 checkout 憑證、不使用 secrets，且官方 Actions 固定至完整 commit SHA。
+- 啟用 `main` Ruleset，要求 Pull Request 與 `verify` check，並禁止刪除及 force push。
+- 啟用 `v*` Tag Ruleset，允許建立新版本 tag，但禁止更新或刪除既有 tag。
 
 ## [0.1.0] - 2026-07-19
 
