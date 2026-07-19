@@ -4,6 +4,8 @@
 
 目前版本：[0.1.0](VERSION)｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)
 
+[![CI](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml/badge.svg)](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml)
+
 > [!IMPORTANT]
 > 這是非官方、自主開發的自動化專案，並非嘉實資訊或 OpenAI 官方產品。編譯成功只代表 XScript 語法通過，不代表策略能獲利、適合實盤或沒有交易風險。
 
@@ -202,6 +204,7 @@ XQ 官方部落格 `xstrader` 的文章與程式碼目前沒有納入本地知�
 
 ```powershell
 python scripts/check_release_metadata.py
+python scripts/check_repository_hygiene.py
 python -W error::ResourceWarning -m unittest discover -s tests -v
 ```
 
@@ -209,7 +212,7 @@ python -W error::ResourceWarning -m unittest discover -s tests -v
 
 ```powershell
 $scripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-python -m py_compile $scripts.FullName scripts/check_release_metadata.py
+python -m py_compile $scripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py
 ```
 
 UI 編譯測試必須在已登入 XQ、桌面解鎖且設定完成校正的 Windows 工作階段中執行。測試時先使用不含真實交易指令的最小程式。
@@ -219,6 +222,12 @@ UI 編譯測試必須在已登入 XQ、桌面解鎖且設定完成校正的 Wind
 本專案使用 [Semantic Versioning](https://semver.org/)：相容的新功能提升 MINOR、相容修正提升 PATCH、不相容的公開介面變更提升 MAJOR。根目錄 `VERSION` 是目前版本的唯一權威，內容不含 Git tag 使用的 `v` 前綴。
 
 每個會影響使用者的 PR 都應同步更新 `CHANGELOG.md` 的 `[Unreleased]`。準備發布時，再將內容移到有日期的版本區段，執行版本 metadata 檢查、完整測試及適用的 XQ UI 驗證；合併發布 PR 後才建立不可變的 `v<版本>` tag 與 GitHub Release。詳細命令與失敗復原方式請見[發布流程](docs/RELEASING.md)。
+
+## 單人維護模式
+
+本專案預設由一位維護者管理。功能仍透過分支及 Pull Request 進入 `main`，但不要求第二人 approval；PR 的用途是讓 GitHub Actions 在合併前自動檢查 AI 或人工修改。大型功能使用 Issue 追蹤，小型文件或修正可直接在 PR 說明。
+
+CI 使用唯讀權限，不接觸 XQ 或任何帳戶資料。即使 CI Passed，XQ UI 編譯仍可能是「未驗證」；修改 UI 或 XScript 行為時必須另外完成真實本機驗證。日常流程、緊急 bypass 與復原方式請見[單人維護流程](docs/SOLO-MAINTENANCE.md)。
 
 ## 安全與隱私
 
