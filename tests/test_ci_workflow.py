@@ -7,6 +7,14 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW_PATH = PROJECT_ROOT / ".github" / "workflows" / "ci.yml"
+REQUIREMENTS_PATH = (
+    PROJECT_ROOT
+    / ".agents"
+    / "skills"
+    / "xq-xscript-compiler"
+    / "scripts"
+    / "requirements.txt"
+)
 
 
 class CIWorkflowTests(unittest.TestCase):
@@ -40,6 +48,15 @@ class CIWorkflowTests(unittest.TestCase):
             with self.subTest(command=command):
                 self.assertIn(command, self.workflow)
         self.assertIn("Unable to Test（未驗證）", self.workflow)
+
+    def test_windows_timezone_dependency_is_declared_and_installed(self) -> None:
+        requirements = REQUIREMENTS_PATH.read_text(encoding="utf-8").splitlines()
+        self.assertIn("tzdata>=2025.2,<2027", requirements)
+        self.assertIn(
+            "python -m pip install --disable-pip-version-check "
+            "-r .agents/skills/xq-xscript-compiler/scripts/requirements.txt",
+            self.workflow,
+        )
 
 
 if __name__ == "__main__":

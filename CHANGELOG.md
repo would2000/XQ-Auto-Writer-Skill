@@ -15,6 +15,8 @@
 
 ### 修正
 
+- 修正全新 Windows Python 環境缺少 IANA 時區資料，導致 XSHelp 同步無法解析 `Asia/Taipei` 的問題。
+
 ### 安全性
 
 - CI 使用唯讀 GitHub 權限、不保存 checkout 憑證、不使用 secrets，且官方 Actions 固定至完整 commit SHA。
