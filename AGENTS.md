@@ -15,6 +15,9 @@
 - `generated/`：新產生的 `.xs`；不得覆寫無關檔案。
 - `third_party/sysjust-xq/`：上游公開範例；視為唯讀第三方內容。
 - `third_party/xshelp/index.json`：只含 metadata 的官方語法索引。
+- `VERSION`：目前版本的唯一權威，使用 SemVer 且不含 `v` 前綴。
+- `CHANGELOG.md`：未發布與歷次版本的使用者可見變更。
+- `docs/RELEASING.md`：版本準備、驗證、tag、Release 與復原流程。
 - `tests/`：不依賴 XQ GUI 的自動測試。
 
 ## 請求路由
@@ -78,14 +81,25 @@
 - 網路同步應限制同站來源、設定 User-Agent、節流、重試、逾時並使用原子寫入；部分失敗時保留上一版索引。
 - 不提交 `__pycache__/`、本機 UI 設定、探測輸出、帳戶資料或未獲授權的內容。
 
+## 版本與發布規則
+
+- 使用 Semantic Versioning；相容的新功能提升 MINOR、相容修正提升 PATCH、不相容的公開介面變更提升 MAJOR。
+- `VERSION` 必須是目前版本的唯一權威；Git tag 與 GitHub Release 才加上 `v` 前綴。
+- 每個使用者可見的變更都要加入 `CHANGELOG.md` 的 `[Unreleased]`；準備發布時才移入有日期的版本區段。
+- 使用 GitHub Issue／PR 編號作為工作識別，分支使用 `agent/<description>`；不要另建可能重複或失去同步的流水號系統。
+- 發布 PR 應先以 Draft 建立並完成審查。只有發布 PR 合併到 `main` 後，才能從該合併後提交建立 tag 與 GitHub Release。
+- 已推送的 tag 視為不可變；發現問題時發布新的 PATCH 版本，不得強制移動 tag 或重寫 `main`。
+- Release Notes 必須區分純 Python 自動測試與真實 XQ UI 驗證；未執行的驗證應明確標為「未驗證」。
+
 ## 驗證命令
 
 純 Python 變更至少執行：
 
 ```powershell
+python scripts/check_release_metadata.py
 python -W error::ResourceWarning -m unittest discover -s tests -v
 $scripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-python -m py_compile $scripts.FullName
+python -m py_compile $scripts.FullName scripts/check_release_metadata.py
 ```
 
 Skill 結構變更須另外執行可用的 Skill validator。UI 選擇器、建檔或編譯流程變更，必須在 Windows、XQ 已登入且桌面解鎖的環境，以不含交易指令的最小腳本驗證成功、錯誤及修復三條路徑。
@@ -94,5 +108,6 @@ Skill 結構變更須另外執行可用的 Skill validator。UI 選擇器、建�
 
 - 文件變更：命令、路徑、連結與實際檔案一致，Markdown 可讀，並清楚揭露限制。
 - 純 Python 變更：相關自動測試及語法編譯通過，警告不得隱藏。
+- 版本／發布變更：`VERSION` 與 `CHANGELOG.md` 通過 `scripts/check_release_metadata.py`，且 tag 尚未存在或被移動。
 - XScript 工作：有當次真實 XQ `success` 證據，或明確標示「程式已產生，但編譯尚未驗證」及其原因。
 - 公開發布：根目錄已有明確授權、第三方再散布權已處理、本機產物已排除，且沒有秘密或私人策略。

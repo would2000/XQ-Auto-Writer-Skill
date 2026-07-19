@@ -2,6 +2,8 @@
 
 讓 Codex 根據自然語言需求撰寫 XScript，操作 Windows 上的 XQ 全球贏家 XScript 編輯器，讀取真實編譯結果並反覆修正，直到編譯成功或達到安全停止條件。
 
+目前版本：[0.1.0](VERSION)｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)
+
 > [!IMPORTANT]
 > 這是非官方、自主開發的自動化專案，並非嘉實資訊或 OpenAI 官方產品。編譯成功只代表 XScript 語法通過，不代表策略能獲利、適合實盤或沒有交易風險。
 
@@ -179,6 +181,10 @@ XQ 官方部落格 `xstrader` 的文章與程式碼目前沒有納入本地知�
 .
 ├── AGENTS.md                       # 給專案 AI 代理的持久規範
 ├── README.md                       # 第一次使用者指南
+├── VERSION                         # 不含 v 前綴的目前 SemVer
+├── CHANGELOG.md                    # Unreleased 與歷次版本更新
+├── docs/                           # 發布流程與 Release Notes 範本
+├── scripts/                        # 儲存庫維護工具
 ├── .agents/skills/xq-xscript-compiler/
 │   ├── SKILL.md                    # XScript 產生與編譯工作流
 │   ├── assets/                     # UI 設定範本
@@ -195,6 +201,7 @@ XQ 官方部落格 `xstrader` 的文章與程式碼目前沒有納入本地知�
 不需要開啟 XQ 的測試：
 
 ```powershell
+python scripts/check_release_metadata.py
 python -W error::ResourceWarning -m unittest discover -s tests -v
 ```
 
@@ -202,10 +209,16 @@ python -W error::ResourceWarning -m unittest discover -s tests -v
 
 ```powershell
 $scripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-python -m py_compile $scripts.FullName
+python -m py_compile $scripts.FullName scripts/check_release_metadata.py
 ```
 
 UI 編譯測試必須在已登入 XQ、桌面解鎖且設定完成校正的 Windows 工作階段中執行。測試時先使用不含真實交易指令的最小程式。
+
+## 版本與更新紀錄
+
+本專案使用 [Semantic Versioning](https://semver.org/)：相容的新功能提升 MINOR、相容修正提升 PATCH、不相容的公開介面變更提升 MAJOR。根目錄 `VERSION` 是目前版本的唯一權威，內容不含 Git tag 使用的 `v` 前綴。
+
+每個會影響使用者的 PR 都應同步更新 `CHANGELOG.md` 的 `[Unreleased]`。準備發布時，再將內容移到有日期的版本區段，執行版本 metadata 檢查、完整測試及適用的 XQ UI 驗證；合併發布 PR 後才建立不可變的 `v<版本>` tag 與 GitHub Release。詳細命令與失敗復原方式請見[發布流程](docs/RELEASING.md)。
 
 ## 安全與隱私
 
@@ -231,6 +244,8 @@ UI 編譯測試必須在已登入 XQ、桌面解鎖且設定完成校正的 Wind
 
 提交修正時請：
 
+- 使用 GitHub Issue／PR 編號追蹤工作，不另建容易重複的專案流水號。
+- 將會影響使用者的變更加入 `CHANGELOG.md` 的 `[Unreleased]`。
 - 說明影響的 XQ 版本、腳本類型與 Windows 環境。
 - 為純 Python 邏輯補上可在無 XQ 環境執行的測試。
 - UI 選擇器變更需附探測依據，避免改用固定螢幕座標。
