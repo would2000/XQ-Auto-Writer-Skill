@@ -23,11 +23,12 @@ GitHub Actions 只驗證版本 metadata、公開儲存庫衛生、單元測試�
 
 ## 發布
 
-Tag 與 GitHub Release 維持人工發布。每次發布使用獨立 release PR 更新 `VERSION` 與 CHANGELOG；合併並重新驗證後，取得明確授權才建立新的 annotated `v<版本>` tag。已發布 tag 不得移動或刪除，修正使用新的 PATCH 版本。
+Tag 與 GitHub Release 維持人工發布。每次發布使用獨立 release PR 更新 `VERSION` 與 CHANGELOG；合併並重新驗證後，取得明確授權才建立新的 annotated `v<版本>` tag。GitHub Release 必須先建立為 Draft，核對 tag、commit、說明及全部附件後才正式發布。發布後以 `gh release verify` 與 `isImmutable: true` 驗證 attestation 與不可變狀態。已發布 tag 或附件不得移動、替換或刪除，修正使用新的 PATCH 版本。
 
 ## 復原
 
 - PR 合併前：修正或關閉功能分支。
 - Workflow 錯誤：以新的 PR 修正或 revert，不重寫 `main`。
 - Ruleset 誤鎖：先切換為 Disabled，再修正必要 check 名稱或條件。
-- 已發布版本有問題：發布 PATCH 版本，不移動舊 tag。
+- 尚未發布的 Draft 有問題：直接修正 Draft 並重新核對。
+- Immutable Release 已發布後有問題：發布 PATCH 版本，不移動舊 tag、不替換附件，也不重用版本名稱。

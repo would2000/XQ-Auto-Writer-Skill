@@ -23,6 +23,12 @@
 - XQ 全球贏家：[版本或「未驗證」]
 - 純 Python 自動測試：[Passed／Partially Passed／Failed／Unable to Test]
 - XQ UI 編譯測試：[Passed／Partially Passed／Failed／Unable to Test]
+- Release Immutable：[發布後填 `Passed（isImmutable: true）`，Draft 階段填「待發布驗證」]
+- Release attestation：[發布後填 `Passed（gh release verify）`，Draft 階段填「待發布驗證」]
+
+## Release Assets
+
+- [若無自行上傳附件，填「無」；若有，逐一記錄檔名與 SHA-256]
 
 ## 已知限制
 
@@ -34,4 +40,4 @@
 
 ## 完整更新紀錄
 
-請參閱 [`CHANGELOG.md`](https://github.com/would2000/XQ-Auto-Writer-Skill/blob/main/CHANGELOG.md)。
+請參閱 [`CHANGELOG.md`](https://github.com/would2000/XQ-Auto-Writer-Skill/blob/main/CHANGELOG.md)。正式發布後，將連結改為該版本 tag，避免內容隨 `main` 改變。

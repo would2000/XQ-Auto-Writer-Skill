@@ -96,7 +96,9 @@
 - 單人維護 PR 不要求第二人 approval，但必須等待必要 CI Passed 後才能 Squash merge。
 - 日常工作不得使用管理員 bypass；只有 CI 或 Ruleset 故障且正常 PR 無法修復時才可暫時使用，事後必須留下 Issue 紀錄。
 - 發布 PR 應先以 Draft 建立並完成審查。只有發布 PR 合併到 `main` 後，才能從該合併後提交建立 tag 與 GitHub Release。
-- 已推送的 tag 視為不可變；發現問題時發布新的 PATCH 版本，不得強制移動 tag 或重寫 `main`。
+- GitHub Release 必須先以 Draft 建立，確認 tag、commit、說明與全部附件後才能正式發布；不得直接建立正式 Release。
+- 正式發布後必須執行 `gh release verify`，並確認 Release API 回報 `isImmutable: true`。若未通過，只能回報未驗證，不得宣稱發布完成。
+- 已推送的 tag 與已發布的 Release Assets 視為不可變；發現問題時發布新的 PATCH 版本，不得強制移動 tag、替換附件或重寫 `main`。
 - Release Notes 必須區分純 Python 自動測試與真實 XQ UI 驗證；未執行的驗證應明確標為「未驗證」。
 
 ## 驗證命令

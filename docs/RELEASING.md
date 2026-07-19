@@ -1,6 +1,6 @@
 # 版本與發布流程
 
-本文件是 XQ Auto Writer Skill 的人工發布程序。GitHub Actions 只做唯讀驗證，不自動建立 tag 或 Release；完整單人開發方式另見[單人維護流程](SOLO-MAINTENANCE.md)。
+本文件是 XQ Auto Writer Skill 的人工發布程序。GitHub Actions 只做唯讀驗證，不自動建立 tag 或 Release；完整單人開發方式另見[單人維護流程](SOLO-MAINTENANCE.md)。儲存庫啟用 [Release Immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) 後，只會保護未來發布的 Release，不會追溯改變既有版本。
 
 ## 版本來源
 
@@ -62,6 +62,7 @@ git submodule status
 
 - `main` 應要求 PR 與 `CI / verify`，approval 數量為 0，並禁止刪除及 force push。
 - `refs/tags/v*` 應允許建立新 tag，但禁止更新或刪除既有 tag。
+- Repository Settings 的 Releases 區段應啟用 Release immutability。Tag Ruleset 保護所有 `v*` tag；Release Immutable 另外鎖定已發布 Release 的 tag 與附件，並建立可驗證的 attestation。
 - 管理員 bypass 只供 CI 或 Ruleset 故障緊急復原，不得用於跳過失敗的產品測試。
 - 變更 Ruleset 後必須從 GitHub API 讀回 target、條件、規則與 enforcement；不要用移動正式 tag 的方式測試。
 
@@ -84,9 +85,9 @@ git rev-parse "v$version^{}"
 git ls-remote origin "refs/tags/v$version^{}"
 ```
 
-## 建立 GitHub Release
+## 建立 Draft GitHub Release
 
-先複製並完成 Release Notes，不要直接發布含有預留文字的模板：
+先複製並完成 Release Notes，不要直接發布含有預留文字的模板。Release 必須先建立為 Draft，讓維護者在不可變保護生效前核對內容與全部附件：
 
 ```powershell
 $releaseNotes = Join-Path $env:TEMP "xq-auto-writer-v$version.md"
@@ -96,16 +97,48 @@ notepad $releaseNotes
 gh release create "v$version" `
   --repo would2000/XQ-Auto-Writer-Skill `
   --verify-tag `
+  --draft `
   --title "v$version" `
   --notes-file $releaseNotes
 ```
 
-發布後以 `gh release view "v$version"` 讀回版本、tag、URL 與發布狀態。
+Draft 建立後，必須確認：
+
+1. tag 剝離後的 commit 與已通過 `main` CI 的提交完全一致。
+2. Release Notes 沒有預留文字、秘密、本機路徑或未驗證的成功聲明。
+3. 所有預定附件都已上傳；若有附件，先記錄檔名與 SHA-256。
+4. Draft 不是 prerelease，且版本號尚未被其他 Release 使用。
+
+確認無誤後才正式發布：
+
+```powershell
+gh release edit "v$version" `
+  --repo would2000/XQ-Auto-Writer-Skill `
+  --draft=false `
+  --latest
+```
+
+## 發布後驗證
+
+Release Immutable 啟用後，正式發布會鎖定關聯 tag 與附件。標題和 Release Notes 仍可修改，但不得把發布後編輯當作補傳或替換附件的方式。
+
+```powershell
+gh release verify "v$version" `
+  --repo would2000/XQ-Auto-Writer-Skill
+
+gh release view "v$version" `
+  --repo would2000/XQ-Auto-Writer-Skill `
+  --json tagName,isDraft,isPrerelease,isImmutable,url
+```
+
+`gh release verify` 必須成功，且讀回結果必須是 `isDraft: false`、`isPrerelease: false`、`isImmutable: true`。若有自行上傳的附件，再使用 `gh release verify-asset "v$version" <path>` 驗證本機檔案。GitHub 自動產生的 source ZIP／tarball 不適用 `verify-asset`。
 
 ## 中斷與回復
 
 - PR 合併前：修正功能分支或關閉 PR，不影響 `main`。
 - 已合併但尚未建立 tag：用新的 revert／修正提交處理，不重寫 `main`。
 - tag 已推送：不要移動同名 tag；建立 PATCH 版本修正。
-- Release 建立失敗：修正 Release Notes 後重試同一個已驗證 tag，不重新建立程式提交。
+- Draft Release 建立或檢查失敗：在正式發布前修正 Draft；不要重新建立程式提交或移動 tag。
+- Immutable Release 已發布：不得替換、補傳或刪除附件，也不要刪除 Release；內容有誤時保留原版本並建立新的 PATCH 版本。GitHub 不允許重用曾由 Immutable Release 使用的 tag 名稱。
+- `gh release verify` 失敗或 `isImmutable` 不是 `true`：停止宣告發布成功，保存實際錯誤並檢查儲存庫設定；不得以重建同名版本掩蓋問題。
 - 第三方 submodule 或 XSHelp 權利狀態不明時停止發布，不把第三方內容納入 MIT 再授權。
