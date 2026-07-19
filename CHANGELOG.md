@@ -12,6 +12,8 @@
 
 ### 安全性
 
+- 將未來 GitHub Release 改為 Draft-first 發布，並要求以 Release Immutable 狀態與 GitHub attestation 驗證已發布版本完整性。
+
 ## [0.2.0] - 2026-07-19
 
 ### 新增

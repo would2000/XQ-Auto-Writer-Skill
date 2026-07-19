@@ -221,7 +221,7 @@ UI 編譯測試必須在已登入 XQ、桌面解鎖且設定完成校正的 Wind
 
 本專案使用 [Semantic Versioning](https://semver.org/)：相容的新功能提升 MINOR、相容修正提升 PATCH、不相容的公開介面變更提升 MAJOR。根目錄 `VERSION` 是目前版本的唯一權威，內容不含 Git tag 使用的 `v` 前綴。
 
-每個會影響使用者的 PR 都應同步更新 `CHANGELOG.md` 的 `[Unreleased]`。準備發布時，再將內容移到有日期的版本區段，執行版本 metadata 檢查、完整測試及適用的 XQ UI 驗證；合併發布 PR 後才建立不可變的 `v<版本>` tag 與 GitHub Release。詳細命令與失敗復原方式請見[發布流程](docs/RELEASING.md)。
+每個會影響使用者的 PR 都應同步更新 `CHANGELOG.md` 的 `[Unreleased]`。準備發布時，再將內容移到有日期的版本區段，執行版本 metadata 檢查、完整測試及適用的 XQ UI 驗證；合併發布 PR 後才建立受 Tag Ruleset 保護的 `v<版本>` tag。GitHub Release 先以 Draft 建立，核對完成後才發布成 Immutable Release，並驗證 GitHub 產生的 attestation。Release Immutable 只保護啟用後新發布的版本；詳細命令與失敗復原方式請見[發布流程](docs/RELEASING.md)。
 
 ## 單人維護模式
 
