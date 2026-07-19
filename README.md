@@ -2,7 +2,7 @@
 
 讓 Codex 根據自然語言需求撰寫 XScript，操作 Windows 上的 XQ 全球贏家 XScript 編輯器，讀取真實編譯結果並反覆修正，直到編譯成功或達到安全停止條件。
 
-目前版本：[0.1.0](VERSION)｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)
+目前版本：[0.2.0](VERSION)｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)
 
 [![CI](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml/badge.svg)](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml)
 
