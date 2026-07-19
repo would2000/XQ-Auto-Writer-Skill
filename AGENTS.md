@@ -2,6 +2,8 @@
 
 本檔是儲存庫層級的持久指引。人類使用說明放在 `README.md`；完整 XScript 工作流以 `.agents/skills/xq-xscript-compiler/SKILL.md` 為準。
 
+本專案預設為單人維護。Pull Request 是合併前的 CI 安全檢查點，不要求第二位審查者；不得因只有一位維護者就跳過必要測試或 XQ 真實驗證。
+
 ## 專案目的
 
 將自然語言需求轉成 XQ 全球贏家的 XScript，支援指標、選股、警示、函數與自動交易，並透過 Windows 上真實的 XScript 編譯器反覆驗證與修正。
@@ -18,6 +20,9 @@
 - `VERSION`：目前版本的唯一權威，使用 SemVer 且不含 `v` 前綴。
 - `CHANGELOG.md`：未發布與歷次版本的使用者可見變更。
 - `docs/RELEASING.md`：版本準備、驗證、tag、Release 與復原流程。
+- `docs/SOLO-MAINTENANCE.md`：單人開發、CI、緊急 bypass 與合併規則。
+- `.github/workflows/ci.yml`：公開儲存庫的唯讀 Windows CI；不代表 XQ UI 已驗證。
+- `scripts/check_repository_hygiene.py`：可在本機與 CI 重現的公開儲存庫檢查。
 - `tests/`：不依賴 XQ GUI 的自動測試。
 
 ## 請求路由
@@ -87,6 +92,9 @@
 - `VERSION` 必須是目前版本的唯一權威；Git tag 與 GitHub Release 才加上 `v` 前綴。
 - 每個使用者可見的變更都要加入 `CHANGELOG.md` 的 `[Unreleased]`；準備發布時才移入有日期的版本區段。
 - 使用 GitHub Issue／PR 編號作為工作識別，分支使用 `agent/<description>`；不要另建可能重複或失去同步的流水號系統。
+- 大型功能必須建立 Issue；小型文件或修正可省略 Issue，但 PR 必須說明原因與影響。
+- 單人維護 PR 不要求第二人 approval，但必須等待必要 CI Passed 後才能 Squash merge。
+- 日常工作不得使用管理員 bypass；只有 CI 或 Ruleset 故障且正常 PR 無法修復時才可暫時使用，事後必須留下 Issue 紀錄。
 - 發布 PR 應先以 Draft 建立並完成審查。只有發布 PR 合併到 `main` 後，才能從該合併後提交建立 tag 與 GitHub Release。
 - 已推送的 tag 視為不可變；發現問題時發布新的 PATCH 版本，不得強制移動 tag 或重寫 `main`。
 - Release Notes 必須區分純 Python 自動測試與真實 XQ UI 驗證；未執行的驗證應明確標為「未驗證」。
@@ -97,9 +105,10 @@
 
 ```powershell
 python scripts/check_release_metadata.py
+python scripts/check_repository_hygiene.py
 python -W error::ResourceWarning -m unittest discover -s tests -v
 $scripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-python -m py_compile $scripts.FullName scripts/check_release_metadata.py
+python -m py_compile $scripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py
 ```
 
 Skill 結構變更須另外執行可用的 Skill validator。UI 選擇器、建檔或編譯流程變更，必須在 Windows、XQ 已登入且桌面解鎖的環境，以不含交易指令的最小腳本驗證成功、錯誤及修復三條路徑。
@@ -109,5 +118,6 @@ Skill 結構變更須另外執行可用的 Skill validator。UI 選擇器、建�
 - 文件變更：命令、路徑、連結與實際檔案一致，Markdown 可讀，並清楚揭露限制。
 - 純 Python 變更：相關自動測試及語法編譯通過，警告不得隱藏。
 - 版本／發布變更：`VERSION` 與 `CHANGELOG.md` 通過 `scripts/check_release_metadata.py`，且 tag 尚未存在或被移動。
+- CI／治理變更：真實 GitHub Actions check Passed，且任何 Ruleset 都已從 GitHub API 讀回核對；未實際驗證的保護行為須標為「未驗證」。
 - XScript 工作：有當次真實 XQ `success` 證據，或明確標示「程式已產生，但編譯尚未驗證」及其原因。
 - 公開發布：根目錄已有明確授權、第三方再散布權已處理、本機產物已排除，且沒有秘密或私人策略。

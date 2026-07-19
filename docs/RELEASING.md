@@ -1,6 +1,6 @@
 # 版本與發布流程
 
-本文件是 XQ Auto Writer Skill 的人工發布程序。第一次實際流程驗證完成前，不以 GitHub Actions 自動建立 tag 或 Release。
+本文件是 XQ Auto Writer Skill 的人工發布程序。GitHub Actions 只做唯讀驗證，不自動建立 tag 或 Release；完整單人開發方式另見[單人維護流程](SOLO-MAINTENANCE.md)。
 
 ## 版本來源
 
@@ -22,12 +22,12 @@
 
 ## 每個功能的開發流程
 
-1. 建立 GitHub Issue，使用 Issue 編號追蹤功能，不另外維護第二套功能編號。
+1. 大型功能建立 GitHub Issue；小型文件或修正可直接由 PR 說明，不另外維護第二套功能編號。
 2. 從最新 `main` 建立 `agent/<description>` 分支。
 3. 開發期間把使用者可見變更加入 `CHANGELOG.md` 的 `[Unreleased]`。
 4. 執行本文件的驗證命令。
-5. 推送分支並建立 Draft PR；PR 必須連結 Issue、列出測試及 XQ UI 驗證狀態。
-6. Review 完成後才合併；不得對公開的 `main` 使用 force push。
+5. 推送分支並建立 Draft PR；適用時連結 Issue，列出本機測試、CI 與 XQ UI 驗證狀態。
+6. `CI / verify` Passed 後由單一維護者自行 Squash merge；不要求第二人 approval，不得對公開的 `main` 使用 force push。
 
 ## 準備正式版本
 
@@ -43,10 +43,11 @@
 
 ```powershell
 python scripts/check_release_metadata.py
+python scripts/check_repository_hygiene.py
 python -W error::ResourceWarning -m unittest discover -s tests -v
 
 $scripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-python -m py_compile $scripts.FullName scripts/check_release_metadata.py
+python -m py_compile $scripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py
 
 git diff --check
 git status -sb
@@ -56,6 +57,13 @@ git submodule status
 版本驗證器必須回傳 `status: success`。工作樹必須乾淨，submodule 必須固定在預期提交。
 
 本地檢查不等於 XQ GUI 驗證。凡是修改 UI selector、建檔或編譯流程，都必須在已登入 XQ 且桌面解鎖的 Windows 環境，使用不含真實交易指令的最小腳本驗證成功、錯誤及修復路徑。
+
+## GitHub 保護設定
+
+- `main` 應要求 PR 與 `CI / verify`，approval 數量為 0，並禁止刪除及 force push。
+- `refs/tags/v*` 應允許建立新 tag，但禁止更新或刪除既有 tag。
+- 管理員 bypass 只供 CI 或 Ruleset 故障緊急復原，不得用於跳過失敗的產品測試。
+- 變更 Ruleset 後必須從 GitHub API 讀回 target、條件、規則與 enforcement；不要用移動正式 tag 的方式測試。
 
 ## 合併後建立 tag
 

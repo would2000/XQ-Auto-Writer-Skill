@@ -24,9 +24,11 @@
 ## 驗證
 
 - [ ] `python scripts/check_release_metadata.py`
+- [ ] `python scripts/check_repository_hygiene.py`
 - [ ] `python -W error::ResourceWarning -m unittest discover -s tests -v`
 - [ ] Python 語法檢查
 - [ ] 秘密、本機路徑與第三方內容範圍檢查
+- [ ] `CI / verify` Passed；單人維護不要求第二人 approval
 
 XQ UI 驗證狀態：
 

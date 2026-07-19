@@ -6,11 +6,20 @@
 
 ### 新增
 
+- 加入唯讀的 Windows GitHub Actions CI，在 Pull Request、`main` push 與人工觸發時驗證版本 metadata、儲存庫衛生、單元測試、Python 語法及 submodule 狀態。
+- 加入單人維護流程與可重現的公開儲存庫檢查器。
+
 ### 變更
+
+- 將專案治理預設調整為單人維護：PR 不要求第二人核准，但仍須通過 CI 才能合併。
 
 ### 修正
 
+- 修正全新 Windows Python 環境缺少 IANA 時區資料，導致 XSHelp 同步無法解析 `Asia/Taipei` 的問題。
+
 ### 安全性
+
+- CI 使用唯讀 GitHub 權限、不保存 checkout 憑證、不使用 secrets，且官方 Actions 固定至完整 commit SHA。
 
 ## [0.1.0] - 2026-07-19
 
