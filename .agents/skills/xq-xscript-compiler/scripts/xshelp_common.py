@@ -146,11 +146,35 @@ class DetailSectionParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.sections: dict[str, list[str]] = {value: [] for value in self.TARGETS.values()}
+        self.fields: dict[str, list[str]] = {}
         self._active: str | None = None
         self._depth = 0
+        self._row_depth = 0
+        self._cell_depth = 0
+        self._cell_role: str | None = None
+        self._row_label: list[str] = []
+        self._row_value: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         classes = set((dict(attrs).get("class") or "").split())
+        if tag == "tr" and self._row_depth == 0:
+            self._row_depth = 1
+            self._row_label = []
+            self._row_value = []
+        elif self._row_depth and tag not in {"br", "img", "input", "link", "meta", "hr"}:
+            self._row_depth += 1
+        if self._row_depth and tag == "td":
+            if "field-title" in classes:
+                self._cell_role = "label"
+                self._cell_depth = 1
+            elif classes.intersection({"field-value", "field-vlaue"}):
+                self._cell_role = "value"
+                self._cell_depth = 1
+        elif self._cell_role is not None and tag not in {"br", "img", "input", "link", "meta", "hr"}:
+            self._cell_depth += 1
+        if self._cell_role is not None and tag in {"br", "p", "pre", "li", "code"}:
+            self._current_cell().append("\n")
+
         if self._active is None and tag == "div":
             for class_name, section in self.TARGETS.items():
                 if class_name in classes:
@@ -163,10 +187,29 @@ class DetailSectionParser(HTMLParser):
             self.sections[self._active].append("\n")
 
     def handle_data(self, data: str) -> None:
+        if self._cell_role is not None:
+            self._current_cell().append(data)
         if self._active is not None:
             self.sections[self._active].append(data)
 
     def handle_endtag(self, tag: str) -> None:
+        if self._cell_role is not None:
+            if tag in {"p", "pre", "li", "code"}:
+                self._current_cell().append("\n")
+            if tag not in {"br", "img", "input", "link", "meta", "hr"}:
+                self._cell_depth -= 1
+            if self._cell_depth <= 0:
+                self._cell_role = None
+                self._cell_depth = 0
+        if self._row_depth:
+            if tag not in {"br", "img", "input", "link", "meta", "hr"}:
+                self._row_depth -= 1
+            if self._row_depth <= 0:
+                label = normalize_multiline("".join(self._row_label))
+                if label:
+                    self.fields[label] = list(self._row_value)
+                self._row_depth = 0
+
         if self._active is None:
             return
         if tag in {"p", "pre", "li"}:
@@ -176,6 +219,9 @@ class DetailSectionParser(HTMLParser):
         if self._depth <= 0:
             self._active = None
             self._depth = 0
+
+    def _current_cell(self) -> list[str]:
+        return self._row_label if self._cell_role == "label" else self._row_value
 
 
 def normalize_multiline(value: str) -> str:

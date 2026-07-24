@@ -9,6 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RELEASING_PATH = PROJECT_ROOT / "docs" / "RELEASING.md"
 AGENTS_PATH = PROJECT_ROOT / "AGENTS.md"
 TEMPLATE_PATH = PROJECT_ROOT / "docs" / "release-notes-template.md"
+RC_MANUAL_PATH = PROJECT_ROOT / "docs" / "RELEASE-CANDIDATE-MAINTENANCE.md"
 
 
 class ReleaseWorkflowDocumentationTests(unittest.TestCase):
@@ -16,6 +17,7 @@ class ReleaseWorkflowDocumentationTests(unittest.TestCase):
         self.releasing = RELEASING_PATH.read_text(encoding="utf-8")
         self.agents = AGENTS_PATH.read_text(encoding="utf-8")
         self.template = TEMPLATE_PATH.read_text(encoding="utf-8")
+        self.rc_manual = RC_MANUAL_PATH.read_text(encoding="utf-8")
 
     def test_release_is_created_as_draft_before_publication(self) -> None:
         create_block = re.search(
@@ -48,6 +50,21 @@ class ReleaseWorkflowDocumentationTests(unittest.TestCase):
             with self.subTest(path="release policy"):
                 self.assertIn("PATCH", text)
                 self.assertIn("替換附件", text)
+
+    def test_release_candidate_manual_is_fail_closed(self) -> None:
+        for token in (
+            "release/rc-interface-v1.json",
+            "scripts/check_release_candidate.py",
+            "scripts/rehearse_upgrade_rollback.py",
+            "scripts/release_maintenance.py",
+            "自訂/CODEX/",
+            "Unable to Test",
+            "不得推測 XQ 未回報的錯誤碼",
+        ):
+            with self.subTest(token=token):
+                self.assertIn(token, self.rc_manual)
+        self.assertIn("不改動 `VERSION`", self.rc_manual)
+        self.assertIn("不得建立 tag", self.rc_manual)
 
 
 if __name__ == "__main__":

@@ -11,6 +11,8 @@ import time
 from pathlib import Path
 from typing import Any
 
+import xq_codex_scope
+
 
 SCRIPT_TYPES = {"indicator", "screener", "alert", "function", "autotrade"}
 FUNCTION_RETURN_TYPES = {"number", "boolean", "string"}
@@ -144,6 +146,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--script-type", choices=sorted(SCRIPT_TYPES), required=True)
     parser.add_argument("--function-return-type", choices=sorted(FUNCTION_RETURN_TYPES))
     parser.add_argument("--name", required=True)
+    parser.add_argument("--folder", required=True)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force-open-via-xq-menu", action="store_true")
     return parser.parse_args()
@@ -163,8 +166,22 @@ def main() -> int:
         name = " ".join(args.name.split()).strip()
         if not name:
             return emit("automation_error", "--name must not be empty")
+        try:
+            scope_contract = xq_codex_scope.load_script_scope_contract(
+                config, args.script_type, args.folder,
+            )
+        except xq_codex_scope.CodexScopeError as exc:
+            return emit(
+                "automation_error",
+                str(exc),
+                xq_touched=False,
+                codex_scope_verified=False,
+            )
 
         xscript = open_xscript(config, args.force_open_via_xq_menu)
+        scope_evidence = xq_codex_scope.select_verified_script_scope(
+            xscript.wrapper_object(), scope_contract,
+        )
         dialog = open_new_script_dialog(config, xscript)
         dialog_config = config["new_script_dialog"]
         type_id = int(dialog_config["type_control_ids"][args.script_type])
@@ -188,6 +205,7 @@ def main() -> int:
                 script_type=args.script_type,
                 function_return_type=args.function_return_type,
                 name=name,
+                codex_scope=scope_evidence,
                 dry_run=True,
             )
 
@@ -201,6 +219,7 @@ def main() -> int:
             function_return_type=args.function_return_type,
             name=name,
             active_title=title,
+            codex_scope=scope_evidence,
         )
     except Exception as exc:
         if dialog is not None:

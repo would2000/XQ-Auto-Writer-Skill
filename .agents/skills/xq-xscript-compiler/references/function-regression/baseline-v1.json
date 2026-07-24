@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "baseline_version": 1,
+  "suite_id": "function-regression-smoke-v6",
+  "case_schema_version": 2,
+  "runner_contract_version": "6",
+  "xq_version": "3.19.03",
+  "cases": {
+    "long-history-minute-d-dynamic-control": {
+      "case_contract_sha256": "cdec80ebfb99336ff0590b7e87f48f44dcb5666288ea6715a5fc22ba143d7ecc",
+      "pair_id": "long-history-minute-d-dynamic",
+      "role": "control",
+      "state": "completed",
+      "compile": {
+        "function": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        },
+        "caller": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        }
+      },
+      "outcome": {
+        "classification": "failure",
+        "success_count": 0,
+        "failure_count": 1,
+        "total_trades": 0,
+        "actual_error_code": "1301",
+        "actual_marker": "CODEX_B6_LONG_HISTORY_CONTROL",
+        "marker_matches": true
+      },
+      "execution_evidence": {
+        "formal_execution_proven": true,
+        "path_sentinel_observed": true,
+        "no_execution_evidence": false
+      },
+      "settings_applied": {
+        "preload_control_enabled": true,
+        "expected_preload_state": "enabled",
+        "preload_state_matches": true,
+        "preload_records_requested": 5,
+        "preload_records_applied": true
+      },
+      "default_branch": {
+        "configured": false,
+        "expected_default_value": null,
+        "observed_path": "not_configured"
+      }
+    },
+    "long-history-minute-d-dynamic-shortage": {
+      "case_contract_sha256": "2c9ca052bdb639731d206e220035e0006f0956113b8ebe8f9e8192f407ff7d46",
+      "pair_id": "long-history-minute-d-dynamic",
+      "role": "shortage",
+      "state": "completed",
+      "compile": {
+        "function": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        },
+        "caller": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        }
+      },
+      "outcome": {
+        "classification": "failure",
+        "success_count": 0,
+        "failure_count": 1,
+        "total_trades": 0,
+        "actual_error_code": "1301",
+        "actual_marker": "CODEX_B6_LONG_HISTORY_SHORTAGE",
+        "marker_matches": true
+      },
+      "execution_evidence": {
+        "formal_execution_proven": true,
+        "path_sentinel_observed": true,
+        "no_execution_evidence": false
+      },
+      "settings_applied": {
+        "preload_control_enabled": true,
+        "expected_preload_state": "enabled",
+        "preload_state_matches": true,
+        "preload_records_requested": 5,
+        "preload_records_applied": true
+      },
+      "default_branch": {
+        "configured": false,
+        "expected_default_value": null,
+        "observed_path": "not_configured"
+      }
+    },
+    "short-history-day-m-default-control": {
+      "case_contract_sha256": "6782681f2e6e519ea1379987ccf83c8a383964aa445dab8adcb6729267195989",
+      "pair_id": "short-history-day-m-default",
+      "role": "control",
+      "state": "completed",
+      "compile": {
+        "function": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        },
+        "caller": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        }
+      },
+      "outcome": {
+        "classification": "failure",
+        "success_count": 0,
+        "failure_count": 1,
+        "total_trades": 0,
+        "actual_error_code": "1301",
+        "actual_marker": "CODEX_B6_SHORT_HISTORY_CONTROL",
+        "marker_matches": true
+      },
+      "execution_evidence": {
+        "formal_execution_proven": true,
+        "path_sentinel_observed": true,
+        "no_execution_evidence": false
+      },
+      "settings_applied": {
+        "preload_control_enabled": true,
+        "expected_preload_state": "enabled",
+        "preload_state_matches": true,
+        "preload_records_requested": 5,
+        "preload_records_applied": true
+      },
+      "default_branch": {
+        "configured": true,
+        "expected_default_value": true,
+        "observed_path": "default_equal"
+      }
+    },
+    "short-history-day-m-default-shortage": {
+      "case_contract_sha256": "5a401cc56e8450dea6c66d951c9eda6c406a07341736da76a33de9f0b15a069c",
+      "pair_id": "short-history-day-m-default",
+      "role": "shortage",
+      "state": "completed",
+      "compile": {
+        "function": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        },
+        "caller": {
+          "status": "success",
+          "error_count": 0,
+          "warning_count": 0
+        }
+      },
+      "outcome": {
+        "classification": "failure",
+        "success_count": 0,
+        "failure_count": 1,
+        "total_trades": 0,
+        "actual_error_code": "1301",
+        "actual_marker": "CODEX_B6_SHORT_HISTORY_DEFAULT",
+        "marker_matches": true
+      },
+      "execution_evidence": {
+        "formal_execution_proven": true,
+        "path_sentinel_observed": true,
+        "no_execution_evidence": false
+      },
+      "settings_applied": {
+        "preload_control_enabled": true,
+        "expected_preload_state": "enabled",
+        "preload_state_matches": true,
+        "preload_records_requested": 5,
+        "preload_records_applied": true
+      },
+      "default_branch": {
+        "configured": true,
+        "expected_default_value": true,
+        "observed_path": "default_equal"
+      }
+    }
+  }
+}

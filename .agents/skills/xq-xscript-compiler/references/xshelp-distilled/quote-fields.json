@@ -1,0 +1,3584 @@
+{
+  "schema_version": 1,
+  "knowledge_type": "xshelp_quote_fields_distilled",
+  "source": "https://xshelp.xq.com.tw/XSHelp/",
+  "distilled_at": "2026-07-20",
+  "body_text_stored": false,
+  "verification_status": "文件蒸餾",
+  "records": [
+    {
+      "source_id": "c3f1d9e33fe1fd655e8d",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "成交",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%88%90%E4%BA%A4&group=QOFTEN",
+      "access_names": ["成交", "Last"],
+      "q_identifier": "q_Last",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "最新一筆成交",
+      "meaning": "目前最近成交價，語意等同 Close。",
+      "usage": "即時判斷現價時使用；需要歷史收盤序列時改用價格序列。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "ffb211c532ba43015cf3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤(日)",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%28%E6%97%A5%29&group=QOFTEN",
+      "access_names": ["開盤(日)", "DailyOpen"],
+      "q_identifier": "q_DailyOpen",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "當日固定基準，跨日更新",
+      "meaning": "當日開盤價。",
+      "usage": "盤中比較今日開盤基準時使用；日頻資料可改取 Open。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "632111405bcf62ee9c67",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "最高(日)",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%9C%80%E9%AB%98%28%E6%97%A5%29&group=QOFTEN",
+      "access_names": ["最高(日)", "DailyHigh"],
+      "q_identifier": "q_DailyHigh",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "盤中隨當日新高更新",
+      "meaning": "當日截至目前的最高價。",
+      "usage": "盤中突破或距今日高點判斷；日頻資料可改取 High。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "df71a0f177082f3940e4",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "最低(日)",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%9C%80%E4%BD%8E%28%E6%97%A5%29&group=QOFTEN",
+      "access_names": ["最低(日)", "DailyLow"],
+      "q_identifier": "q_DailyLow",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "盤中隨當日新低更新",
+      "meaning": "當日截至目前的最低價。",
+      "usage": "盤中新低或距今日低點判斷；日頻資料可改取 Low。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "105752d66964c9073c60",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "參考價",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%8F%83%E8%80%83%E5%83%B9&group=QOFTEN",
+      "access_names": ["參考價", "RefPrice"],
+      "q_identifier": "q_RefPrice",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股"],
+      "timing": "當日參考基準",
+      "meaning": "通常承接前收，但除權息日會使用調整後的交易所參考值。",
+      "usage": "計算台股當日漲跌幅或漲跌基準；不可在非台股商品假設可用。",
+      "caveats": ["除權息日不可直接拿昨日收盤價代替", "實際參考值以交易所公告為準"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "0ae49e79a6faaaa53ecf",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "漲停價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%BC%B2%E5%81%9C%E5%83%B9&group=QPRICE",
+      "access_names": ["漲停價", "DailyUplimit", "今日漲停價"],
+      "q_identifier": "q_DailyUplimit",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "大陸股票"],
+      "timing": "當日價格限制",
+      "meaning": "當日官方漲停價格。",
+      "usage": "接近或等於漲停價的即時判斷；先確認商品在支援清單。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "45bac70145ce9e0c9096",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "跌停價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B7%8C%E5%81%9C%E5%83%B9&group=QPRICE",
+      "access_names": ["跌停價", "DailyDownlimit", "今日跌停價"],
+      "q_identifier": "q_DailyDownlimit",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "大陸股票"],
+      "timing": "當日價格限制",
+      "meaning": "當日官方跌停價格。",
+      "usage": "接近或等於跌停價的即時判斷；先確認商品在支援清單。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "00bdb162d06eefd9c094",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "均價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%9D%87%E5%83%B9&group=QPRICE",
+      "access_names": ["均價", "AvgPrice"],
+      "q_identifier": "q_AvgPrice",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "大盤", "類股指數", "台(權證)", "期貨", "選擇權", "香港股票", "大陸股票", "美股"],
+      "timing": "盤中隨成交更新",
+      "meaning": "以開盤後累計成交金額除以累計成交量形成的當日成交加權均價。",
+      "usage": "盤中均價線／VWAP 類判斷；不是移動平均線。",
+      "caveats": ["不可把當日均價與 N 日移動平均混為一談"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "126da20e3deff7cd5118",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "總量(日)",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B8%BD%E9%87%8F%28%E6%97%A5%29&group=QOFTEN",
+      "access_names": ["總量(日)", "DailyVolume"],
+      "q_identifier": "q_DailyVolume",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "當日累計，盤中更新",
+      "meaning": "當日截至目前的累計成交量或成交值。",
+      "usage": "盤中總量門檻；跨市場比較前必須先統一單位。",
+      "caveats": ["大盤與指數回傳的是元，不是張或股"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "26c1b0a70c28a4c3d384",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "單量",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%96%AE%E9%87%8F&group=QOFTEN",
+      "access_names": ["單量", "TickVolume"],
+      "q_identifier": "q_TickVolume",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "最新一筆成交",
+      "meaning": "最新成交明細的單筆量。",
+      "usage": "偵測即時大單；不是當日累計量。",
+      "caveats": ["跨市場比較前必須先處理單位差異"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "3933785d28afd2f61443",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "成交金額(元)",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%88%90%E4%BA%A4%E9%87%91%E9%A1%8D%28%E5%85%83%29&group=QVOLUME",
+      "access_names": ["成交金額(元)", "TotalAmount", "成交值"],
+      "q_identifier": "q_TotalAmount",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "大盤", "類股指數", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "當日累計，盤中更新",
+      "meaning": "當日截至目前的總成交金額。",
+      "usage": "盤中流動性或成交額門檻；歷史日資料改用成交金額資料欄位。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "36bc4e5b8c97354cf730",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "估計量",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%BC%B0%E8%A8%88%E9%87%8F&group=QOFTEN",
+      "access_names": ["估計量", "EstimatedTotalVolume"],
+      "q_identifier": "q_EstimatedTotalVolume",
+      "unit": "依商品：個股=張；大盤=元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["大盤", "台(股票)"],
+      "timing": "盤中推估收盤值，隨進度更新",
+      "meaning": "依過往分鐘量分布與今日累計量推算的收盤成交量。",
+      "usage": "盤中預估全日量；不能當成已實際成交的總量。",
+      "caveats": ["屬模型推估值", "官方欄位頁只列大盤與台股股票支援"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "b6cc6986f264448a4e4f",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "內外盤",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%85%A7%E5%A4%96%E7%9B%A4&group=QPRICE",
+      "access_names": ["內外盤", "BidAskFlag"],
+      "q_identifier": "q_BidAskFlag",
+      "unit": "值",
+      "format": "數值枚舉：1=外盤，-1=內盤，0=無法判定",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "最新一筆成交",
+      "meaning": "一般商品依成交價靠近當時最佳買賣價判斷主動方向；指數依相對前一價的漲跌判定。",
+      "usage": "判斷最新成交的方向標記；0 必須視為未知，而非中性成交。",
+      "caveats": ["一般商品與指數的判定機制不同", "標記是推定方向，不等同交易者身分"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "b2568cb559eff84d75f6",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "內盤量",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%85%A7%E7%9B%A4%E9%87%8F&group=QVOLUME",
+      "access_names": ["內盤量", "InSize", "當日內盤量"],
+      "q_identifier": "q_InSize",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "大盤", "類股指數", "期貨", "選擇權", "香港股票", "大陸股票"],
+      "timing": "當日累計，盤中更新",
+      "meaning": "累計被判定為內盤的成交量；指數則累計相對前價下跌的量。",
+      "usage": "觀察推定主動賣出量；跨商品比較前處理單位。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "2bafbc6272596baa61e2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "外盤量",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A4%96%E7%9B%A4%E9%87%8F&group=QVOLUME",
+      "access_names": ["外盤量", "OutSize", "當日外盤量"],
+      "q_identifier": "q_OutSize",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "大盤", "類股指數", "期貨", "選擇權", "香港股票", "大陸股票"],
+      "timing": "當日累計，盤中更新",
+      "meaning": "累計被判定為外盤的成交量；指數則累計相對前價上漲的量。",
+      "usage": "觀察推定主動買進量；跨商品比較前處理單位。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "2520a157c9c2c7ed3a9e",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "量比",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%87%8F%E6%AF%94&group=QVOLUME",
+      "access_names": ["量比", "VolumeRatio"],
+      "q_identifier": "q_VolumeRatio",
+      "unit": "比值",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台(股票)", "香港股票", "大陸股票"],
+      "timing": "盤中隨估計量更新",
+      "meaning": "估計收盤量除以昨日成交量；大於 1 表示預估全日量高於昨日。",
+      "usage": "盤中比較今日預估量能與昨量；不是目前累計量除以昨量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "ee331e54b2303f0dcfe4",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "總成交次數",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B8%BD%E6%88%90%E4%BA%A4%E6%AC%A1%E6%95%B8&group=QVOLUME",
+      "access_names": ["總成交次數", "TotalTicks"],
+      "q_identifier": "q_TotalTicks",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "當日累計，盤中更新",
+      "meaning": "當日截至目前的成交明細筆數。",
+      "usage": "衡量成交事件密度；不可當作成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a0fbd971b94f275c05d8",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "成交時間",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%88%90%E4%BA%A4%E6%99%82%E9%96%93&group=QOFTEN",
+      "access_names": ["成交時間", "Time"],
+      "q_identifier": "q_Time",
+      "unit": "無",
+      "format": "六位數值 hhmmss，例如 103025 代表 10:30:25",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "最新一筆成交",
+      "meaning": "最新成交的時間，以六位數字表示。",
+      "usage": "日內時段條件可直接和 hhmmss 數值比較；不要當成分鐘數或 Unix 時間。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "083352dc641cb2e9daa5",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "漲跌幅",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%BC%B2%E8%B7%8C%E5%B9%85&group=QPRICE",
+      "access_names": ["漲跌幅", "PriceChangeRatio", "當日漲幅%"],
+      "q_identifier": "q_PriceChangeRatio",
+      "unit": "%",
+      "format": "百分點數值；7% 回傳 7，不是 0.07",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "隨最新成交價更新",
+      "meaning": "以最新成交價相對參考價計算的當日百分比變動。",
+      "usage": "百分比門檻直接用 3、-3 等百分點數值比較。",
+      "formula": "(最新成交價 - 參考價) / 參考價 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "b8db4b429ef95f351836",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "振幅",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%8C%AF%E5%B9%85&group=QPRICE",
+      "access_names": ["振幅", "DayAmplitude", "當日振幅"],
+      "q_identifier": "q_DayAmplitude",
+      "unit": "%",
+      "format": "百分點數值；2.5% 回傳 2.5，不是 0.025",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部"],
+      "timing": "隨當日最高或最低價更新",
+      "meaning": "今日高低價差相對參考價的百分比。",
+      "usage": "衡量當日價格波動範圍；不是標準差或 ATR。",
+      "formula": "(當日最高價 - 當日最低價) / 參考價 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "ab95285cdf0ae9e70c71",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進1",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B21&group=QFIVE",
+      "access_names": ["買進1", "BestBid1"],
+      "q_identifier": "q_BestBid1",
+      "book_side": "buy",
+      "level": 1,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 1 檔買進價格。",
+      "usage": "需要第 1 層買進報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "7866bb96dbdb0aedcf02",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進2",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B22&group=QFIVE",
+      "access_names": ["買進2", "BestBid2"],
+      "q_identifier": "q_BestBid2",
+      "book_side": "buy",
+      "level": 2,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 2 檔買進價格。",
+      "usage": "需要第 2 層買進報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "cb8dc252a7218b8d6413",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進3",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B23&group=QFIVE",
+      "access_names": ["買進3", "BestBid3"],
+      "q_identifier": "q_BestBid3",
+      "book_side": "buy",
+      "level": 3,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 3 檔買進價格。",
+      "usage": "需要第 3 層買進報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "f0598cc90cac00fe1ea3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進4",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B24&group=QFIVE",
+      "access_names": ["買進4", "BestBid4"],
+      "q_identifier": "q_BestBid4",
+      "book_side": "buy",
+      "level": 4,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 4 檔買進價格。",
+      "usage": "需要第 4 層買進報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "6ea88a5b3ebf3ff7c799",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進5",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B25&group=QFIVE",
+      "access_names": ["買進5", "BestBid5"],
+      "q_identifier": "q_BestBid5",
+      "book_side": "buy",
+      "level": 5,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 5 檔買進價格。",
+      "usage": "需要第 5 層買進報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a479fb91387603bf505e",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出1",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA1&group=QFIVE",
+      "access_names": ["賣出1", "BestAsk1"],
+      "q_identifier": "q_BestAsk1",
+      "book_side": "sell",
+      "level": 1,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 1 檔賣出價格。",
+      "usage": "需要第 1 層賣出報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "2bf3fdbe5bd02c441f71",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出2",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA2&group=QFIVE",
+      "access_names": ["賣出2", "BestAsk2"],
+      "q_identifier": "q_BestAsk2",
+      "book_side": "sell",
+      "level": 2,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 2 檔賣出價格。",
+      "usage": "需要第 2 層賣出報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "7e5d95b6b60a9d80fc2e",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出3",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA3&group=QFIVE",
+      "access_names": ["賣出3", "BestAsk3"],
+      "q_identifier": "q_BestAsk3",
+      "book_side": "sell",
+      "level": 3,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 3 檔賣出價格。",
+      "usage": "需要第 3 層賣出報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "11abaeb5934362d66068",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出4",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA4&group=QFIVE",
+      "access_names": ["賣出4", "BestAsk4"],
+      "q_identifier": "q_BestAsk4",
+      "book_side": "sell",
+      "level": 4,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 4 檔賣出價格。",
+      "usage": "需要第 4 層賣出報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "22bbc641cedbbd89a1db",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出5",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA5&group=QFIVE",
+      "access_names": ["賣出5", "BestAsk5"],
+      "q_identifier": "q_BestAsk5",
+      "book_side": "sell",
+      "level": 5,
+      "value_kind": "price",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 5 檔賣出價格。",
+      "usage": "需要第 5 層賣出報價時使用；不可誤當該層掛單量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "8a4042e529fb07f499dd",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買1",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B71&group=QFIVE",
+      "access_names": ["委買1", "BestBidSize1"],
+      "q_identifier": "q_BestBidSize1",
+      "book_side": "buy",
+      "level": 1,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 1 檔買進委託量。",
+      "usage": "衡量第 1 層買進掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "514cb81bda81551aaeae",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買2",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B72&group=QFIVE",
+      "access_names": ["委買2", "BestBidSize2"],
+      "q_identifier": "q_BestBidSize2",
+      "book_side": "buy",
+      "level": 2,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 2 檔買進委託量。",
+      "usage": "衡量第 2 層買進掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "6db0ed124c6f6eb4624b",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買3",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B73&group=QFIVE",
+      "access_names": ["委買3", "BestBidSize3"],
+      "q_identifier": "q_BestBidSize3",
+      "book_side": "buy",
+      "level": 3,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 3 檔買進委託量。",
+      "usage": "衡量第 3 層買進掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "fbcf90378c72a92aec31",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買4",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B74&group=QFIVE",
+      "access_names": ["委買4", "BestBidSize4"],
+      "q_identifier": "q_BestBidSize4",
+      "book_side": "buy",
+      "level": 4,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 4 檔買進委託量。",
+      "usage": "衡量第 4 層買進掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "d6788fca76642d2e0a73",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買5",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B75&group=QFIVE",
+      "access_names": ["委買5", "BestBidSize5"],
+      "q_identifier": "q_BestBidSize5",
+      "book_side": "buy",
+      "level": 5,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 5 檔買進委託量。",
+      "usage": "衡量第 5 層買進掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "03fcda3b148050f8fbef",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣1",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A31&group=QFIVE",
+      "access_names": ["委賣1", "BestAskSize1"],
+      "q_identifier": "q_BestAskSize1",
+      "book_side": "sell",
+      "level": 1,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 1 檔賣出委託量。",
+      "usage": "衡量第 1 層賣出掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "cd5f2449ba8dbf67d791",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣2",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A32&group=QFIVE",
+      "access_names": ["委賣2", "BestAskSize2"],
+      "q_identifier": "q_BestAskSize2",
+      "book_side": "sell",
+      "level": 2,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 2 檔賣出委託量。",
+      "usage": "衡量第 2 層賣出掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "5747163157fc3acf99fa",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣3",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A33&group=QFIVE",
+      "access_names": ["委賣3", "BestAskSize3"],
+      "q_identifier": "q_BestAskSize3",
+      "book_side": "sell",
+      "level": 3,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 3 檔賣出委託量。",
+      "usage": "衡量第 3 層賣出掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "c0f6de41cf57b9d374a2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣4",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A34&group=QFIVE",
+      "access_names": ["委賣4", "BestAskSize4"],
+      "q_identifier": "q_BestAskSize4",
+      "book_side": "sell",
+      "level": 4,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 4 檔賣出委託量。",
+      "usage": "衡量第 4 層賣出掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "92d90c00c963ca1b36e6",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣5",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A35&group=QFIVE",
+      "access_names": ["委賣5", "BestAskSize5"],
+      "q_identifier": "q_BestAskSize5",
+      "book_side": "sell",
+      "level": 5,
+      "value_kind": "size",
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "委託簿更新時即時變動",
+      "meaning": "委託簿第 5 檔賣出委託量。",
+      "usage": "衡量第 5 層賣出掛單深度；不可誤當價格或成交量。",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "4e998b6d9bf5f82e5ab1",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委比",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E6%AF%94&group=QFIVE",
+      "access_names": [
+        "委比",
+        "OrderRatio"
+      ],
+      "q_identifier": "q_OrderRatio",
+      "unit": "%",
+      "format": "百分點數值；8% 回傳 8，不是 0.08",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "總委買與總委賣差額占兩者合計的百分比。",
+      "usage": "觀察買賣委託量的相對強弱；分母為零時的行為仍須由執行環境確認。",
+      "value_kind": "ratio",
+      "formula": "(總委買 - 總委賣) / (總委買 + 總委賣) * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "134407a3a3c3b787b61d",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B7&group=QFIVE",
+      "access_names": [
+        "委買",
+        "BestBidSize",
+        "BidSize",
+        "最佳委買"
+      ],
+      "q_identifier": "q_BestBidSize",
+      "q_identifier_aliases": ["q_BidSize"],
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "目前最佳買價上的委託量；台期貨會比較五檔與衍生委託的最佳買價，價同時合併數量。",
+      "usage": "取得最佳買方掛單量；台期貨不可直接假設等於委買1。",
+      "book_side": "buy",
+      "level": null,
+      "value_kind": "size",
+      "caveats": [
+        "台期貨可能納入衍生委託單"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "22fd40246cc7939e384b",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買賣差",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B7%E8%B3%A3%E5%B7%AE&group=QFIVE",
+      "access_names": [
+        "委買賣差",
+        "BidAskDiff"
+      ],
+      "q_identifier": "q_BidAskDiff",
+      "unit": "依商品：台股=張；大盤/類股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "總委買減去總委賣的差額。",
+      "usage": "直接比較總掛單量差；跨商品比較前先統一單位。",
+      "value_kind": "size_difference",
+      "formula": "總委買 - 總委賣",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "46de85792d67fcc67ef3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A3&group=QFIVE",
+      "access_names": [
+        "委賣",
+        "BestAskSize",
+        "AskSize",
+        "最佳委賣"
+      ],
+      "q_identifier": "q_BestAskSize",
+      "q_identifier_aliases": ["q_AskSize"],
+      "unit": "依商品：台股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "目前最佳賣價上的委託量；台期貨會比較五檔與衍生委託的最佳賣價，價同時合併數量。",
+      "usage": "取得最佳賣方掛單量；台期貨不可直接假設等於委賣1。",
+      "book_side": "sell",
+      "level": null,
+      "value_kind": "size",
+      "caveats": [
+        "台期貨可能納入衍生委託單"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "84f629c7132fec7e63ea",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B2&group=QFIVE",
+      "access_names": [
+        "買進",
+        "Bid"
+      ],
+      "q_identifier": "q_Bid",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "目前最佳買價；台期貨取五檔最高買價與衍生委託買價中的較高者。",
+      "usage": "取得即時最佳買價；台期貨不可直接假設等於買進1。",
+      "book_side": "buy",
+      "level": null,
+      "value_kind": "price",
+      "caveats": [
+        "台期貨可能納入衍生委託單"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "5379786258860cfe7cea",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA&group=QFIVE",
+      "access_names": [
+        "賣出",
+        "Ask"
+      ],
+      "q_identifier": "q_Ask",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "目前最佳賣價；台期貨取五檔最低賣價與衍生委託賣價中的較低者。",
+      "usage": "取得即時最佳賣價；台期貨不可直接假設等於賣出1。",
+      "book_side": "sell",
+      "level": null,
+      "value_kind": "price",
+      "caveats": [
+        "台期貨可能納入衍生委託單"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "5f4d2c52db11819efb2d",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "總委買",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B8%BD%E5%A7%94%E8%B2%B7&group=QFIVE",
+      "access_names": [
+        "總委買",
+        "SumBidSize"
+      ],
+      "q_identifier": "q_SumBidSize",
+      "unit": "依商品：台股=張；大盤/類股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "一般商品為前五檔委買量合計；大盤與類股則是成分股總委買張數合計。",
+      "usage": "衡量買方五檔深度；指數商品的聚合語意與單一商品不同。",
+      "book_side": "buy",
+      "level": "1-5",
+      "value_kind": "size_sum",
+      "caveats": [
+        "大盤與類股是成分股聚合值"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "f3e389e09c76063865db",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "總委賣",
+      "category": "五檔統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B8%BD%E5%A7%94%E8%B3%A3&group=QFIVE",
+      "access_names": [
+        "總委賣",
+        "SumAskSize"
+      ],
+      "q_identifier": "q_SumAskSize",
+      "unit": "依商品：台股=張；大盤/類股=張；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "一般商品為前五檔委賣量合計；大盤與類股則是成分股總委賣張數合計。",
+      "usage": "衡量賣方五檔深度；指數商品的聚合語意與單一商品不同。",
+      "book_side": "sell",
+      "level": "1-5",
+      "value_kind": "size_sum",
+      "caveats": [
+        "大盤與類股是成分股聚合值"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "09f14cc1e7de4d7d290f",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "Delta",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=Delta&group=QOPTION",
+      "access_names": [
+        "Delta"
+      ],
+      "q_identifier": "q_Delta",
+      "unit": "值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "衡量標的價格變動對選擇權或權證價格的敏感度。",
+      "usage": "估算標的變動造成的商品價格變動；權證計算還要納入執行比例。",
+      "value_kind": "greek",
+      "formula": "商品價格變動約為 Delta * 標的價格變動 *（權證執行比例）",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "12b1b41ae1ac7963560c",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "Gamma",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=Gamma&group=QOPTION",
+      "access_names": [
+        "Gamma"
+      ],
+      "q_identifier": "q_Gamma",
+      "unit": "值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "衡量標的價格變動對 Delta 的敏感度。",
+      "usage": "評估 Delta 隨標的價格改變的幅度。",
+      "value_kind": "greek",
+      "formula": "Delta 變動約為 Gamma * 標的價格變動",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "bd2e806cccdd59681ff1",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "Theta",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=Theta&group=QOPTION",
+      "access_names": [
+        "Theta"
+      ],
+      "q_identifier": "q_Theta",
+      "unit": "值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "衡量時間流逝對選擇權或權證價格的影響。",
+      "usage": "估算單日時間價值變動；依官方欄位定義以 Theta / 365 換算每日影響。",
+      "value_kind": "greek",
+      "formula": "單日價格影響約為 Theta / 365",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "75a649226f265c03de66",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "Vega",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=Vega&group=QOPTION",
+      "access_names": [
+        "Vega"
+      ],
+      "q_identifier": "q_Vega",
+      "unit": "%",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "衡量隱含波動率變動對選擇權或權證價格的敏感度。",
+      "usage": "以波動率百分點變動估算商品價格影響；權證還要納入執行比例。",
+      "value_kind": "greek",
+      "formula": "商品價格變動約為 Vega * 隱含波動率百分點變動 *（權證執行比例）",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a5b60c64e9603cd658e3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "RHO",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=RHO&group=QOPTION",
+      "access_names": [
+        "RHO"
+      ],
+      "q_identifier": "q_RHO",
+      "unit": "%",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "衡量利率變動對選擇權或權證價格的敏感度。",
+      "usage": "以利率百分點變動估算商品價格影響；權證還要納入執行比例。",
+      "value_kind": "greek",
+      "formula": "商品價格變動約為 RHO * 利率百分點變動 *（權證執行比例）",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "fb283fd81c9d2b1c25e2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "履約價",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%B1%A5%E7%B4%84%E5%83%B9&group=QOPTION",
+      "access_names": [
+        "履約價",
+        "StrikePrice"
+      ],
+      "q_identifier": "q_StrikePrice",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "契約資料，通常不隨盤中報價變動",
+      "meaning": "選擇權或權證契約的履約價格。",
+      "usage": "需要契約靜態履約條件時使用；也可另查商品資訊欄位。",
+      "value_kind": "contract_price",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "bbf3814fb4192b3343bb",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "到期日",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%88%B0%E6%9C%9F%E6%97%A5&group=QOPTION",
+      "access_names": [
+        "到期日",
+        "ExpiredDate"
+      ],
+      "q_identifier": "q_ExpiredDate",
+      "unit": "日期",
+      "format": "八位數值 YYYYMMDD，例如 20221101",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "契約資料，通常不隨盤中報價變動",
+      "meaning": "商品契約的到期日期。",
+      "usage": "以 YYYYMMDD 數值比較日期；不可當成日期字串或剩餘天數。",
+      "value_kind": "date",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "81cfaddd86df2e1d4b74",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "剩餘日",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%89%A9%E9%A4%98%E6%97%A5&group=QOPTION",
+      "access_names": [
+        "剩餘日",
+        "RemainDays"
+      ],
+      "q_identifier": "q_RemainDays",
+      "unit": "天",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "隨日期遞減",
+      "meaning": "距最後交易日的日曆天數，包含例假日。",
+      "usage": "需要日曆時間衰減期間時使用；不要和剩餘交易日混用。",
+      "value_kind": "calendar_days",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "d34cd053c63dca3e7398",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "剩餘交易日",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%89%A9%E9%A4%98%E4%BA%A4%E6%98%93%E6%97%A5&group=QOPTION",
+      "access_names": [
+        "剩餘交易日",
+        "RemainTradingDays"
+      ],
+      "q_identifier": "q_RemainTradingDays",
+      "unit": "天",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "隨交易日遞減",
+      "meaning": "距最後交易日尚可交易的天數。",
+      "usage": "需要市場實際可交易天數時使用；不包含非交易日。",
+      "value_kind": "trading_days",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "181f65f96406a6b54f87",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "波動率",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%B3%A2%E5%8B%95%E7%8E%87&group=QOPTION",
+      "access_names": [
+        "波動率",
+        "Volatility"
+      ],
+      "q_identifier": "q_Volatility",
+      "unit": "%",
+      "format": "百分點數值；23.12% 回傳 23.12",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "選擇權",
+        "香港股票"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "以最近 20 日價格變化年化計算的歷史波動率。",
+      "usage": "衡量已實現的歷史波動；不可誤當由期權價格反推的隱含波動率。",
+      "value_kind": "historical_volatility",
+      "caveats": [
+        "支援商品以頁面標籤為準；標籤未列台(權證)"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "addb0aac2c8f625780d2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進隱含波動率",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B2%E9%9A%B1%E5%90%AB%E6%B3%A2%E5%8B%95%E7%8E%87&group=QOPTION",
+      "access_names": [
+        "買進隱含波動率",
+        "ImpliedVolatilityonBuy"
+      ],
+      "q_identifier": "q_ImpliedVolatilityonBuy",
+      "unit": "%",
+      "format": "百分點數值；23.12% 回傳 23.12",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "由最新買進價格透過期權定價模型反推出的隱含波動率。",
+      "usage": "觀察買方報價隱含的 IV；不可與歷史波動率或賣出 IV 混用。",
+      "value_kind": "implied_volatility",
+      "book_side": "buy",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "9602bda79855bc1f27e6",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出隱含波動率",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA%E9%9A%B1%E5%90%AB%E6%B3%A2%E5%8B%95%E7%8E%87&group=QOPTION",
+      "access_names": [
+        "賣出隱含波動率",
+        "ImpliedVolatilityonSell"
+      ],
+      "q_identifier": "q_ImpliedVolatilityonSell",
+      "unit": "%",
+      "format": "百分點數值；23.12% 回傳 23.12",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "由最新賣出價格透過期權定價模型反推出的隱含波動率。",
+      "usage": "觀察賣方報價隱含的 IV；不可與歷史波動率或買進 IV 混用。",
+      "value_kind": "implied_volatility",
+      "book_side": "sell",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "fd1f857dcb19c00508b2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "內含值",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%85%A7%E5%90%AB%E5%80%BC&group=QOPTION",
+      "access_names": [
+        "內含值",
+        "IntrinsicValue"
+      ],
+      "q_identifier": "q_IntrinsicValue",
+      "unit": "點",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "標的現價相對履約價已經具有的正價值，並納入執行比例。",
+      "usage": "拆分內含值與時間價值；買權與賣權公式方向相反。",
+      "value_kind": "intrinsic_value",
+      "formula": "買權/認購=max(標的價-履約價,0)*執行比例；賣權/認售=max(履約價-標的價,0)*執行比例",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "0a2363513f2dabb26fbb",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "有效槓桿",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%9C%89%E6%95%88%E6%A7%93%E6%A1%BF&group=QOPTION",
+      "access_names": [
+        "有效槓桿",
+        "Leverage"
+      ],
+      "q_identifier": "q_Leverage",
+      "unit": "比值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "標的價格每變動 1% 時，商品價格預期變動百分比的槓桿倍數。",
+      "usage": "比較期權或權證的價格敏感度；回傳 5 代表約 5 倍，不是 5%。",
+      "value_kind": "leverage",
+      "formula": "標的價格 / 商品價格 * Delta",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "b947cf949b8809df4281",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "波動率差額",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%B3%A2%E5%8B%95%E7%8E%87%E5%B7%AE%E9%A1%8D&group=QOPTION",
+      "access_names": [
+        "波動率差額",
+        "VolatilityDiff"
+      ],
+      "q_identifier": "q_VolatilityDiff",
+      "unit": "%",
+      "format": "百分點數值；-15.13% 回傳 -15.13",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "歷史波動率減去隱含波動率的百分點差。",
+      "usage": "比較歷史與市場隱含波動；負值表示隱含波動率較高。",
+      "value_kind": "volatility_difference",
+      "formula": "歷史波動率 - 隱含波動率",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "04dbbb6894c06f2e002e",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "時間價值",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%99%82%E9%96%93%E5%83%B9%E5%80%BC&group=QOPTION",
+      "access_names": [
+        "時間價值",
+        "TimeValue"
+      ],
+      "q_identifier": "q_TimeValue",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "商品價格扣除內含值後的非負餘額。",
+      "usage": "衡量內含值之外的權利金；先確認權證內含值已納入執行比例。",
+      "value_kind": "time_value",
+      "formula": "max(商品價格 - 內含值, 0)",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a5ab98353c1d375bf7fd",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "執行比例",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%9F%B7%E8%A1%8C%E6%AF%94%E4%BE%8B&group=QOPTION",
+      "access_names": [
+        "執行比例",
+        "ContractRatio"
+      ],
+      "q_identifier": "q_ContractRatio",
+      "unit": "值",
+      "format": "數值，例如 0.5 回傳 0.5",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)"
+      ],
+      "timing": "契約資料，通常不隨盤中報價變動",
+      "meaning": "每張權證對應可履約標的數量的比例。",
+      "usage": "只用於台灣權證契約換算；不是百分比。",
+      "value_kind": "contract_ratio",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "984d0087e81eb7b1ff47",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "理論價",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%90%86%E8%AB%96%E5%83%B9&group=QOPTION",
+      "access_names": [
+        "理論價",
+        "TheoreticalPrice"
+      ],
+      "q_identifier": "q_TheoreticalPrice",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "依 Black-Scholes 模型計算的選擇權或權證理論價格。",
+      "usage": "和市場價格比較乖離；模型值不等於可成交價格。",
+      "value_kind": "model_price",
+      "caveats": [
+        "模型價格不是成交保證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "22acec87f97da7785ce4",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "最後交易日",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%9C%80%E5%BE%8C%E4%BA%A4%E6%98%93%E6%97%A5&group=QOPTION",
+      "access_names": [
+        "最後交易日",
+        "LastTradingDate"
+      ],
+      "q_identifier": "q_LastTradingDate",
+      "unit": "日期",
+      "format": "八位數值 YYYYMMDD，例如 20221101",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "契約資料，通常不隨盤中報價變動",
+      "meaning": "商品可以交易的最後日期。",
+      "usage": "以 YYYYMMDD 數值比較；不可和契約到期日或剩餘天數混用。",
+      "value_kind": "date",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "64d1abb07a93c278b212",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買賣權未平倉量比率",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E8%B3%A3%E6%AC%8A%E6%9C%AA%E5%B9%B3%E5%80%89%E9%87%8F%E6%AF%94%E7%8E%87&group=QOPTION",
+      "access_names": [
+        "買賣權未平倉量比率",
+        "CPOIRatio"
+      ],
+      "q_identifier": "q_CPOIRatio",
+      "unit": "比值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "同契約全部賣權未平倉量除以全部買權未平倉量。",
+      "usage": "Put/Call 未平倉量比；不是百分比，也不是單一履約價比率。",
+      "value_kind": "put_call_ratio",
+      "formula": "同契約 PUT 未平倉量 / CALL 未平倉量",
+      "caveats": [
+        "分母為零時的行為仍須由執行環境確認"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "8f7006e4d005052f5d34",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買賣權成交量比率",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E8%B3%A3%E6%AC%8A%E6%88%90%E4%BA%A4%E9%87%8F%E6%AF%94%E7%8E%87&group=QOPTION",
+      "access_names": [
+        "買賣權成交量比率",
+        "CPTradeRatio"
+      ],
+      "q_identifier": "q_CPTradeRatio",
+      "unit": "比值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "同契約全部賣權成交量除以全部買權成交量。",
+      "usage": "Put/Call 成交量比；不是百分比，也不是單一履約價比率。",
+      "value_kind": "put_call_ratio",
+      "formula": "同契約 PUT 成交量 / CALL 成交量",
+      "caveats": [
+        "分母為零時的行為仍須由執行環境確認"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "0bd7e674d45b0df0f800",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "損益兩平",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%90%8D%E7%9B%8A%E5%85%A9%E5%B9%B3&group=QOPTION",
+      "access_names": [
+        "損益兩平",
+        "BreakEvenPoint"
+      ],
+      "q_identifier": "q_BreakEvenPoint",
+      "unit": "值",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "使權證達到損益兩平所需的標的價格。",
+      "usage": "僅用於台灣權證；認購與認售公式方向相反。",
+      "value_kind": "break_even_price",
+      "formula": "認購=履約價+權證價/執行比例；認售=履約價-權證價/執行比例",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "19c10d2e182f3c2f1a18",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "溢價率百分比",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%BA%A2%E5%83%B9%E7%8E%87%E7%99%BE%E5%88%86%E6%AF%94&group=QOPTION",
+      "access_names": [
+        "溢價率百分比",
+        "PremiumRatio"
+      ],
+      "q_identifier": "q_PremiumRatio",
+      "unit": "%",
+      "format": "百分點數值；16.67% 回傳 16.67",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "損益兩平價格相對標的價格的距離比例。",
+      "usage": "衡量權證達到損益兩平所需幅度；認購與認售公式方向相反。",
+      "value_kind": "premium_ratio",
+      "formula": "認購=(損益兩平-標的價)/標的價*100；認售=(標的價-損益兩平)/標的價*100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "13d1bcbc1ad948871b2f",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "價內外百分比",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%83%B9%E5%85%A7%E5%A4%96%E7%99%BE%E5%88%86%E6%AF%94&group=QOPTION",
+      "access_names": [
+        "價內外百分比",
+        "IOofMoney"
+      ],
+      "q_identifier": "q_IOofMoney",
+      "unit": "%",
+      "format": "百分點數值；-30.68% 回傳 -30.68",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "履約價與標的現價的相對差距；正值為價內，負值為價外。",
+      "usage": "判斷價內外程度；買權與賣權的計算方向相反。",
+      "value_kind": "moneyness",
+      "formula": "買權/認購=(標的價-履約價)/履約價*100；賣權/認售=(履約價-標的價)/履約價*100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "e86afc67ab61fdccf30b",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "標的漲跌",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%A8%99%E7%9A%84%E6%BC%B2%E8%B7%8C&group=QOPTION",
+      "access_names": [
+        "標的漲跌",
+        "TargetChange"
+      ],
+      "q_identifier": "q_TargetChange",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "期權或權證標的目前的價格漲跌值。",
+      "usage": "需要標的絕對漲跌時使用；不是期權商品自身漲跌。",
+      "value_kind": "underlying_change",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "8078395c6532203a36b4",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "標的漲跌幅",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%A8%99%E7%9A%84%E6%BC%B2%E8%B7%8C%E5%B9%85&group=QOPTION",
+      "access_names": [
+        "標的漲跌幅",
+        "TargetChangeRatio",
+        "標的漲幅百分比"
+      ],
+      "q_identifier": "q_TargetChangeRatio",
+      "unit": "%",
+      "format": "百分點數值；0.5% 回傳 0.5",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "期權或權證標的目前的百分比漲跌。",
+      "usage": "需要標的百分比變動時使用；不是商品自身漲跌幅。",
+      "value_kind": "underlying_change_ratio",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a3df89046b45a37952a0",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "標的價格",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%A8%99%E7%9A%84%E5%83%B9%E6%A0%BC&group=QOPTION",
+      "access_names": [
+        "標的價格",
+        "TargetPrice"
+      ],
+      "q_identifier": "q_TargetPrice",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "期權或權證所連結標的目前的價格。",
+      "usage": "需要標的現價時使用；不可誤用為期權或權證自身價格。",
+      "value_kind": "underlying_price",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "d2b4740d91a4bf1f066c",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "獲利率百分比",
+      "category": "期權",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%8D%B2%E5%88%A9%E7%8E%87%E7%99%BE%E5%88%86%E6%AF%94&group=QOPTION",
+      "access_names": [
+        "獲利率百分比",
+        "Profitability"
+      ],
+      "q_identifier": "q_Profitability",
+      "unit": "%",
+      "format": "百分點數值；-6.25% 回傳 -6.25",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台(權證)",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "理論價與市場最佳賣價差額占賣價的百分比。",
+      "usage": "衡量理論價相對最佳賣價的折溢幅；不是持倉實際報酬率。",
+      "value_kind": "theoretical_ask_spread",
+      "formula": "(理論價 - 最佳賣價) / 最佳賣價 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "dbab683fbe90555c4a56",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "前一價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%89%8D%E4%B8%80%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "前一價",
+        "PreMatch1"
+      ],
+      "q_identifier": "q_PreMatch1",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "相對最新成交回看第 1 筆",
+      "meaning": "最新成交之前第 1 筆 Tick 的成交價格。",
+      "usage": "需要短期逐筆成交路徑時使用；不是前 1 個交易日的收盤價。",
+      "value_kind": "previous_trade_price",
+      "tick_offset": 1,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "f8274d91116695248fa3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "前二價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%89%8D%E4%BA%8C%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "前二價",
+        "PreMatch2"
+      ],
+      "q_identifier": "q_PreMatch2",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "相對最新成交回看第 2 筆",
+      "meaning": "最新成交之前第 2 筆 Tick 的成交價格。",
+      "usage": "需要短期逐筆成交路徑時使用；不是前 2 個交易日的收盤價。",
+      "value_kind": "previous_trade_price",
+      "tick_offset": 2,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "91fdeb79541f106de4f7",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "前三價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%89%8D%E4%B8%89%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "前三價",
+        "PreMatch3"
+      ],
+      "q_identifier": "q_PreMatch3",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "相對最新成交回看第 3 筆",
+      "meaning": "最新成交之前第 3 筆 Tick 的成交價格。",
+      "usage": "需要短期逐筆成交路徑時使用；不是前 3 個交易日的收盤價。",
+      "value_kind": "previous_trade_price",
+      "tick_offset": 3,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "ea61ea5214fc9ca38b7f",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "前四價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%89%8D%E5%9B%9B%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "前四價",
+        "PreMatch4"
+      ],
+      "q_identifier": "q_PreMatch4",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "相對最新成交回看第 4 筆",
+      "meaning": "最新成交之前第 4 筆 Tick 的成交價格。",
+      "usage": "需要短期逐筆成交路徑時使用；不是前 4 個交易日的收盤價。",
+      "value_kind": "previous_trade_price",
+      "tick_offset": 4,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "47e5334591c11581661b",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "一月前收盤價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%B8%80%E6%9C%88%E5%89%8D%E6%94%B6%E7%9B%A4%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "一月前收盤價",
+        "Close1Mago"
+      ],
+      "q_identifier": "q_Close1Mago",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "每日更新",
+      "meaning": "一個月前同一曆日的收盤價；若該日不交易，改取之前最近交易日。",
+      "usage": "計算約一個月區間報酬；股票採還原資料，不等同固定 20 根日 K。",
+      "value_kind": "historical_close",
+      "lookback": "1 calendar month",
+      "adjusted_for_stocks": true,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "7524e2adba98079b8b6f",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "一年前收盤價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%B8%80%E5%B9%B4%E5%89%8D%E6%94%B6%E7%9B%A4%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "一年前收盤價",
+        "Close1Yago"
+      ],
+      "q_identifier": "q_Close1Yago",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "每日更新",
+      "meaning": "一年前同一曆日的收盤價；若該日不交易，改取之前最近交易日。",
+      "usage": "計算約一年區間報酬；股票採還原資料，不等同固定交易日根數。",
+      "value_kind": "historical_close",
+      "lookback": "1 calendar year",
+      "adjusted_for_stocks": true,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "3270fd07afb9f53139eb",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "一週前收盤價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%B8%80%E9%80%B1%E5%89%8D%E6%94%B6%E7%9B%A4%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "一週前收盤價",
+        "Close1Wago"
+      ],
+      "q_identifier": "q_Close1Wago",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "每個交易日更新",
+      "meaning": "五個交易日前的收盤價。",
+      "usage": "計算一週區間報酬；此欄位按五個交易日回看，股票採還原資料。",
+      "value_kind": "historical_close",
+      "lookback": "5 trading days",
+      "adjusted_for_stocks": true,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "3401e0f8312d3fdfa380",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "三月前收盤價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%B8%89%E6%9C%88%E5%89%8D%E6%94%B6%E7%9B%A4%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "三月前收盤價",
+        "Close3Mago"
+      ],
+      "q_identifier": "q_Close3Mago",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "每日更新",
+      "meaning": "三個月前同一曆日的收盤價；若該日不交易，改取之前最近交易日。",
+      "usage": "計算約一季區間報酬；股票採還原資料，不等同固定 60 根日 K。",
+      "value_kind": "historical_close",
+      "lookback": "3 calendar months",
+      "adjusted_for_stocks": true,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "04791f5ced938ab4645e",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "去年收盤價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%8E%BB%E5%B9%B4%E6%94%B6%E7%9B%A4%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "去年收盤價",
+        "CloseOfLastYear"
+      ],
+      "q_identifier": "q_CloseOfLastYear",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "跨年更新",
+      "meaning": "上一曆年最後交易日的收盤價。",
+      "usage": "計算年初至今變化；股票採還原資料，不是剛好一年前收盤價。",
+      "value_kind": "historical_close",
+      "lookback": "previous calendar year end",
+      "adjusted_for_stocks": true,
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "e3cbf1118ee0b03edbff",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "成交",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%88%90%E4%BA%A4&group=QPRICE",
+      "access_names": [
+        "成交",
+        "Last"
+      ],
+      "q_identifier": "q_Last",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "最新一筆成交價格，語意等同 Close。",
+      "usage": "即時現價判斷；需要歷史成交序列時改用 Tick 資料。",
+      "value_kind": "last_price",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "b22c3624a2d69079254f",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "參考價",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%8F%83%E8%80%83%E5%83%B9&group=QPRICE",
+      "access_names": [
+        "參考價",
+        "RefPrice"
+      ],
+      "q_identifier": "q_RefPrice",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股"
+      ],
+      "timing": "當日固定基準",
+      "meaning": "台股當日參考基準，通常為前收；除權息日使用調整後參考值。",
+      "usage": "計算台股當日漲跌；除權息日不可直接以昨日收盤代替。",
+      "value_kind": "reference_price",
+      "caveats": [
+        "實際參考值以交易所公告為準"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "7906e50bcc96fa68d658",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "基差",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%9F%BA%E5%B7%AE&group=QPRICE",
+      "access_names": [
+        "基差",
+        "Basis"
+      ],
+      "q_identifier": "q_Basis",
+      "unit": "點",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "現貨價格減去期貨價格的差額。",
+      "usage": "比較現貨與期貨；方向和價差欄位相反。",
+      "value_kind": "futures_basis",
+      "formula": "現貨價格 - 期貨價格",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "98eab0e85dccb25441a5",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "最低(日)",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%9C%80%E4%BD%8E%28%E6%97%A5%29&group=QPRICE",
+      "access_names": [
+        "最低(日)",
+        "DailyLow"
+      ],
+      "q_identifier": "q_DailyLow",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "當日截至目前的最低價。",
+      "usage": "盤中新低或距低點判斷；不是歷史區間最低價。",
+      "value_kind": "daily_low",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "13173a88a0470abc6e25",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "最高(日)",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%9C%80%E9%AB%98%28%E6%97%A5%29&group=QPRICE",
+      "access_names": [
+        "最高(日)",
+        "DailyHigh"
+      ],
+      "q_identifier": "q_DailyHigh",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "當日截至目前的最高價。",
+      "usage": "盤中新高或距高點判斷；不是歷史區間最高價。",
+      "value_kind": "daily_high",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "6e50cbb3b20f8c348ddd",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買賣價差百分比",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E8%B3%A3%E5%83%B9%E5%B7%AE%E7%99%BE%E5%88%86%E6%AF%94&group=QPRICE",
+      "access_names": [
+        "買賣價差百分比",
+        "BidAskDiffRatio"
+      ],
+      "q_identifier": "q_BidAskDiffRatio",
+      "unit": "%",
+      "format": "百分點數值；1.05% 回傳 1.05",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "期貨",
+        "選擇權",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "最佳賣價與最佳買價的差，占最佳買價的百分比。",
+      "usage": "衡量即時交易價差成本；不是價差的絕對元數。",
+      "value_kind": "bid_ask_spread_ratio",
+      "formula": "(最佳賣價 - 最佳買價) / 最佳買價 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "e807f40c17a9f0b1a93c",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤(日)",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%28%E6%97%A5%29&group=QPRICE",
+      "access_names": [
+        "開盤(日)",
+        "DailyOpen"
+      ],
+      "q_identifier": "q_DailyOpen",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "當日固定基準",
+      "meaning": "當日開盤價。",
+      "usage": "盤中相對今日開盤比較；不是目前 K 棒開盤價。",
+      "value_kind": "daily_open",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a877d3ea64e114f3cd70",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "價差",
+      "category": "價格",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%83%B9%E5%B7%AE&group=QPRICE",
+      "access_names": [
+        "價差",
+        "Spread"
+      ],
+      "q_identifier": "q_Spread",
+      "unit": "點",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "期貨價格減去現貨價格的差額。",
+      "usage": "比較期貨與現貨；方向和基差欄位相反。",
+      "value_kind": "futures_spread",
+      "formula": "期貨價格 - 現貨價格",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "0fe54c9500ad4500f36a",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "成交比重",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%88%90%E4%BA%A4%E6%AF%94%E9%87%8D&group=QVOLUME",
+      "access_names": [
+        "成交比重",
+        "CashDirect",
+        "即時資金流向"
+      ],
+      "q_identifier": "q_CashDirect",
+      "unit": "%",
+      "format": "百分點數值；5.6% 回傳 5.6",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "類股指數"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "商品或類股成交值占對應大盤成交值的百分比。",
+      "usage": "衡量相對大盤的成交資金占比；不是個股自身量增幅。",
+      "value_kind": "market_turnover_share",
+      "formula": "成交值 / 對應大盤成交值 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "82d02af9107e69e0f3a9",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "成交均量",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%88%90%E4%BA%A4%E5%9D%87%E9%87%8F&group=QVOLUME",
+      "access_names": [
+        "成交均量",
+        "AvgDealedShare"
+      ],
+      "q_identifier": "q_AvgDealedShare",
+      "unit": "張",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "整體市場扣除權證後，每筆成交的平均張數。",
+      "usage": "觀察大盤每筆成交規模；不是 N 日平均成交量。",
+      "value_kind": "average_trade_size",
+      "formula": "累計成交 / 累成交筆",
+      "caveats": [
+        "市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "5983a2cd990e53ddc983",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "估計量",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%BC%B0%E8%A8%88%E9%87%8F&group=QVOLUME",
+      "access_names": [
+        "估計量",
+        "EstimatedTotalVolume"
+      ],
+      "q_identifier": "q_EstimatedTotalVolume",
+      "unit": "依商品：個股=張；大盤=元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "台(股票)"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "依歷史分鐘量分布與今日累計量推估收盤成交量。",
+      "usage": "盤中預估全日量；是模型推估值，不是已成交總量。",
+      "value_kind": "estimated_daily_volume",
+      "caveats": [
+        "屬模型推估值"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "2bbbb24feeac8ddd2d26",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委買均",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B2%B7%E5%9D%87&group=QVOLUME",
+      "access_names": [
+        "委買均",
+        "AvgLongUnits"
+      ],
+      "q_identifier": "q_AvgLongUnits",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "每筆委買的平均張數或口數。",
+      "usage": "比較平均買方委託規模；不是五檔委買均價。",
+      "value_kind": "average_order_size",
+      "book_side": "buy",
+      "formula": "累計委買 / 累委買筆",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "53ffb1b200af69a56dc9",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "委賣均",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%A7%94%E8%B3%A3%E5%9D%87&group=QVOLUME",
+      "access_names": [
+        "委賣均",
+        "AvgShortUnits"
+      ],
+      "q_identifier": "q_AvgShortUnits",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "每筆委賣的平均張數或口數。",
+      "usage": "比較平均賣方委託規模；不是五檔委賣均價。",
+      "value_kind": "average_order_size",
+      "book_side": "sell",
+      "formula": "累計委賣 / 累委賣筆",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "d94fabd454d6e38a055c",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "昨量",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%98%A8%E9%87%8F&group=QVOLUME",
+      "access_names": [
+        "昨量",
+        "PreTotalVolume"
+      ],
+      "q_identifier": "q_PreTotalVolume",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "每個交易日更新",
+      "meaning": "前一交易日盤中成交量，不含零股與鉅額交易。",
+      "usage": "比較今日與昨日量能；跨商品比較前處理單位，且留意排除範圍。",
+      "value_kind": "previous_daily_volume",
+      "caveats": [
+        "不含零股與鉅額交易"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "878dac7ae853744b88f2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累成交筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E6%88%90%E4%BA%A4%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "累成交筆",
+        "CulMatchTicks"
+      ],
+      "q_identifier": "q_CulMatchTicks",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今整體市場扣除權證後的成交總筆數。",
+      "usage": "衡量大盤成交事件累計數；不是成交量。",
+      "value_kind": "cumulative_market_trade_count",
+      "caveats": [
+        "市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "d3f7dc1549e5e8437269",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累委買筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E5%A7%94%E8%B2%B7%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "累委買筆",
+        "CulBidTicks",
+        "累計買筆"
+      ],
+      "q_identifier": "q_CulBidTicks",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今的委買總筆數；證券市場統計排除權證。",
+      "usage": "衡量買方委託事件數，不是委買張數或口數。",
+      "value_kind": "cumulative_order_count",
+      "book_side": "buy",
+      "caveats": [
+        "證券市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "d2e717e22257a3318543",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累委賣筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E5%A7%94%E8%B3%A3%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "累委賣筆",
+        "CulAskTicks",
+        "累計賣筆"
+      ],
+      "q_identifier": "q_CulAskTicks",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今的委賣總筆數；證券市場統計排除權證。",
+      "usage": "衡量賣方委託事件數，不是委賣張數或口數。",
+      "value_kind": "cumulative_order_count",
+      "book_side": "sell",
+      "caveats": [
+        "證券市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a4179962dcbcc3f7abd1",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累計成交",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E8%A8%88%E6%88%90%E4%BA%A4&group=QVOLUME",
+      "access_names": [
+        "累計成交",
+        "MatchUnit",
+        "即時成交張數"
+      ],
+      "q_identifier": "q_MatchUnit",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今的總成交張數或口數；證券市場統計排除權證。",
+      "usage": "觀察市場或衍生商品累計成交單位；不是成交筆數。",
+      "value_kind": "cumulative_traded_units",
+      "caveats": [
+        "證券市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "e84a3669f7df0cfe3edd",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累計委買",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E8%A8%88%E5%A7%94%E8%B2%B7&group=QVOLUME",
+      "access_names": [
+        "累計委買",
+        "BidUnits",
+        "即時委買張數"
+      ],
+      "q_identifier": "q_BidUnits",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今的總委買張數或口數；證券市場統計排除權證。",
+      "usage": "衡量累計買方委託單位，不是當下五檔掛單量。",
+      "value_kind": "cumulative_order_units",
+      "book_side": "buy",
+      "caveats": [
+        "證券市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "606acd44f2523ae034e7",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累計委賣",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E8%A8%88%E5%A7%94%E8%B3%A3&group=QVOLUME",
+      "access_names": [
+        "累計委賣",
+        "AskUnits",
+        "即時委賣張數"
+      ],
+      "q_identifier": "q_AskUnits",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今的總委賣張數或口數；證券市場統計排除權證。",
+      "usage": "衡量累計賣方委託單位，不是當下五檔掛單量。",
+      "value_kind": "cumulative_order_units",
+      "book_side": "sell",
+      "caveats": [
+        "證券市場統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "a778845e48aee15059af",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累買成筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E8%B2%B7%E6%88%90%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "累買成筆",
+        "CulBuyTicks"
+      ],
+      "q_identifier": "q_CulBuyTicks",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今以買進方向成交的總筆數。",
+      "usage": "比較衍生商品買賣成交事件數；筆數本身不等於成交單量。",
+      "value_kind": "cumulative_directional_trade_count",
+      "book_side": "buy",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "085c1a75a47305017ec3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "累賣成筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B4%AF%E8%B3%A3%E6%88%90%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "累賣成筆",
+        "CulSellTicks"
+      ],
+      "q_identifier": "q_CulSellTicks",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "開盤至今以賣出方向成交的總筆數。",
+      "usage": "比較衍生商品買賣成交事件數；筆數本身不等於成交單量。",
+      "value_kind": "cumulative_directional_trade_count",
+      "book_side": "sell",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "336af287ed7ea803c915",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "單量",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E5%96%AE%E9%87%8F&group=QVOLUME",
+      "access_names": [
+        "單量",
+        "TickVolume"
+      ],
+      "q_identifier": "q_TickVolume",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "最新一筆成交的單筆量。",
+      "usage": "偵測即時大單；不是當日累計量，跨市場比較前須處理單位。",
+      "value_kind": "tick_volume",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "33bfd6aea98c3d56e5f3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤委買",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%E5%A7%94%E8%B2%B7&group=QVOLUME",
+      "access_names": [
+        "開盤委買",
+        "BoughtLotsAtOpen"
+      ],
+      "q_identifier": "q_BoughtLotsAtOpen",
+      "unit": "依商品：大盤/類股/台股=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "開盤資料，盤中通常不再變動",
+      "meaning": "開盤時的委買數量；台股取首筆成交前五檔合計，類股取成分股合計，大盤／期權取交易所首筆資料。",
+      "usage": "比較開盤買方委託量；不同商品的聚合方式不同。",
+      "value_kind": "opening_order_units",
+      "book_side": "buy",
+      "caveats": [
+        "大盤數值排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "1b3bbd030697865ad340",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤委賣",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%E5%A7%94%E8%B3%A3&group=QVOLUME",
+      "access_names": [
+        "開盤委賣",
+        "SoldLotsAtOpen"
+      ],
+      "q_identifier": "q_SoldLotsAtOpen",
+      "unit": "依商品：大盤/類股/台股=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "大盤",
+        "類股指數",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "開盤資料，盤中通常不再變動",
+      "meaning": "開盤時的委賣數量；台股取首筆成交前五檔合計，類股取成分股合計，大盤／期權取交易所首筆資料。",
+      "usage": "比較開盤賣方委託量；不同商品的聚合方式不同。",
+      "value_kind": "opening_order_units",
+      "book_side": "sell",
+      "caveats": [
+        "大盤數值排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "fd3a101c6617b372c360",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤買均",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%E8%B2%B7%E5%9D%87&group=QVOLUME",
+      "access_names": [
+        "開盤買均",
+        "BoughtAverageAtOpen"
+      ],
+      "q_identifier": "q_BoughtAverageAtOpen",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "開盤資料，盤中通常不再變動",
+      "meaning": "開盤時每筆委買的平均張數或口數。",
+      "usage": "衡量開盤買方平均委託規模；不是開盤買進均價。",
+      "value_kind": "opening_average_order_size",
+      "book_side": "buy",
+      "formula": "開盤委買 / 開盤買筆",
+      "caveats": [
+        "大盤統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "ff4254361627eef4ad44",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤買筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%E8%B2%B7%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "開盤買筆",
+        "BoughtTickAtOpen"
+      ],
+      "q_identifier": "q_BoughtTickAtOpen",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "開盤資料，盤中通常不再變動",
+      "meaning": "開盤時委託買進的筆數。",
+      "usage": "搭配開盤委買計算平均委託量；不是成交筆數。",
+      "value_kind": "opening_order_count",
+      "book_side": "buy",
+      "caveats": [
+        "大盤統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "7ab0d0c24c385f28e820",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤賣均",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%E8%B3%A3%E5%9D%87&group=QVOLUME",
+      "access_names": [
+        "開盤賣均",
+        "SoldAverageAtOpen"
+      ],
+      "q_identifier": "q_SoldAverageAtOpen",
+      "unit": "依商品：大盤=張；期貨/選擇權=口",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "開盤資料，盤中通常不再變動",
+      "meaning": "開盤時每筆委賣的平均張數或口數。",
+      "usage": "衡量開盤賣方平均委託規模；不是開盤賣出均價。",
+      "value_kind": "opening_average_order_size",
+      "book_side": "sell",
+      "formula": "開盤委賣 / 開盤賣筆",
+      "caveats": [
+        "大盤統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "3291c6849e9dfccac32b",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "開盤賣筆",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E9%96%8B%E7%9B%A4%E8%B3%A3%E7%AD%86&group=QVOLUME",
+      "access_names": [
+        "開盤賣筆",
+        "SoldTickAtOpen"
+      ],
+      "q_identifier": "q_SoldTickAtOpen",
+      "unit": "筆",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "大盤",
+        "期貨",
+        "選擇權"
+      ],
+      "timing": "開盤資料，盤中通常不再變動",
+      "meaning": "開盤時委託賣出的筆數。",
+      "usage": "搭配開盤委賣計算平均委託量；不是成交筆數。",
+      "value_kind": "opening_order_count",
+      "book_side": "sell",
+      "caveats": [
+        "大盤統計排除權證"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "b2832c31ede1654561bf",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "總量(日)",
+      "category": "量能",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%B8%BD%E9%87%8F%28%E6%97%A5%29&group=QVOLUME",
+      "access_names": [
+        "總量(日)",
+        "DailyVolume"
+      ],
+      "q_identifier": "q_DailyVolume",
+      "unit": "依商品：台股=張；大盤/指數=元；期貨/選擇權=口；其他市場股票=股",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "全部"
+      ],
+      "timing": "即時報價更新時變動",
+      "meaning": "當日截至目前的累計成交量或成交值。",
+      "usage": "盤中總量門檻；大盤／指數回傳元，跨市場不可直接比較。",
+      "value_kind": "daily_volume",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "ccd73dd41a575e45bb12",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "毛利率",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%AF%9B%E5%88%A9%E7%8E%87&group=QFINANCE",
+      "access_names": [
+        "毛利率",
+        "GrossMarginRate"
+      ],
+      "q_identifier": "q_GrossMarginRate",
+      "unit": "%",
+      "format": "百分點數值；25% 回傳 25",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "隨最新財報更新",
+      "meaning": "最新一期財報的營業毛利率。",
+      "usage": "使用前確認市場期間基礎：台／陸／港為累計財報，美股為單季財報。",
+      "value_kind": "financial_ratio",
+      "market_period_basis": "台股/陸股/港股=累計；美股=單季",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "54100f46ff3d1cc32e71",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "每股盈餘",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%AF%8F%E8%82%A1%E7%9B%88%E9%A4%98&group=QFINANCE",
+      "access_names": [
+        "每股盈餘",
+        "CurrentEPS",
+        "即期每股盈餘"
+      ],
+      "q_identifier": "q_CurrentEPS",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "隨最新財報更新",
+      "meaning": "最新一期財報的每股盈餘；美股取損益表基本每股盈餘。",
+      "usage": "代表最新一期，不可直接當作近四季 EPS 或自行假設累計期間。",
+      "value_kind": "financial_per_share",
+      "caveats": [
+        "美股採基本每股盈餘",
+        "頁面未承諾近四季或年化值"
+      ],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "7bf3a4ba8fc863a3217e",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "每股淨值",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%AF%8F%E8%82%A1%E6%B7%A8%E5%80%BC&group=QFINANCE",
+      "access_names": [
+        "每股淨值",
+        "NetValuePerShare"
+      ],
+      "q_identifier": "q_NetValuePerShare",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "隨最新財報更新",
+      "meaning": "最新一期財報的每股淨值。",
+      "usage": "使用前確認市場期間基礎與來源項目；台股使用交易所公告每股淨值項目。",
+      "value_kind": "financial_per_share",
+      "market_period_basis": "台股/陸股/港股=累計；美股=單季",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "f80e87f82167d7a07265",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "每股營收",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%AF%8F%E8%82%A1%E7%87%9F%E6%94%B6&group=QFINANCE",
+      "access_names": [
+        "每股營收",
+        "OpeRevenuePerShare"
+      ],
+      "q_identifier": "q_OpeRevenuePerShare",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "隨最新財報更新",
+      "meaning": "當期財報的每股營業額。",
+      "usage": "跨市場比較前確認期間：台／陸／港為累計財報，美股為單季財報。",
+      "value_kind": "financial_per_share",
+      "market_period_basis": "台股/陸股/港股=累計；美股=單季",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "67e9a8028670f565d883",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "股東權益報酬率",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%82%A1%E6%9D%B1%E6%AC%8A%E7%9B%8A%E5%A0%B1%E9%85%AC%E7%8E%87&group=QFINANCE",
+      "access_names": [
+        "股東權益報酬率",
+        "CurrentROE",
+        "即期股東報酬率%"
+      ],
+      "q_identifier": "q_CurrentROE",
+      "unit": "%",
+      "format": "百分點數值；10% 回傳 10",
+      "supported_scripts": [
+        "警示",
+        "交易",
+        "函數"
+      ],
+      "supported_products": [
+        "台股",
+        "香港股票",
+        "大陸股票",
+        "美(股票)"
+      ],
+      "timing": "隨最新財報更新",
+      "meaning": "最新一期財報的股東權益報酬率；台股取稅後 ROE 項目。",
+      "usage": "跨市場比較前確認期間：台／陸／港為累計財報，美股為單季財報。",
+      "value_kind": "financial_ratio",
+      "market_period_basis": "台股/陸股/港股=累計；美股=單季",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "c240f27c3031880a0eea",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "財報期別",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%A1%E5%A0%B1%E6%9C%9F%E5%88%A5&group=QFINANCE",
+      "access_names": ["財報期別", "FinancialStatementsTime"],
+      "q_identifier": "q_FinancialStatementsTime",
+      "unit": "日期",
+      "format": "六位數 YYYYMM；季報以 03、06、09、12 表示第一至第四季，半年報以 06、12 表示上下半年",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "隨最新財報更新",
+      "meaning": "最新一期財務報告的所屬期間。",
+      "usage": "將回傳值視為 YYYYMM 期間碼，不是可直接做日期運算的交易日期；例如 2022 年第二季為 202206。",
+      "value_kind": "financial_period",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "fc634a3c28edd871d7cf",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "營收月份",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%87%9F%E6%94%B6%E6%9C%88%E4%BB%BD&group=QFINANCE",
+      "access_names": ["營收月份", "RevenueMonth"],
+      "q_identifier": "q_RevenueMonth",
+      "unit": "日期",
+      "format": "六位數 YYYYMM",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "隨最新營收資料更新",
+      "meaning": "最新一期營收資料的所屬期間。",
+      "usage": "將回傳值視為 YYYYMM 期間碼；例如 2023 年 8 月為 202308。",
+      "value_kind": "financial_period",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "6fa430312862402b8d10",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "營收年增率",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%87%9F%E6%94%B6%E5%B9%B4%E5%A2%9E%E7%8E%87&group=QFINANCE",
+      "access_names": ["營收年增率", "RevenueYoY", "營收年增率%"],
+      "q_identifier": "q_RevenueYoY",
+      "unit": "%",
+      "format": "百分點數值；10% 回傳 10",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "隨最新營收資料更新",
+      "meaning": "最新營收相對去年同期的成長率。",
+      "usage": "跨市場使用時先確認營收發布週期；條件值以百分點比較，例如大於 10 表示大於 10%。",
+      "value_kind": "financial_ratio",
+      "revenue_cadence": "台股=每月；陸股/美股=每季；港股=每半年",
+      "formula": "(本期營收 - 去年同期營收) / 去年同期營收 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "cf92bf7eacda4a713711",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "營收期增率",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%87%9F%E6%94%B6%E6%9C%9F%E5%A2%9E%E7%8E%87&group=QFINANCE",
+      "access_names": ["營收期增率", "RevenueGrowth", "營收期增率%"],
+      "q_identifier": "q_RevenueGrowth",
+      "unit": "%",
+      "format": "百分點數值；10% 回傳 10",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "隨最新營收資料更新",
+      "meaning": "最新營收相對上一期的成長率。",
+      "usage": "跨市場使用時先確認營收發布週期；條件值以百分點比較，例如大於 10 表示大於 10%。",
+      "value_kind": "financial_ratio",
+      "revenue_cadence": "台股=每月；陸股/美股=每季；港股=每半年",
+      "formula": "(本期營收 - 上期營收) / 上期營收 * 100",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "2d42d3389bb28e2234b5",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "營益率",
+      "category": "財務",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E7%87%9F%E7%9B%8A%E7%8E%87&group=QFINANCE",
+      "access_names": ["營益率", "OpeProfitMarginRate"],
+      "q_identifier": "q_OpeProfitMarginRate",
+      "unit": "%",
+      "format": "百分點數值；25% 回傳 25",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "香港股票", "大陸股票", "美(股票)"],
+      "timing": "隨最新財報更新",
+      "meaning": "最新一期財報的營業利益率。",
+      "usage": "跨市場比較前確認期間基礎；條件值以百分點比較。",
+      "value_kind": "financial_ratio",
+      "market_period_basis": "台股/陸股/港股=累計；美股=單季",
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "4c39ee08e5f40473fe96",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "上漲家數",
+      "category": "市場統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%B8%8A%E6%BC%B2%E5%AE%B6%E6%95%B8&group=QMARKET",
+      "access_names": ["上漲家數", "UpSecurities", "即時上漲家數"],
+      "q_identifier": "q_UpSecurities",
+      "unit": "家",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["大盤", "類股指數"],
+      "timing": "盤中即時更新",
+      "meaning": "指數成分中價格上漲的家數。",
+      "usage": "用於市場廣度判讀；大盤統計排除權證，上漲家數不包含漲停家數。",
+      "value_kind": "market_breadth_count",
+      "direction": "up",
+      "caveats": ["大盤統計不含權證", "上漲家數不含漲停家數"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "f9b49d201a6c4343abb9",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "下跌家數",
+      "category": "市場統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E4%B8%8B%E8%B7%8C%E5%AE%B6%E6%95%B8&group=QMARKET",
+      "access_names": ["下跌家數", "DownSecurities", "即時下跌家數"],
+      "q_identifier": "q_DownSecurities",
+      "unit": "家",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["大盤", "類股指數"],
+      "timing": "盤中即時更新",
+      "meaning": "指數成分中價格下跌的家數。",
+      "usage": "用於市場廣度判讀；大盤統計排除權證，下跌家數不包含跌停家數。",
+      "value_kind": "market_breadth_count",
+      "direction": "down",
+      "caveats": ["大盤統計不含權證", "下跌家數不含跌停家數"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "55c6ec145c73a73c5bf3",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "跌停家數",
+      "category": "市場統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B7%8C%E5%81%9C%E5%AE%B6%E6%95%B8&group=QMARKET",
+      "access_names": ["跌停家數", "DownLimitSecs", "即時跌停家數"],
+      "q_identifier": "q_DownLimitSecs",
+      "unit": "家",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["大盤", "類股指數"],
+      "timing": "盤中即時更新",
+      "meaning": "指數成分中價格跌停的家數。",
+      "usage": "用於觀察極端弱勢家數；大盤統計排除權證。",
+      "value_kind": "market_breadth_count",
+      "direction": "limit_down",
+      "caveats": ["大盤統計不含權證"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "bec4808a170334049081",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "漲停家數",
+      "category": "市場統計",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%BC%B2%E5%81%9C%E5%AE%B6%E6%95%B8&group=QMARKET",
+      "access_names": ["漲停家數", "UpLimitSecs", "即時漲停家數"],
+      "q_identifier": "q_UpLimitSecs",
+      "unit": "家",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["大盤", "類股指數"],
+      "timing": "盤中即時更新",
+      "meaning": "指數成分中價格漲停的家數。",
+      "usage": "用於觀察極端強勢家數；大盤統計排除權證。",
+      "value_kind": "market_breadth_count",
+      "direction": "limit_up",
+      "caveats": ["大盤統計不含權證"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "33c0bb962daa951715a5",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "昨量",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E6%98%A8%E9%87%8F&group=QOFTEN",
+      "access_names": ["昨量", "PreTotalVolume"],
+      "q_identifier": "q_PreTotalVolume",
+      "unit": "依商品而異：台股=張；大盤/指數=元；期貨/選擇權=口；其他股票=股",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["全部商品"],
+      "timing": "引用上一交易日盤中總量",
+      "meaning": "上一交易日的盤中成交量。",
+      "usage": "比較量能前先依商品確認單位，且此欄位不納入盤後零股與鉅額交易。",
+      "value_kind": "volume",
+      "caveats": ["不含盤後零股", "不含鉅額交易"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "cd0eb14a7a32a2a77bf9",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "買進",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B2%B7%E9%80%B2&group=QOFTEN",
+      "access_names": ["買進", "Bid"],
+      "q_identifier": "q_Bid",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美股"],
+      "timing": "盤中即時更新",
+      "meaning": "目前最佳買價。",
+      "usage": "用於第一檔買價判斷；台灣期貨取一般五檔最佳買價與衍生單買價兩者較高者。",
+      "book_side": "buy",
+      "level": null,
+      "value_kind": "price",
+      "caveats": ["台灣期貨會合併比較衍生單買價"],
+      "verification_status": "文件蒸餾"
+    },
+    {
+      "source_id": "4b2e71906d099c67d3d2",
+      "retrieved_at": "2026-07-20",
+      "source_version": null,
+      "name": "賣出",
+      "category": "常用",
+      "url": "https://xshelp.xq.com.tw/XSHelp/?HelpName=%E8%B3%A3%E5%87%BA&group=QOFTEN",
+      "access_names": ["賣出", "Ask"],
+      "q_identifier": "q_Ask",
+      "unit": "元",
+      "format": "數值",
+      "supported_scripts": ["警示", "交易", "函數"],
+      "supported_products": ["台股", "期貨", "選擇權", "香港股票", "大陸股票", "美股"],
+      "timing": "盤中即時更新",
+      "meaning": "目前最佳賣價。",
+      "usage": "用於第一檔賣價判斷；台灣期貨取一般五檔最佳賣價與衍生單賣價兩者較低者。",
+      "book_side": "sell",
+      "level": null,
+      "value_kind": "price",
+      "caveats": ["台灣期貨會合併比較衍生單賣價"],
+      "verification_status": "文件蒸餾"
+    }
+  ]
+}

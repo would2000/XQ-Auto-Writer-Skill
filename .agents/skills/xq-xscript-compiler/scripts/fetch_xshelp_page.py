@@ -61,6 +61,14 @@ def main() -> int:
             key: normalize_multiline("".join(value))
             for key, value in parser.sections.items()
         }
+        fields = {
+            key: normalize_multiline("".join(value))
+            for key, value in parser.fields.items()
+        }
+        if fields:
+            sections["title"] = fields.get("欄位名稱", sections["title"])
+            sections["syntax"] = fields.get("語法", sections["syntax"])
+            sections["description"] = fields.get("說明", sections["description"])
         if not sections["title"] or not (sections["syntax"] or sections["description"]):
             raise RuntimeError("XSHelp page content structure was not recognized")
         budget = args.max_chars
@@ -77,6 +85,13 @@ def main() -> int:
             id=record["id"],
             url=record["url"],
             categories=record.get("categories", []),
+            metadata={
+                "field_category": fields.get("欄位分類", ""),
+                "unit": fields.get("單位", ""),
+                "format": fields.get("格式", ""),
+                "supported_scripts": fields.get("支援腳本", ""),
+                "supported_products": fields.get("支援商品", ""),
+            },
             content=bounded,
             truncated=sum(len(value) for value in sections.values()) > args.max_chars,
             cached=False,

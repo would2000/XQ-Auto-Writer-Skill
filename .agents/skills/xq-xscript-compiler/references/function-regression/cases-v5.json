@@ -1,0 +1,103 @@
+{
+  "schema_version": 2,
+  "suite_id": "function-data-boundary-v5",
+  "cases": [
+    {
+      "id": "minute-dynamic-d-caller-series",
+      "product": "7818",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "caller_frequency": "1",
+      "source_frequency": "D",
+      "index": 45,
+      "control_index": 44,
+      "caller_index": 1,
+      "control_caller_index": 0,
+      "default": null,
+      "set_total_bar": null,
+      "set_bar_back": {
+        "count": 46,
+        "frequency": "D"
+      },
+      "preload_records": 5,
+      "expected_preload_state": "enabled",
+      "expected_sentinel": "CODEX_B5_MIN_D_DYNAMIC_SHORTAGE",
+      "control_sentinel": "CODEX_B5_MIN_D_DYNAMIC_CONTROL",
+      "expected_result": "no_execution_evidence",
+      "access_mode": "dynamic"
+    },
+    {
+      "id": "daily-fixed-w-settotalbar",
+      "product": "7818",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "caller_frequency": "day",
+      "source_frequency": "W",
+      "index": 10,
+      "control_index": 9,
+      "caller_index": 0,
+      "control_caller_index": 0,
+      "default": null,
+      "set_total_bar": 1,
+      "set_bar_back": {
+        "count": 11,
+        "frequency": "W"
+      },
+      "preload_records": 5,
+      "expected_preload_state": "disabled",
+      "expected_sentinel": "CODEX_B5_DAY_W_FIXED_SHORTAGE",
+      "control_sentinel": "CODEX_B5_DAY_W_FIXED_CONTROL",
+      "expected_result": "no_execution_evidence",
+      "access_mode": "fixed"
+    },
+    {
+      "id": "daily-dynamic-m-default",
+      "product": "7818",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "caller_frequency": "day",
+      "source_frequency": "M",
+      "index": 3,
+      "control_index": 2,
+      "caller_index": 0,
+      "control_caller_index": 0,
+      "default": -999,
+      "set_total_bar": null,
+      "set_bar_back": {
+        "count": 4,
+        "frequency": "M"
+      },
+      "preload_records": 5,
+      "expected_preload_state": "enabled",
+      "expected_sentinel": "CODEX_B5_DAY_M_DEFAULT_SHORTAGE",
+      "control_sentinel": "CODEX_B5_DAY_M_DEFAULT_CONTROL",
+      "expected_result": "sentinel_failure",
+      "access_mode": "dynamic"
+    },
+    {
+      "id": "minute-fixed-d-settotalbar-default",
+      "product": "7818",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "caller_frequency": "1",
+      "source_frequency": "D",
+      "index": 5000,
+      "control_index": 44,
+      "caller_index": 1,
+      "control_caller_index": 0,
+      "default": -999,
+      "set_total_bar": 1,
+      "set_bar_back": {
+        "count": 46,
+        "frequency": "D"
+      },
+      "preload_records": 5,
+      "expected_preload_state": "disabled",
+      "expected_sentinel": "CODEX_B5_MIN_D_FIXED_DEFAULT_SHORTAGE",
+      "control_sentinel": "CODEX_B5_MIN_D_FIXED_DEFAULT_CONTROL",
+      "expected_result": "sentinel_failure",
+      "expect_default_value": false,
+      "access_mode": "fixed"
+    }
+  ]
+}

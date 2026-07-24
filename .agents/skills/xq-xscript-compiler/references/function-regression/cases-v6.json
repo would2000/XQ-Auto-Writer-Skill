@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "suite_id": "function-regression-smoke-v6",
+  "cases": [
+    {
+      "id": "short-history-day-m-default",
+      "product": "7818",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "caller_frequency": "day",
+      "source_frequency": "M",
+      "index": 3,
+      "control_index": 2,
+      "caller_index": 0,
+      "control_caller_index": 0,
+      "default": -999,
+      "set_total_bar": null,
+      "set_bar_back": {
+        "count": 4,
+        "frequency": "M"
+      },
+      "preload_records": 5,
+      "expected_preload_state": "enabled",
+      "expected_sentinel": "CODEX_B6_SHORT_HISTORY_DEFAULT",
+      "control_sentinel": "CODEX_B6_SHORT_HISTORY_CONTROL",
+      "expected_result": "sentinel_failure",
+      "access_mode": "dynamic"
+    },
+    {
+      "id": "long-history-minute-d-dynamic",
+      "product": "2330",
+      "start_date": "2026-06-01",
+      "end_date": "2026-06-02",
+      "caller_frequency": "1",
+      "source_frequency": "D",
+      "index": 20,
+      "control_index": 5,
+      "caller_index": 0,
+      "control_caller_index": 0,
+      "default": null,
+      "set_total_bar": null,
+      "set_bar_back": {
+        "count": 21,
+        "frequency": "D"
+      },
+      "preload_records": 5,
+      "expected_preload_state": "enabled",
+      "expected_sentinel": "CODEX_B6_LONG_HISTORY_SHORTAGE",
+      "control_sentinel": "CODEX_B6_LONG_HISTORY_CONTROL",
+      "expected_result": "sentinel_failure",
+      "access_mode": "dynamic"
+    }
+  ]
+}
