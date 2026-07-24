@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "suite_id": "function-data-boundary-v4",
+  "cases": [
+    {
+      "id": "short-history-daily",
+      "product": "7818",
+      "start_date": "2026-07-20",
+      "end_date": "2026-07-21",
+      "caller_frequency": "day",
+      "source_frequency": "D",
+      "index": 45,
+      "control_index": 44,
+      "default": null,
+      "set_total_bar": null,
+      "set_bar_back": {
+        "count": 46,
+        "frequency": "D"
+      },
+      "preload_records": 5,
+      "expected_sentinel": "CODEX_B4_D45_SHORTAGE_PATH",
+      "control_sentinel": "CODEX_B4_D44_CONTROL_PATH",
+      "expected_result": "no_execution_evidence",
+      "access_mode": "dynamic"
+    }
+  ]
+}

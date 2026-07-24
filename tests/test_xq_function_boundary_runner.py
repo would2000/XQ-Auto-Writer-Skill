@@ -15,6 +15,10 @@ SCRIPT_PATH = (
     PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "scripts"
     / "xq_function_boundary_runner.py"
 )
+CASE_DIR = (
+    PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "references"
+    / "function-regression"
+)
 SPEC = importlib.util.spec_from_file_location("xq_function_boundary_runner", SCRIPT_PATH)
 assert SPEC is not None and SPEC.loader is not None
 runner = importlib.util.module_from_spec(SPEC)
@@ -80,7 +84,7 @@ class XQFunctionBoundaryRunnerTests(unittest.TestCase):
         return runner.replace(case, **changes)
 
     def test_case_file_automatically_pairs_shorter_control(self) -> None:
-        case_path = PROJECT_ROOT / "generated" / "function-data-boundary-cases-v4.json"
+        case_path = CASE_DIR / "cases-v4.json"
         _suite, cases = runner.load_case_file(case_path)
         self.assertEqual([item.role for item in cases], ["control", "shortage"])
         self.assertLess(cases[0].index, cases[1].index)
@@ -88,7 +92,7 @@ class XQFunctionBoundaryRunnerTests(unittest.TestCase):
         self.assertNotEqual(cases[0].expected_sentinel, cases[1].expected_sentinel)
 
     def test_v5_matrix_covers_frequency_access_default_and_preload_dimensions(self) -> None:
-        case_path = PROJECT_ROOT / "generated" / "function-data-boundary-cases-v5.json"
+        case_path = CASE_DIR / "cases-v5.json"
         _suite, cases = runner.load_case_file(case_path)
         self.assertEqual(len(cases), 8)
         self.assertEqual({item.caller_frequency for item in cases}, {"1", "day"})
@@ -421,7 +425,7 @@ class XQFunctionBoundaryRunnerTests(unittest.TestCase):
             self.assertEqual(runner.pending_cases([case], manifest), [])
 
     def test_resume_manifest_requires_same_digest_and_case_contracts(self) -> None:
-        suite_path = PROJECT_ROOT / "generated" / "function-data-boundary-cases-v5.json"
+        suite_path = CASE_DIR / "cases-v5.json"
         suite, cases = runner.load_case_file(suite_path)
         with tempfile.TemporaryDirectory() as directory:
             private_root = Path(directory)

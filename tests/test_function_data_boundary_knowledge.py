@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
@@ -10,6 +12,21 @@ FUNCTION_GUIDE = PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "
 AUTOTRADE_GUIDE = PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "references" / "autotrade-window-guide.md"
 README = PROJECT_ROOT / "README.md"
 BACKTEST = PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "scripts" / "xq_backtest.py"
+BOUNDARY_RUNNER = (
+    PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "scripts"
+    / "xq_function_boundary_runner.py"
+)
+CASE_V5 = (
+    PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "references"
+    / "function-regression" / "cases-v5.json"
+)
+SPEC = importlib.util.spec_from_file_location(
+    "function_data_boundary_knowledge_runner", BOUNDARY_RUNNER
+)
+assert SPEC is not None and SPEC.loader is not None
+runner = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = runner
+SPEC.loader.exec_module(runner)
 
 
 class FunctionDataBoundaryKnowledgeTests(unittest.TestCase):
@@ -45,17 +62,38 @@ class FunctionDataBoundaryKnowledgeTests(unittest.TestCase):
         self.assertIn("def apply_preload_records", source)
         self.assertIn('"preload_records_applied": enabled', source)
 
-    def test_generated_boundary_sources_keep_function_contracts(self) -> None:
-        generated = PROJECT_ROOT / "generated"
-        dynamic_function = (generated / "function-data-boundary-dynamic-v3.xs").read_text(encoding="utf-8")
-        fixed_function = (generated / "function-data-boundary-fixed-d20-v3.xs").read_text(encoding="utf-8")
-        default_probe = (generated / "function-data-boundary-probe-v3.xs").read_text(encoding="utf-8")
+    def test_rendered_boundary_sources_keep_function_contracts(self) -> None:
+        _suite, cases = runner.load_case_file(CASE_V5)
+        dynamic_case = next(
+            case for case in cases
+            if case.role == "shortage" and case.access_mode == "dynamic"
+            and case.source_frequency == "D"
+        )
+        fixed_case = next(
+            case for case in cases
+            if case.role == "shortage" and case.access_mode == "fixed"
+            and case.source_frequency == "W"
+        )
+        default_case = next(
+            case for case in cases
+            if case.role == "shortage" and case.default_value == -999
+            and case.source_frequency == "M"
+        )
+        dynamic_function, _dynamic_caller = runner.render_sources(
+            dynamic_case, "CodexBoundaryDynamicFixture"
+        )
+        fixed_function, _fixed_caller = runner.render_sources(
+            fixed_case, "CodexBoundaryFixedFixture"
+        )
+        _default_function, default_probe = runner.render_sources(
+            default_case, "CodexBoundaryDefaultFixture"
+        )
 
         self.assertIn("SourceSeries(NumericSeries)", dynamic_function)
         self.assertIn("SourceSeries[LookbackBars]", dynamic_function)
-        self.assertIn('GetField("Close", "D")[20]', fixed_function)
+        self.assertIn('GetField("Close", "W")[10]', fixed_function)
         self.assertIn("Default := -999", default_probe)
-        self.assertIn("CODEX_BOUNDARY_M100_DEFAULT_USED", default_probe)
+        self.assertIn("CODEX_B5_DAY_M_DEFAULT_SHORTAGE", default_probe)
 
     def test_fifth_phase_documents_matrix_resume_and_machine_outputs(self) -> None:
         combined = "\n".join(
