@@ -26,6 +26,7 @@ jobs:
       - name: Check out repository and submodules
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
+          fetch-depth: 0
           persist-credentials: false
           submodules: recursive
 
@@ -43,6 +44,12 @@ jobs:
       - name: Validate repository hygiene
         run: python scripts/check_repository_hygiene.py
 
+      - name: Validate release-candidate interface
+        run: python scripts/check_release_candidate.py
+
+      - name: Rehearse Skill upgrade and rollback
+        run: python scripts/rehearse_upgrade_rollback.py
+
       - name: Run unit tests
         run: python -W error::ResourceWarning -m unittest discover -s tests -v
 
@@ -50,7 +57,7 @@ jobs:
         shell: pwsh
         run: |
           $skillScripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-          python -m py_compile $skillScripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py
+          python -m py_compile $skillScripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py scripts/check_release_candidate.py scripts/release_maintenance.py scripts/rehearse_upgrade_rollback.py
 
       - name: Verify submodule state
         shell: pwsh
@@ -69,7 +76,7 @@ jobs:
           Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY -Value @'
           ## XQ Auto Writer CI
 
-          - Release metadata, repository hygiene, unit tests, Python syntax and submodule state run in this job.
+          - Release metadata, repository hygiene, frozen RC interface, upgrade/rollback rehearsal, unit tests, Python syntax and submodule state run in this job.
           - XQ UI compilation: **Unable to Test（未驗證）**. This hosted runner does not have a signed-in interactive XQ desktop.
           - A green job does not prove trading profitability, safety, or readiness for live trading.
           '@

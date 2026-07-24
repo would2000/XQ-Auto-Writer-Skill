@@ -243,6 +243,19 @@ def result_text(control: Any) -> str:
     return "\n".join(dict.fromkeys(texts)).strip()
 
 
+def compiler_signals(
+    current: str, before: str, success_regex: str, error_regex: str
+) -> tuple[bool, bool]:
+    candidate = current
+    if before and current.startswith(before):
+        candidate = current[len(before) :].lstrip()
+    conclusive_lines = [line for line in candidate.splitlines() if "編譯開始" not in line]
+    conclusive_text = "\n".join(conclusive_lines)
+    success = re.search(success_regex, conclusive_text, re.I | re.M) is not None
+    failure = re.search(error_regex, conclusive_text, re.I | re.M) is not None
+    return success, failure
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
@@ -345,8 +358,9 @@ def main() -> int:
             if current != latest:
                 latest = current
                 stable_since = time.monotonic()
-            success = re.search(config["success_regex"], current, re.I | re.M)
-            failure = re.search(config["error_regex"], current, re.I | re.M)
+            success, failure = compiler_signals(
+                current, before, config["success_regex"], config["error_regex"]
+            )
             conclusive = current and current != before
             if conclusive and (success or failure) and time.monotonic() - stable_since >= 0.5:
                 if success:

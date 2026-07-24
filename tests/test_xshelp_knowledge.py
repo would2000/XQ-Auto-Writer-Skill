@@ -17,6 +17,7 @@ sys.path.insert(0, str(SCRIPTS))
 
 from sync_xshelp_index import build_index  # noqa: E402
 from xshelp_common import load_index  # noqa: E402
+from xshelp_common import DetailSectionParser, normalize_multiline  # noqa: E402
 
 
 class MockXSHelpHandler(BaseHTTPRequestHandler):
@@ -185,6 +186,29 @@ class XSHelpKnowledgeTests(unittest.TestCase):
                     retries=0,
                 )
             self.assertEqual(stable_bytes, index_path.read_bytes())
+
+    def test_current_quote_field_table_is_parsed(self) -> None:
+        parser = DetailSectionParser()
+        parser.feed(
+            '<table><tr><td class="field-title text-right">欄位名稱</td>'
+            '<td class="field-value">成交 (報價欄位)</td></tr>'
+            '<tr><td class="field-title">語法</td><td class="field-vlaue">'
+            '<pre><code>Value1 = GetQuote("成交");\nValue1 = q_Last;</code></pre></td></tr>'
+            '<tr><td class="field-title">單位</td><td class="field-value">元</td></tr>'
+            '<tr><td class="field-title">支援腳本</td><td class="field-value">'
+            '<span>警示</span><span>交易</span><span>函數</span></td></tr>'
+            '<tr><td class="field-title">說明</td><td class="field-value">最新成交價。</td></tr>'
+            '</table>'
+        )
+        fields = {
+            key: normalize_multiline("".join(value))
+            for key, value in parser.fields.items()
+        }
+        self.assertEqual(fields["欄位名稱"], "成交 (報價欄位)")
+        self.assertIn('GetQuote("成交")', fields["語法"])
+        self.assertEqual(fields["單位"], "元")
+        self.assertEqual(fields["支援腳本"], "警示交易函數")
+        self.assertEqual(fields["說明"], "最新成交價。")
 
 
 if __name__ == "__main__":

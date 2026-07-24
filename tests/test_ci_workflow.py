@@ -26,6 +26,7 @@ class CIWorkflowTests(unittest.TestCase):
         self.assertNotIn("pull_request_target", self.workflow)
         self.assertNotIn("${{ secrets.", self.workflow)
         self.assertIn("persist-credentials: false", self.workflow)
+        self.assertIn("fetch-depth: 0", self.workflow)
         self.assertIn("timeout-minutes: 10", self.workflow)
 
         action_references = re.findall(r"(?m)^\s*uses:\s*([^\s#]+)", self.workflow)
@@ -41,6 +42,8 @@ class CIWorkflowTests(unittest.TestCase):
         for command in (
             "python scripts/check_release_metadata.py",
             "python scripts/check_repository_hygiene.py",
+            "python scripts/check_release_candidate.py",
+            "python scripts/rehearse_upgrade_rollback.py",
             "python -W error::ResourceWarning -m unittest discover -s tests -v",
             "python -m py_compile",
             "git submodule status --recursive",

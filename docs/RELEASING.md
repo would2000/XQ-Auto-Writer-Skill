@@ -1,6 +1,6 @@
 # 版本與發布流程
 
-本文件是 XQ Auto Writer Skill 的人工發布程序。GitHub Actions 只做唯讀驗證，不自動建立 tag 或 Release；完整單人開發方式另見[單人維護流程](SOLO-MAINTENANCE.md)。儲存庫啟用 [Release Immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) 後，只會保護未來發布的 Release，不會追溯改變既有版本。
+本文件是 XQ Auto Writer Skill 的人工發布程序。GitHub Actions 只做唯讀驗證，不自動建立 tag 或 Release；完整單人開發方式另見[單人維護流程](SOLO-MAINTENANCE.md)，發布候選凍結、升級／復原演練與真實 XQ 閘門另見[發布候選驗證與維護模式](RELEASE-CANDIDATE-MAINTENANCE.md)。儲存庫啟用 [Release Immutable](https://docs.github.com/en/code-security/concepts/supply-chain-security/immutable-releases) 後，只會保護未來發布的 Release，不會追溯改變既有版本。
 
 ## 版本來源
 
@@ -44,17 +44,19 @@
 ```powershell
 python scripts/check_release_metadata.py
 python scripts/check_repository_hygiene.py
+python scripts/check_release_candidate.py
+python scripts/rehearse_upgrade_rollback.py
 python -W error::ResourceWarning -m unittest discover -s tests -v
 
 $scripts = Get-ChildItem .agents/skills/xq-xscript-compiler/scripts -Filter *.py
-python -m py_compile $scripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py
+python -m py_compile $scripts.FullName scripts/check_release_metadata.py scripts/check_repository_hygiene.py scripts/check_release_candidate.py scripts/release_maintenance.py scripts/rehearse_upgrade_rollback.py
 
 git diff --check
 git status -sb
 git submodule status
 ```
 
-版本驗證器必須回傳 `status: success`。工作樹必須乾淨，submodule 必須固定在預期提交。
+版本驗證器、RC 介面檢查及升級／復原演練都必須回傳 `status: success`。工作樹必須乾淨，submodule 必須固定在預期提交。RC 開發期間 `VERSION` 保持目前正式版；只有進入發布 PR 準備步驟後才更新為候選目標版本。
 
 本地檢查不等於 XQ GUI 驗證。凡是修改 UI selector、建檔或編譯流程，都必須在已登入 XQ 且桌面解鎖的 Windows 環境，使用不含真實交易指令的最小腳本驗證成功、錯誤及修復路徑。
 
