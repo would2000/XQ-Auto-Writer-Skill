@@ -43,7 +43,21 @@ class XQOperationConstitutionTests(unittest.TestCase):
             "`WaitGuiThreadIdle`",
             "立即停止後續輸入",
             "使用者指定成果及其必要函數必須保留",
-            "最後隱藏 XScript",
+            "保留本次成果腳本及其 XScript 編輯視窗",
+            "任務完成的最後前景一律切回 ChatGPT／Codex",
+        ):
+            self.assertIn(required, text)
+
+    def test_new_script_codex_creation_uses_type_scoped_storage_path(self) -> None:
+        text = CONSTITUTION.read_text(encoding="utf-8")
+        for required in (
+            "開啟「新增腳本」",
+            "先選取並讀回腳本類型",
+            "類型限定的「選擇資料夾」",
+            "唯一 `自訂` 根節點",
+            "唯一直接子節點 `CODEX`",
+            "讀回精確 `自訂/CODEX/`",
+            "不得為新建文件改用自繪分類頁籤",
         ):
             self.assertIn(required, text)
 
@@ -61,6 +75,21 @@ class XQOperationConstitutionTests(unittest.TestCase):
             with self.subTest(path=path.name):
                 text = path.read_text(encoding="utf-8")
                 self.assertIn("coords", text)
+
+    def test_specific_category_requires_manual_switch_and_read_only_verification(self) -> None:
+        constitution = CONSTITUTION.read_text(encoding="utf-8")
+        for required in (
+            "使用者必須先手動切換到指定類別",
+            "`xq_category_selector.py`",
+            "不得建立臨時空腳本",
+            "不得建立臨時空腳本、雙擊文件頁籤、使用座標、密集點擊或推測命令切換",
+        ):
+            self.assertIn(required, constitution)
+        skill = SKILL.read_text(encoding="utf-8")
+        self.assertIn("xq_category_selector.py", skill)
+        self.assertIn("require the user to switch the requested category manually first", skill)
+        self.assertIn("Never create a temporary routing document", skill)
+        self.assertNotIn("xq_category_" + "tab_route.py", skill)
 
     def test_print_contract_preserves_exact_user_examples_and_requires_confirmation(self) -> None:
         text = CONSTITUTION.read_text(encoding="utf-8")

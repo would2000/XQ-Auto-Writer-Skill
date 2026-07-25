@@ -9,7 +9,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = PROJECT_ROOT / "scripts" / "check_release_candidate.py"
-CONTRACT_PATH = PROJECT_ROOT / "release" / "rc-interface-v1.json"
+CONTRACT_PATH = PROJECT_ROOT / "release" / "rc-interface-v2.json"
 SPEC = importlib.util.spec_from_file_location("check_release_candidate", MODULE_PATH)
 assert SPEC and SPEC.loader
 rc = importlib.util.module_from_spec(SPEC)
@@ -53,9 +53,17 @@ class ReleaseCandidateTests(unittest.TestCase):
         self.assertFalse(result["ready"])
         self.assertIn("public_cli_mismatch", [item["code"] for item in result["errors"]])
 
-    def test_target_must_be_next_minor_without_changing_version(self) -> None:
+    def test_target_must_be_the_next_major_without_changing_version(self) -> None:
         def mutate(contract) -> None:
-            contract["target_release_version"] = "0.2.1"
+            contract["target_release_version"] = "0.4.0"
+
+        result = rc.validate_release_candidate(PROJECT_ROOT, self._write_contract(mutate))
+        self.assertFalse(result["ready"])
+        self.assertIn("version_contract_mismatch", [item["code"] for item in result["errors"]])
+
+    def test_major_contract_requires_explicit_transition_marker(self) -> None:
+        def mutate(contract) -> None:
+            contract["release_transition"] = "minor"
 
         result = rc.validate_release_candidate(PROJECT_ROOT, self._write_contract(mutate))
         self.assertFalse(result["ready"])
