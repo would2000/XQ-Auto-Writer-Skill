@@ -54,6 +54,7 @@ class ReleaseWorkflowDocumentationTests(unittest.TestCase):
     def test_release_candidate_manual_is_fail_closed(self) -> None:
         for token in (
             "release/rc-interface-v1.json",
+            "release/rc-interface-v2.json",
             "scripts/check_release_candidate.py",
             "scripts/rehearse_upgrade_rollback.py",
             "scripts/release_maintenance.py",

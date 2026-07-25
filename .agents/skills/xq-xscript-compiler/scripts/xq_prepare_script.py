@@ -4,8 +4,11 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
+import os
 import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -96,20 +99,29 @@ def open_new_script_dialog(config: dict[str, Any], xscript: Any) -> Any:
     except TimeoutError:
         pass
 
+    action_settle = max(
+        1.0,
+        float(config.get("new_script_storage_scope", {}).get("action_settle_seconds", 2.0)),
+    )
     xscript.set_focus()
-    time.sleep(0.2)
-    keyboard.send_keys(dialog_config.get("open_file_menu_keys", "%f"), pause=0.05)
-    time.sleep(float(dialog_config.get("menu_wait_seconds", 0.3)))
-    keyboard.send_keys(dialog_config.get("new_script_keys", "{HOME}{ENTER}"), pause=0.05)
+    time.sleep(action_settle)
+    keyboard.send_keys(dialog_config.get("open_file_menu_keys", "%f"), pause=0.15)
+    time.sleep(max(action_settle, float(dialog_config.get("menu_wait_seconds", 0.3))))
+    keyboard.send_keys(dialog_config.get("new_script_keys", "{HOME}{ENTER}"), pause=0.15)
     return wait_for_win32_window(
         str(dialog_config["class_name"]), str(dialog_config["title"]), timeout
     )
 
 
-def choose_checked(dialog: Any, control_id: int, label: str) -> None:
+def choose_checked(
+    dialog: Any,
+    control_id: int,
+    label: str,
+    action_settle_seconds: float,
+) -> None:
     control = control_by_id(dialog, control_id)
-    control.click_input()
-    time.sleep(0.15)
+    control.click()
+    time.sleep(action_settle_seconds)
     if control.get_check_state() != 1:
         raise RuntimeError(f"XQ did not select {label}")
 
@@ -152,9 +164,76 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def record_wait_incident(
+    config_path: Path,
+    *,
+    script_type: str,
+    name: str,
+    stage_error: Exception,
+) -> Path:
+    recovery: dict[str, Any]
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).with_name("xq_backtest.py")),
+                "--config",
+                str(config_path),
+                "--recovery-status",
+            ],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=30,
+            check=False,
+        )
+        recovery = json.loads(completed.stdout) if completed.stdout.strip() else {
+            "status": "unavailable",
+            "error_type": "empty_recovery_output",
+        }
+    except Exception as exc:
+        recovery = {
+            "status": "unavailable",
+            "error_type": type(exc).__name__,
+        }
+
+    occurred_at = datetime.now(timezone.utc)
+    runtime = recovery.get("runtime") if isinstance(recovery.get("runtime"), dict) else {}
+    incident = {
+        "schema_version": 1,
+        "occurred_at_utc": occurred_at.isoformat(),
+        "case": "xq_prepare_script",
+        "document": name,
+        "script_type": script_type,
+        "stage": "new_script_storage_scope",
+        "incident_type": "dialog_timeout",
+        "input_stopped_immediately": True,
+        "error_type": type(stage_error).__name__,
+        "xq_process_id": runtime.get("xq_process_id"),
+        "window_health": runtime,
+        "checkpoint": recovery.get("checkpoint"),
+        "visible_reports": recovery.get("visible_reports", []),
+        "recovery_status": recovery,
+    }
+    output_dir = config_path.resolve().parent / "windows_wait_incidents"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output = output_dir / (
+        occurred_at.strftime("%Y%m%dT%H%M%SZ")
+        + "-prepare-script-storage-timeout.json"
+    )
+    temporary = output.with_name(f".{output.name}.{os.getpid()}.tmp")
+    temporary.write_text(
+        json.dumps(incident, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(output)
+    return output
+
+
 def main() -> int:
     args = parse_args()
     dialog = None
+    storage_contract = None
     try:
         config = json.loads(args.config.read_text(encoding="utf-8"))
         if not config.get("calibrated"):
@@ -167,8 +246,8 @@ def main() -> int:
         if not name:
             return emit("automation_error", "--name must not be empty")
         try:
-            scope_contract = xq_codex_scope.load_script_scope_contract(
-                config, args.script_type, args.folder,
+            storage_contract = xq_codex_scope.load_new_script_storage_contract(
+                config, args.folder,
             )
         except xq_codex_scope.CodexScopeError as exc:
             return emit(
@@ -179,25 +258,39 @@ def main() -> int:
             )
 
         xscript = open_xscript(config, args.force_open_via_xq_menu)
-        scope_evidence = xq_codex_scope.select_verified_script_scope(
-            xscript.wrapper_object(), scope_contract,
-        )
         dialog = open_new_script_dialog(config, xscript)
         dialog_config = config["new_script_dialog"]
         type_id = int(dialog_config["type_control_ids"][args.script_type])
-        choose_checked(dialog, type_id, args.script_type)
+        choose_checked(
+            dialog,
+            type_id,
+            args.script_type,
+            storage_contract.action_settle_seconds,
+        )
 
         if args.script_type == "function":
             return_id = int(dialog_config["function_return_type_control_ids"][args.function_return_type])
-            choose_checked(dialog, return_id, args.function_return_type)
+            choose_checked(
+                dialog,
+                return_id,
+                args.function_return_type,
+                storage_contract.action_settle_seconds,
+            )
+
+        scope_evidence = xq_codex_scope.ensure_new_script_codex_storage(
+            dialog,
+            storage_contract,
+        )
 
         name_control = control_by_id(dialog, int(dialog_config["name_control_id"]))
         name_control.set_edit_text(name)
+        time.sleep(storage_contract.action_settle_seconds)
         if " ".join(name_control.window_text().split()) != name:
             raise RuntimeError("XQ script name verification failed")
 
         if args.dry_run:
-            control_by_id(dialog, int(dialog_config["cancel_control_id"])).click_input()
+            control_by_id(dialog, int(dialog_config["cancel_control_id"])).click()
+            time.sleep(storage_contract.action_settle_seconds)
             dialog = None
             return emit(
                 "success",
@@ -209,7 +302,8 @@ def main() -> int:
                 dry_run=True,
             )
 
-        control_by_id(dialog, int(dialog_config["confirm_control_id"])).click_input()
+        control_by_id(dialog, int(dialog_config["confirm_control_id"])).click()
+        time.sleep(storage_contract.action_settle_seconds)
         dialog = None
         title = verify_created_document(config, args.script_type, args.function_return_type, name)
         return emit(
@@ -221,11 +315,29 @@ def main() -> int:
             active_title=title,
             codex_scope=scope_evidence,
         )
+    except xq_codex_scope.CodexScopeWaitError as exc:
+        incident_path = record_wait_incident(
+            args.config,
+            script_type=args.script_type,
+            name=" ".join(args.name.split()).strip(),
+            stage_error=exc,
+        )
+        return emit(
+            "automation_error",
+            f"XQ script preparation stopped after a dialog timeout: {exc}",
+            input_stopped=True,
+            windows_wait_incident=str(incident_path),
+        )
     except Exception as exc:
         if dialog is not None:
             try:
+                if storage_contract is not None:
+                    xq_codex_scope.cancel_new_script_storage_dialogs(
+                        dialog,
+                        storage_contract,
+                    )
                 dialog_config = config.get("new_script_dialog", {})
-                control_by_id(dialog, int(dialog_config.get("cancel_control_id", 30002))).click_input()
+                control_by_id(dialog, int(dialog_config.get("cancel_control_id", 30002))).click()
             except Exception:
                 pass
         return emit("automation_error", f"XQ script preparation failed: {type(exc).__name__}: {exc}")

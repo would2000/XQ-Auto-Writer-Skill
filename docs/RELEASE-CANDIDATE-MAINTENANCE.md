@@ -1,11 +1,11 @@
 # 發布候選驗證與維護模式
 
-本文件定義第九階段的發布候選（Release Candidate，RC）流程。這次候選從正式版 `0.2.0` 升級到目標 `0.3.0`；在發布 PR 準備完成前不改動 `VERSION`，也不得建立 tag、推送分支或發布 GitHub Release。
+本文件定義第九階段的發布候選（Release Candidate，RC）流程。這次候選從正式版 `0.3.0` 升級到目標 `1.0.0`；在發布 PR 準備完成前不改動 `VERSION`，也不得建立 tag、推送分支或發布 GitHub Release。
 
 ## 安全邊界
 
 - 維護模式狀態只寫入已忽略的 `.xq-auto-writer/release-candidate/maintenance.json`，不得包含帳號、商品、策略、報告內容或私人路徑以外的執行資料。
-- `release/rc-interface-v1.json` 是版本化、可公開且不含私人資料的介面凍結契約。任何 CLI 選項或 schema 常數差異都必須先人工審查並建立新版契約；檢查器不會自動覆寫。
+- `release/rc-interface-v2.json` 是版本化、可公開且不含私人資料的 1.0.0 介面凍結契約，包含五類基礎產生器。任何 CLI 選項或 schema 常數差異都必須先人工審查並建立新版契約；檢查器不會自動覆寫。`release/rc-interface-v1.json` 保留為 0.x 已發布合約。
 - 離線 CI 成功不等於真實 XQ 已驗證。XQ UI 驗證必須遵守操作憲法、先讀 recovery-status、只使用 `自訂/CODEX/`、慢速輸入及逐項清理。
 - XQ 五類任一類缺少唯一 CODEX 資料夾或可驗證選擇器時，相關真實測試標為 `blocked`，不得改用私人根目錄、座標或既有私人文件。
 - CI 與本文件中的演練不得建立 tag、Release、真實下單、故障注入或中斷網路。
@@ -19,8 +19,8 @@ git status --short
 python scripts/release_maintenance.py status
 python scripts/release_maintenance.py enter `
   --reason "phase-9-release-candidate" `
-  --current-version 0.2.0 `
-  --target-version 0.3.0 `
+  --current-version 0.3.0 `
+  --target-version 1.0.0 `
   --confirm-maintenance-mode
 ```
 
@@ -75,10 +75,10 @@ Remove-Item Env:\PYTHONUTF8
 ## 4. 升級與復原演練
 
 ```powershell
-python scripts/rehearse_upgrade_rollback.py --source-tag v0.2.0
+python scripts/rehearse_upgrade_rollback.py --source-tag v0.3.0
 ```
 
-演練只在臨時目錄執行：從不可變的 `v0.2.0` tag 匯出舊 Skill、建立備份、安裝目前候選樹、驗證必要檔案，再還原舊樹並比較 byte-level SHA-256。路徑穿越、symlink、缺少 tag、缺少必要檔案或 digest 不同均失敗。演練不修改儲存庫、Codex 的實際 Skill 安裝或 XQ。
+演練只在臨時目錄執行：從不可變的 `v0.3.0` tag 匯出舊 Skill、建立備份、安裝目前候選樹、驗證必要檔案，再還原舊樹並比較 byte-level SHA-256。路徑穿越、symlink、缺少 tag、缺少必要檔案或 digest 不同均失敗。演練不修改儲存庫、Codex 的實際 Skill 安裝或 XQ。
 
 若升級演練失敗：
 
@@ -102,15 +102,15 @@ python scripts/rehearse_upgrade_rollback.py --source-tag v0.2.0
 
 ## 6. CI 與發布準備
 
-PR 的 `CI / verify` 必須 Passed。CI 是唯讀 Windows 工作，不接觸 XQ，並執行 metadata、repository hygiene、完整 unittest、Python 編譯、RC 介面及 `v0.2.0` 升級／復原演練。CI 顯示成功時，真實 XQ 欄仍應明列 `Unable to Test`，由人工證據補足。
+PR 的 `CI / verify` 必須 Passed。CI 是唯讀 Windows 工作，不接觸 XQ，並執行 metadata、repository hygiene、完整 unittest、Python 編譯、RC 介面及 `v0.3.0` 升級／復原演練。CI 顯示成功時，真實 XQ 欄仍應明列 `Unable to Test`，由人工證據補足。
 
 全部閘門通過後才準備發布 PR：
 
-1. 把 `VERSION` 改為 `0.3.0`。
-2. 將 `[Unreleased]` 內容移到 `## [0.3.0] - YYYY-MM-DD`，保留新的空白 `[Unreleased]`。
+1. 把 `VERSION` 改為 `1.0.0`。
+2. 將 `[Unreleased]` 內容移到 `## [1.0.0] - YYYY-MM-DD`，保留新的空白 `[Unreleased]`。
 3. 更新比較連結與 Release Notes，區分離線測試、真實 XQ 已驗證及未驗證項目。
 4. 建立 Draft PR；CI Passed 後才合併。
-5. 合併後才建立 `v0.3.0` tag 與 Draft Release，核對後發布並執行 `gh release verify`。
+5. 合併後才建立 `v1.0.0` tag 與 Draft Release，核對後發布並執行 `gh release verify`。
 
 本階段不自動執行以上 GitHub 寫入。
 

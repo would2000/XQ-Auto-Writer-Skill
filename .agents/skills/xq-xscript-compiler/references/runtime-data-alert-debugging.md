@@ -2,6 +2,8 @@
 
 本文件蒸餾四篇 XQ 官方學習文章，供腳本設計、回測、警示及自動交易執行期判讀使用。只保存自行重述的資料契約、操作模型與版本限制，不保存文章正文、圖片、HTML 或完整官方程式範例。
 
+2016 年較早的 `Print`、`OutputField` 與 `GetFieldDate` 文章另見 [xspractice-learning-guide.md](xspractice-learning-guide.md)。兩代文章若有支援範圍或預設路徑差異，以本文件較新來源、目前 XSHelp、XQ 操作憲法及當次實際讀回為準。
+
 ## 來源與版本
 
 | 主題 | 文章日期／ID | 官方來源 |

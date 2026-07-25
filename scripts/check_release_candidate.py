@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_CONTRACT = Path("release/rc-interface-v1.json")
+DEFAULT_CONTRACT = Path("release/rc-interface-v2.json")
 SEMVER_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 
 
@@ -90,7 +90,8 @@ def validate_release_candidate(root: Path, contract_path: Path) -> dict[str, Any
             "errors": [{"code": "contract_invalid", "detail": str(exc)}],
         }
 
-    if contract.get("schema_version") != 1 or contract.get("contract_version") != "1":
+    contract_version = str(contract.get("contract_version", ""))
+    if contract.get("schema_version") != 1 or contract_version not in {"1", "2"}:
         errors.append({"code": "unsupported_contract_version"})
 
     version_path = root / "VERSION"
@@ -98,11 +99,19 @@ def validate_release_candidate(root: Path, contract_path: Path) -> dict[str, Any
         repository_version = version_path.read_text(encoding="utf-8").strip()
         stable_version = str(contract["current_stable_version"])
         target_version = str(contract["target_release_version"])
-        transition_ok = (
-            _semver(target_version) > _semver(stable_version)
-            and _semver(target_version)[:2] == (_semver(stable_version)[0], _semver(stable_version)[1] + 1)
-            and _semver(target_version)[2] == 0
-        )
+        stable_semver = _semver(stable_version)
+        target_semver = _semver(target_version)
+        if contract_version == "1":
+            transition_ok = (
+                target_semver > stable_semver
+                and target_semver[:2] == (stable_semver[0], stable_semver[1] + 1)
+                and target_semver[2] == 0
+            )
+        else:
+            transition_ok = (
+                target_semver == (stable_semver[0] + 1, 0, 0)
+                and contract.get("release_transition") == "major"
+            )
         if repository_version == stable_version:
             candidate_phase = "development"
             phase_ok = True

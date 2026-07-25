@@ -2,7 +2,7 @@
 
 讓 Codex 根據自然語言需求撰寫 XScript，操作 Windows 上的 XQ 全球贏家 XScript 編輯器，讀取真實編譯結果並反覆修正，直到編譯成功或達到安全停止條件。
 
-目前版本：[0.3.0](VERSION)｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)｜[XQ 操作憲法](docs/XQ-OPERATION-CONSTITUTION.md)
+目前版本：[0.3.0](VERSION)｜1.0.0 發布候選｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)｜[XQ 操作憲法](docs/XQ-OPERATION-CONSTITUTION.md)
 
 [![CI](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml/badge.svg)](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml)
 
@@ -147,6 +147,25 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_prepare_script.py `
   --name "測試選股"
 ```
 
+建檔工具會先在「新增腳本」選取並讀回類型，再開啟該類型限定的「儲存位置」資料夾瀏覽器。它只接受唯一 `自訂 > CODEX` 直接階層；CODEX 缺少時才建立，重名或位置不符時停止，最後必須從新增腳本對話框讀回 `自訂/CODEX/` 才會建立文件。這個流程不依賴五個自繪分類頁籤，也不使用座標；`--dry-run` 會完成類型與位置驗證後取消，不留下文件。
+
+若只需要其中一類的基礎 `.xs`，使用單一類型產生器；它不開啟 XQ，且拒絕覆寫已存在檔案：
+
+```powershell
+python .agents/skills/xq-xscript-compiler/scripts/xq_generate_basic_script.py `
+  --script-type function `
+  --output generated/basic-function.xs
+
+python .agents/skills/xq-xscript-compiler/scripts/xq_generate_basic_script.py `
+  --script-type indicator `
+  --output generated/basic-indicator.xs `
+  --with-function --function-name CodexBasicDelta
+```
+
+支援 `indicator`、`screener`、`alert`、`function`、`autotrade` 五類。函數範本是數值型別；後四類可各自用 `--with-function` 產生呼叫同一函數的版本。必須先將函數以該名稱在 XQ 編譯成功，再編譯 caller。產生成功只代表來源檔已建立，不代表 XQ 編譯、指標繪值、選股執行、警示觸發、回測或交易行為已驗證；自動交易範本不含下單敘述。
+
+整理既有腳本前，請先由使用者手動切換到所需分類，再用 `xq_category_selector.py --config .xq-auto-writer/xq-ui.json --script-type <type>` 唯讀驗證目前自繪分類與唯一 `自訂/CODEX`。XQ 3.19.03 沒有暴露可讀回的分類 TabItem、正式切換命令或官方快捷鍵，因此工具不會自動切換：目標尚未由使用者切到前景時會回傳 `manual_switch_required` 與 `input_sent: false`，不會猜測 `WM_COMMAND`、顯示／隱藏內容 pane、建立臨時空白腳本或使用座標。
+
 編譯已產生的程式：
 
 ```powershell
@@ -207,7 +226,7 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_screener.py `
   --max-rows 100
 ```
 
-工具使用 XQ 原生 CP950 CSV 作為結果證據，再轉成單一 JSON；會回傳資料日期、完整命中數、欄位與列資料。`OutputField` 會成為結果欄位。0 筆是成功空集合；重名、缺少腳本或不存在的策略回傳退出碼 2，工具不會改跑其他策略。預設 CSV 只暫存供解析；若交易者要保留原生檔案，可指定一個尚不存在的 `--native-export <path>`，工具拒絕覆寫。工具建立的子對話框都會收尾關閉；若選股中心也是工具自行開啟，任務結束後一併關閉。完整的已驗證控制項與限制見 [選股中心實際執行與結果擷取指南](.agents/skills/xq-xscript-compiler/references/screener-window-guide.md)。
+工具使用 XQ 原生 CP950 CSV 作為結果證據，再轉成單一 JSON；會回傳資料日期、完整命中數、欄位與列資料。`OutputField` 會成為結果欄位。0 筆是成功空集合；重名、缺少腳本或不存在的策略回傳退出碼 2，工具不會改跑其他策略。預設 CSV 只暫存供解析；若交易者要保留原生檔案，可指定一個尚不存在的 `--native-export <path>`，工具拒絕覆寫。工具建立的子對話框都會收尾關閉；若選股中心也是工具自行開啟，任務結束後一併關閉。完整的已驗證控制項與限制見 [選股中心實際執行與結果擷取指南](.agents/skills/xq-xscript-compiler/references/screener-window-guide.md)；因子分析、每日清單、排行、回溯、回測與錯誤碼的文件知識見 [XS 選股官方課程蒸餾](.agents/skills/xq-xscript-compiler/references/screener-learning-guide.md)。
 
 每次完成執行後，工具也會切換至「執行錯誤的商品」並擷取原生錯誤 CSV，再恢復原來的顯示類型。輸出包含 `error_count`、`error_details` 與截斷狀態；只有 XQ 訊息本身含代碼時才填入 `error_code`。全部正常是 `success`，全部錯誤是 `failure`，同時有命中與錯誤是 `partial_failure`。可用 `--native-error-export <新路徑>` 保留錯誤 CSV。
 
@@ -223,7 +242,7 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_alert.py `
   --parameter-label '1觸發，0不觸發'
 ```
 
-工具會建立唯一的紅燈策略，以 `單次洗價模式` 取得 `HH:MM:SS(N)` 觸發節點；接著複製為綠燈策略，只把指定參數改成 `0`，並要求洗價正常完成且觸發頁為空。預設會精確讀回腳本與商品後，只刪除本次建立的兩個策略。`success` 表示紅燈筆數大於 0、綠燈為 0 且清理成功；結果不符為 `mismatch`（退出碼 2），視窗、逾時、讀回或清理無法證明為 `automation_error`（退出碼 3）。完整限制見 [警示實際觸發與不觸發驗證指南](.agents/skills/xq-xscript-compiler/references/alert-window-guide.md)。
+工具會建立唯一的紅燈策略，以 `單次洗價模式` 取得 `HH:MM:SS(N)` 觸發節點；接著複製為綠燈策略，只把指定參數改成 `0`，並要求洗價正常完成且觸發頁為空。預設會精確讀回腳本與商品後，只刪除本次建立的兩個策略。`success` 表示紅燈筆數大於 0、綠燈為 0 且清理成功；結果不符為 `mismatch`（退出碼 2），視窗、逾時、讀回或清理無法證明為 `automation_error`（退出碼 3）。完整的真實 UI 限制見 [警示實際觸發與不觸發驗證指南](.agents/skills/xq-xscript-compiler/references/alert-window-guide.md)；策略雷達的 15 頁官方課程蒸餾另見 [XS 策略雷達官方課程蒸餾](.agents/skills/xq-xscript-compiler/references/sensor-learning-guide.md)。
 
 函數腳本在操作 XQ 前，可先檢查回傳型別標頭、`retval` 與明確禁止的副作用：
 
@@ -432,13 +451,13 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_function_batch_runner.py `
 
 聚合器拒絕不同 suite digest、案例 schema、runner contract 或 XQ 版本，也拒絕缺 pair、重複案例、控制／不足角色不完整、清理未完成或含 Windows wait incident 的結果。只有全部 pair 完成後才產生 aggregate JSON／JUnit；`baseline-v2.json` 只能由完整 aggregate 明確確認建立，`baseline-v1.json` 與 migration diff 必須保留。
 
-憲法隔離同步提升為 fail-closed：`xq_prepare_script.py` 必須帶 `--folder CODEX`，且 `.xq-auto-writer/xq-ui.json` 必須為各腳本類型提供唯一且可讀回 `自訂/CODEX/` 的校正選擇器。缺少穩定選擇器時，工具在接觸 XQ 前停止，不會退回 `自訂/` 或使用幾何猜測。2026-07-24 初次只讀探測尚無 CODEX 節點；其後使用者在目前可見公式分類手動建立並重新命名，唯讀觀察器證明 TreeView `45242` 下有唯一 `自訂 > CODEX (0)`，右鍵選單實際類別為 `#32768` 且含「新增資料夾」。這只校正目前分類，不代表五類選擇器完成，因此真實完整矩陣與 baseline-v2 仍未執行。
+憲法隔離同步提升為 fail-closed：`xq_prepare_script.py` 必須帶 `--folder CODEX`，且 `.xq-auto-writer/xq-ui.json` 必須提供 `new_script_storage_scope`。工具先選腳本類型，再透過儲存位置 Button `30003` 開啟類型限定的 TreeView `30065`，只接受唯一 `自訂 > CODEX`；缺少時才用標準 `#32768`「新增資料夾」及建立對話框 Edit `30021` 補建，最後要求儲存位置 Edit `30023` 精確讀回 `自訂/CODEX/`。重名、類型或位置不符、selector 缺失與 dialog timeout 都 fail closed，不會退回 `自訂/`、猜測自繪頁籤命令或使用幾何位置。2026-07-25 真實 XQ 3.19.03 已在函數、指標、選股、警示與交易五類各自以類型限定路徑讀回唯一 CODEX，並編譯共同數值函數及四類 caller；所有五份均為 0 錯誤、0 警告。這是編譯相容證據，不代表指標繪值、選股結果、警示觸發、回測或交易績效。
 
 ### 第九階段：發布候選驗證與維護模式
 
-第九階段以 `release/rc-interface-v1.json` 凍結 `0.3.0` 候選的公開 CLI 與 schema／runner contract；候選建立時的正式版為 `0.2.0`，發布 PR 才將 `VERSION` 升為 `0.3.0`。`scripts/check_release_candidate.py` 唯讀比對凍結介面、必要文件與 CI 閘門，差異時 fail closed，絕不自動改寫契約。
+第九階段的 1.0.0 候選以 `release/rc-interface-v2.json` 凍結公開 CLI 與 schema／runner contract，並加入五類基礎範本產生器的公開介面；候選建立時的正式版為 `0.3.0`，發布 PR 才將 `VERSION` 升為 `1.0.0`。`scripts/check_release_candidate.py` 唯讀比對凍結介面、必要文件與 CI 閘門，差異時 fail closed，絕不自動改寫契約。
 
-`scripts/release_maintenance.py` 將維護狀態原子保存在 Git 忽略區，重複進入、損壞狀態或缺少版本一致的 RC 成功證據都拒絕離開。`scripts/rehearse_upgrade_rollback.py` 從 `v0.2.0` 匯出舊 Skill，只在臨時目錄完成備份、候選升級與 byte-level SHA-256 還原；不修改實際安裝、儲存庫或 XQ。完整命令、失敗復原、真實 XQ 閘門及發布準備見[發布候選驗證與維護模式](docs/RELEASE-CANDIDATE-MAINTENANCE.md)。
+`scripts/release_maintenance.py` 將維護狀態原子保存在 Git 忽略區，重複進入、損壞狀態或缺少版本一致的 RC 成功證據都拒絕離開。`scripts/rehearse_upgrade_rollback.py` 從 `v0.3.0` 匯出舊 Skill，只在臨時目錄完成備份、候選升級與 byte-level SHA-256 還原；不修改實際安裝、儲存庫或 XQ。完整命令、失敗復原、真實 XQ 閘門及發布準備見[發布候選驗證與維護模式](docs/RELEASE-CANDIDATE-MAINTENANCE.md)。
 
 真實 XQ RC 回歸仍受憲法約束：五類所需的 `自訂/CODEX/` 與非座標選擇器未全部完成前，狀態是 `blocked`，不能用私人根目錄替代。CI 成功也只證明離線檢查；XQ 欄必須維持 `Unable to Test（未驗證）`，直到慢速 smoke、完整清理與桌面復原都取得當次證據。
 
@@ -457,6 +476,14 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_function_batch_runner.py `
 3. `.agents/skills/xq-xscript-compiler/references/compiler-lessons.md`：只有經目前 XQ 編譯器驗證過的可重用經驗。
 
 實際編譯器結果永遠是最後權威。上游範例可能依賴特定市場、商品、頻率、訂閱欄位或舊版 XQ，不能只因為找到範例就假設目前環境可用。
+
+警示與策略雷達工作另有 [XS 策略雷達官方課程蒸餾](.agents/skills/xq-xscript-compiler/references/sensor-learning-guide.md)：逐頁涵蓋 15 篇官方文章，只保存自行重述的操作、洗價、回測、報告、通知、交易安全與錯誤碼契約，不保存正文、HTML、圖片或完整範例。文章跨越 2016–2025 年，所有介面與支援限制都要以目前 XQ 重新讀回；文件中的下單或手機登入說明也不會放寬本專案的帳號與實單禁令。
+
+選股工作另有 [XS 選股官方課程蒸餾](.agents/skills/xq-xscript-compiler/references/screener-learning-guide.md)：逐頁涵蓋指定的 13 篇官方文章，整理選股中心、每日清單、欄位／腳本條件、排行、因子分析、回溯、回測、題材型設計模式及完整選股錯誤碼。只保存自行重述的結構化知識與來源 metadata，不保存正文、HTML、圖片、完整範例或文章股票名單；舊版 UI 與投資案例不視為目前版本或未來績效證據。
+
+語法與資料邊界另有 [XS 語法應用官方課程蒸餾](.agents/skills/xq-xscript-compiler/references/xspractice-learning-guide.md)：逐頁涵蓋指定的 7 篇官方文章，整理 XQ 18.01 版本能力、編譯警告、`SetTotalBar`、指定頻率 `SetBarBack`、變數序列、`Print`、`OutputField`／`GetFieldDate` 及區間函數契約。文件明確分開 2016–2025 文章版本、目前 XSHelp 與 XQ 3.19.03 實測，且不保存正文、HTML、圖片或完整範例。
+
+XQ 功能與籌碼分析另有 [XQ 進階應用官方課程蒸餾](.agents/skills/xq-xscript-compiler/references/advanced-learning-guide.md)：逐頁涵蓋側欄全部 17 篇內容頁，整理經濟指標行事曆、自設畫面、美股全部時段、交易訊號標記、籌碼／券商／股權分析、籌碼選股、族群透視及分點指標。只保存自行重述的結構化知識與來源 metadata，不保存正文、HTML、圖片、完整表格或完整範例；自設頁面、自選券商與追蹤清單仍視為私人設定，訊號標記頁的帳號／刪單說明也不構成操作授權。
 
 XQ 官方部落格 `xstrader` 的文章與程式碼目前沒有納入本地知識庫：其網站頁尾限制未授權翻載，`robots.txt` 也明示禁止未授權的 AI 訓練與資料探勘。在取得書面授權前，不應建立自動爬蟲或保存文章正文。
 
