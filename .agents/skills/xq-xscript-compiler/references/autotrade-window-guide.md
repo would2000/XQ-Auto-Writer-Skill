@@ -16,6 +16,10 @@
 
 2026-07-21 另以不含交易指令的專用交易腳本驗證回測設定自動填入。測試腳本在目前編譯器以 0 錯誤、0 警告通過；所有測試值都完成寫入、讀回及還原，最後按回測設定的「取消」離開。此次沒有按「開始回測」，也沒有產生進度或報告視窗。
 
+2026-08-02 以 `xq_existing_script_pipeline.py` 對既有 CODEX 交易腳本 `CodexV1FlowAutotrade` 做來源綁定的端到端設定 smoke：先讀回精確名稱、交易類型與 `自訂/CODEX/`，再以相同來源 SHA-256 取得當次 0 錯誤、0 警告，最後使用公開商品 2330、日頻與 2026-06-01 至 2026-06-30 開啟回測設定並逐項讀回後取消。`SetTotalBar(20)` 使預載欄位停用，工具正確記錄要求值 1 但未套用。此次沒有按開始、沒有報告或 checkpoint；只證明編譯閘門與設定交接，不證明回測執行、交易結果或策略績效。
+
+同日第十一階段在重新編譯函數 `CodexV1FlowMomentum` 與 caller 後，使用相同公開代表設定完成真實歷史回測：成功商品 1、失敗 0、交易 8；唯一新增報告與 `CodexV1FlowAutotrade` marker 相符，報告已精確關閉，後置 recovery-status 為 `safe_to_start` 且無 checkpoint。`xq_backtest.py --script-name` 會在開啟設定前要求作用中的已編譯交易文件名稱、類型與 `自訂/CODEX/` 全部吻合。預載仍因 `SetTotalBar(20)` 停用，要求值 1 未被強制套用。這是流程執行證據，不代表策略績效。
+
 ## XScript 上方控制列
 
 畫面上看起來像選單的兩個命令，實際位於 XScript 的 `工具列`，不是包含「檔案／編輯／檢視」的 `MenuBar`。
@@ -274,6 +278,10 @@ RadioButton 與一般 CheckBox 雖然同為 Win32 `Button`，仍要分開驗證�
 
 2026-07-22 的第三階段另確認：自動交易腳本含 `SetTotalBar` 時，XQ 3.19.03 會停用回測視窗 Edit `2007`（預先執行筆數）。工具不可對停用控制項呼叫 `set_edit_text`；`xq_backtest.py` 現在略過該欄位並回傳 `settings_evidence.preload_control_enabled`、`preload_records_requested` 與 `preload_records_applied`。`preload_records_applied: false` 必須明確解讀成 CLI 值未套用，不能說它已被 `SetTotalBar` 取代或等價。台積電日頻 `[20]` 實測中，`SetTotalBar(21)` 單獨使用與 `SetTotalBar(1)` 搭配 `SetBarBack(21, "D")` 都取得指定 `1301` 路徑哨兵，但此結果僅涵蓋該固定函數、商品、日期與版本。
 
+回測商品選擇會先清空僅屬於該回測視窗的暫存清單，再加入使用者指定的完整商品集合。`settings_evidence.product_selection` 只輸出來源、指定數量、是否原本非空，以及清空／最終集合讀回是否成功；它不輸出先前清單內容，也不會讀寫自選、群組、帳號、策略或腳本。
+
+2026-07-31 加入共用 foreground guard。由於 `click_input` 使用實體螢幕位置，控制項雖然可見仍可能被 Codex 或其他視窗遮住；因此商品範圍流程的每次輸入前都會驗證父視窗存在、可見、啟用、未 hung，必要時以 Windows 正式命令切換前景，再要求 `GetForegroundWindow` 精確等於目標 handle。失敗時不得點擊，也不得在 timeout 後由 `finally` 補送取消。證據位於 `foreground_guard`。只測自動交易商品範圍可使用 `xq_autotrade_backtest.py --product <公開代碼> --dry-run`，不必填入其他回測設定。
+
 ### 中止尚未完成的回測
 
 點進度列右側按鈕會出現確認模式窗，文字說明回測尚未完成，並詢問是否停止。穩定控制項如下：
@@ -288,7 +296,7 @@ RadioButton 與一般 CheckBox 雖然同為 Win32 `Button`，仍要分開驗證�
 
 2026-07-21 已用 XQ 3.19.03、公開測試商品、1 分鐘頻率及較長歷史區間驗證第一階段的自動中止與復原。工具只鎖定本次啟動後新增的 visible 進度視窗，在 control ID `3001` 的內容區取得同列兩個按鈕並選最右側中止；確認窗出現後，明確把 CheckBox `3003` 維持為未勾選，再按 Button `1`。結果證據為 `confirmation_seen: true`、`partial_results_requested: false`、`progress_closed: true`、`xscript_ready: true`、`partial_report_seen: false`，因此 `recovery_complete: true`。舊報告不算本次部分報告，判定前必須保存既有頂層 handle 並排除。
 
-2026-07-21 第二階段改用多公開商品與事件驅動中止。`--product` 可重複指定，但每筆仍須在查詢結果中唯一完全相符，選取後再核對完整代碼集合；多商品父摘要不保證逐筆列出代碼，因此只用它確認父視窗恢復 enabled 且摘要非空。工具展開 ListView `3002`，只保留匿名化狀態文字；`--cancel-after-completed-products` 僅在完成數達門檻且仍有其他商品未完成時觸發，避免固定秒數猜測。
+2026-07-21 第二階段改用多公開商品與事件驅動中止。`--product` 可重複指定，但每筆仍須在查詢結果中唯一完全相符；工具只在本次回測的「商品」選擇器內先清空舊選取、讀回為空，再選取並讀回完整代碼集合。此暫時範圍不會修改自選股、群組、帳號、策略或 XScript 文件；未明示的預設商品範圍不得自行猜測。多商品父摘要不保證逐筆列出代碼，因此只用它確認父視窗恢復 enabled 且摘要非空。工具展開 ListView `3002`，只保留匿名化狀態文字；`--cancel-after-completed-products` 僅在完成數達門檻且仍有其他商品未完成時觸發，避免固定秒數猜測。
 
 真實案例曾在 10 商品中觀察到 `1` 筆「完成」與 `9` 筆「執行中」，也在 20 商品中觀察到 `3` 筆「完成」與 `17` 筆「執行中」。CheckBox `3003` 可成功維持勾選，進度視窗關閉且 XScript 恢復 enabled；其中一次新部分報告延遲超過原 10 秒觀察窗後才出現，但其他重複案例即使等待 30 秒仍未建立報告。因此輸出必須分開記錄 `partial_results_requested`、`partial_results_request_succeeded`、`partial_report_seen`、`partial_report_summary_available` 與摘要計數。只有報告實際出現且符合要求時，`recovery_complete` 才能為 true；沒有報告時即使 UI 已復原也維持 false，不能捏造部分績效。
 
@@ -361,9 +369,11 @@ RadioButton 與一般 CheckBox 雖然同為 Win32 `Button`，仍要分開驗證�
 
 正式按開始前會在設定檔同目錄原子寫入 `recovery-state.json`。schema v2 只允許：版本、隨機 run ID、`starting`／`running`／`cancelling`／`interrupted` 階段、UTC 時間、XQ PID、XQ／XScript／進度 handle、開始前可見報告 handle 清單，以及「已嘗試開始／已確認中止」布林值。商品、腳本名稱或正文、參數、帳號與績效都不在 schema；未知欄位或損壞 JSON 會以 `checkpoint_invalid` 阻止執行。檔案位於已由 `.gitignore` 排除的 `.xq-auto-writer/`，不得提交。
 
-只有 `success`、`failure`、`partial_failure` 或已確認的 `cancelled` 會自動刪除 checkpoint。`indeterminate_timeout`、環境中斷或開始後的未知自動化例外會保留，以防下次重複建立工作。啟動前若發現 stale checkpoint：有 visible 進度一定阻止；無 visible 進度但舊 PID 仍存活時也保守阻止；舊 PID 已消失且沒有進度才可自動清除。使用者另加 `--acknowledge-stale-checkpoint` 時，可在沒有 visible 進度的前提下明確清除同 PID 狀態，之後仍重新做完整 preflight，不會直接重播原回測。
+只有 `success`、`failure`、`partial_failure` 或已確認的 `cancelled` 會自動刪除 checkpoint。`indeterminate_timeout`、環境中斷或開始後的未知自動化例外會保留，以防下次重複建立工作。啟動前發現任何 stale checkpoint 都會阻止新回測，即使舊 PID 已消失；一般 backtest CLI 的 `--acknowledge-stale-checkpoint` 已改為安全拒絕，不能清除狀態或重播原工作。
 
-2026-07-21 已以真實 XQ 3.19.03 驗證健康生命週期：安全回測在 2 秒監控逾時後明確中止，回傳 `recovery_checkpoint_retained: false`，檔案確實移除。另建立不含策略資料的模擬 stale checkpoint；舊 PID 存活且無 visible 進度時，CLI 在開啟設定前回傳 `environment_interruption`／`stale_checkpoint`。加入 `--acknowledge-stale-checkpoint` 後，工具清除測試狀態、重新 preflight，並以 dry-run 填入後取消，回傳 `stale_checkpoint_cleared: true`。實際關閉、強制終止 XQ 或中斷網路可能中斷 Codex 工作階段，因此明確排除於驗證範圍；各故障分類只要求安全的依賴注入與人工 checkpoint 測試證據，不宣稱真實故障注入已驗證。
+需要人工解除時，使用者必須先在 XQ 確認該 run 已結束，再使用 `xq_recovery_acknowledge.py` 的 `--run-id <exact-run-id>` 與 `--confirm-manual-recovery`。工具重新讀回 checkpoint、XQ／XScript 健康與可見進度，拒絕任何可見進度、檢查不完整或 checkpoint 改變；它先在私有 recovery archive 建立不可覆寫且不含策略／商品／帳號／績效的確認紀錄，讀回後才移除未變更 checkpoint。可見報告本身仍不等於 checkpoint 關聯證據。
+
+2026-07-21 已以真實 XQ 3.19.03 驗證健康生命週期：安全回測在 2 秒監控逾時後明確中止，回傳 `recovery_checkpoint_retained: false`，檔案確實移除。另建立不含策略資料的模擬 stale checkpoint；舊 PID 存活且無 visible 進度時，CLI 在開啟設定前回傳 `environment_interruption`／`stale_checkpoint`。早期 `--acknowledge-stale-checkpoint` 的清除演練已被較嚴格的人工確認／封存流程取代，不能當成目前行為或真實人工復原證據。實際關閉、強制終止 XQ 或中斷網路可能中斷 Codex 工作階段，因此明確排除於驗證範圍；各故障分類只要求安全的依賴注入與人工 checkpoint 測試證據，不宣稱真實故障注入已驗證。
 
 目前 CLI 限定一至二十個明確公開代碼的「商品」來源及固定欄位；組合、選股、庫存、檔案來源與動態腳本參數尚未納入。特別是庫存與帳號仍屬禁止自動選擇範圍，不能用此工具延伸成實盤啟動授權。
 

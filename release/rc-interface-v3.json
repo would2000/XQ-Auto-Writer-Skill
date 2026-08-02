@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "contract_version": "3",
+  "release_transition": "minor",
+  "current_stable_version": "1.0.0",
+  "target_release_version": "1.1.0",
+  "minimum_python_version": "3.10",
+  "upgrade_source_tag": "v1.0.0",
+  "exit_code_contract": {
+    "success": 0,
+    "validation_or_compile_failure": 2,
+    "automation_or_environment_failure": 3
+  },
+  "schema_constants": {
+    ".agents/skills/xq-xscript-compiler/scripts/xq_backtest.py": {"RECOVERY_SCHEMA_VERSION": 2},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_function_batch_runner.py": {"BATCH_CONTRACT_VERSION": "1", "BATCH_SCHEMA_VERSION": 1},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_function_boundary_runner.py": {"CASE_SCHEMA_VERSION": 2, "MANIFEST_SCHEMA_VERSION": 5, "RUNNER_CONTRACT_VERSION": "7", "SUMMARY_SCHEMA_VERSION": 1},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_function_regression.py": {"BASELINE_SCHEMA_VERSION": 1, "DEFAULT_RUNNER_CONTRACT_VERSION": "7", "DIFF_SCHEMA_VERSION": 2},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_generate_basic_script.py": {"SCRIPT_TYPES": ["indicator", "screener", "alert", "function", "autotrade"], "FUNCTION_CALLER_TYPES": ["indicator", "screener", "alert", "autotrade"]},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_report.py": {"REPORT_SCHEMA_VERSION": 1},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_runtime_evidence_suite.py": {"CASE_SCHEMA_VERSION": 1, "MANIFEST_SCHEMA_VERSION": 1, "RUNNER_CONTRACT_VERSION": 1, "SUMMARY_SCHEMA_VERSION": 1},
+    ".agents/skills/xq-xscript-compiler/scripts/xq_runtime_evidence_attestation.py": {"ATTESTATION_SCHEMA_VERSION": 1, "ATTESTATION_CONTRACT_VERSION": "1"}
+  },
+  "public_cli_options": {
+    ".agents/skills/xq-xscript-compiler/scripts/xq_backtest.py": ["--acknowledge-stale-checkpoint", "--buy-offset", "--buy-price", "--cancel-after-completed-products", "--cancel-after-seconds", "--cancel-on-timeout", "--config", "--daily-position-reset", "--direct-order", "--dry-run", "--enable-print", "--end-date", "--fill-on-trigger", "--frequency", "--futures-fee", "--initial-capital-wan", "--max-entries-per-day", "--max-position", "--max-trades-per-minute", "--preload-records", "--price-basis", "--product", "--recovery-status", "--script-name", "--sell-offset", "--sell-price", "--show-partial-results-on-cancel", "--simulate-ticks", "--start-date", "--stock-fee-percent", "--timeout-seconds", "--us-all-sessions"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_category_selector.py": ["--config", "--script-type"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_existing_script_pipeline.py": ["--caller-function-return-type", "--caller-name", "--caller-source", "--caller-type", "--config", "--dry-run", "--function-return-type", "--runtime-tool", "--script-name", "--script-type", "--source"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_function_batch_runner.py": ["--cases", "--config", "--confirm-historical-backtest", "--cooldown-seconds", "--dry-run-plan", "--inter-case-seconds", "--late-report-seconds", "--only-pair", "--output-directory", "--resume-manifest", "--timeout-seconds", "--ui-action-settle-seconds", "--ui-dialog-late-after-seconds", "--ui-dialog-timeout-seconds", "--ui-poll-backoff", "--ui-poll-initial-seconds", "--ui-poll-max-seconds", "--ui-state-timeout-seconds", "--xq-version"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_function_boundary_runner.py": ["--cases", "--config", "--confirm-historical-backtest", "--inter-case-seconds", "--keep-test-artifacts", "--late-recovery-probe-case", "--late-recovery-timeout-seconds", "--late-report-seconds", "--only-pair", "--output-directory", "--require-late-recovery-probe", "--resume-manifest", "--run-id", "--timeout-seconds", "--ui-action-settle-seconds", "--ui-dialog-late-after-seconds", "--ui-dialog-timeout-seconds", "--ui-poll-backoff", "--ui-poll-initial-seconds", "--ui-poll-max-seconds", "--ui-state-timeout-seconds"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_function_regression.py": ["--baseline", "--baseline-version", "--case-schema-version", "--confirm-baseline-update", "--output-directory", "--result-json", "--runner-contract-version", "--write-baseline", "--xq-version"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_generate_basic_script.py": ["--function-name", "--output", "--script-type", "--with-function"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_open_existing_script.py": ["--config", "--dry-run", "--pace-level", "--script-name", "--script-type"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_runtime_evidence_attestation.py": ["--cases", "--confirm-public-attestation", "--dry-run", "--manifest", "--output", "--xq-version"],
+    ".agents/skills/xq-xscript-compiler/scripts/xq_runtime_evidence_suite.py": ["--cases", "--config", "--confirm-historical-backtest", "--dry-run", "--only-case", "--output-directory", "--resume-manifest", "--retry-failed"]
+  },
+  "required_entry_points": [
+    "fetch_xshelp_page.py", "probe_xq_ui.py", "search_xq_knowledge.py", "search_xshelp_distilled.py", "search_xshelp_index.py", "sync_xshelp_index.py", "xq_alert.py", "xq_alert_backtest_run.py", "xq_backtest.py", "xq_backtest_monitor.py", "xq_category_observer.py", "xq_category_selector.py", "xq_codex_scope.py", "xq_compile.py", "xq_existing_script_pipeline.py", "xq_folder_observer.py", "xq_function_batch_runner.py", "xq_function_boundary_runner.py", "xq_function_caller_matrix.py", "xq_function_integration.py", "xq_function_preflight.py", "xq_function_regression.py", "xq_generate_basic_script.py", "xq_indicator.py", "xq_open_existing_script.py", "xq_prepare_script.py", "xq_report.py", "xq_runtime_evidence_attestation.py", "xq_runtime_evidence_suite.py", "xq_screener.py", "xq_screener_backtest_run.py", "xq_screener_pipeline.py"
+  ],
+  "required_documents": [
+    "AGENTS.md", "README.md", "CHANGELOG.md", "docs/RELEASING.md", "docs/RELEASE-CANDIDATE-MAINTENANCE.md", "docs/PHASE-10-END-TO-END.md", "docs/PHASE-11-RUNTIME-EVIDENCE.md", "docs/XQ-OPERATION-CONSTITUTION.md", ".agents/skills/xq-xscript-compiler/SKILL.md", ".agents/skills/xq-xscript-compiler/references/function-guide.md", ".agents/skills/xq-xscript-compiler/references/autotrade-window-guide.md", ".agents/skills/xq-xscript-compiler/references/runtime-evidence-cases-v1.json", "release/xq-runtime-evidence-v1.json"
+  ]
+}

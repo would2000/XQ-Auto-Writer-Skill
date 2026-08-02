@@ -12,6 +12,42 @@ SPEC.loader.exec_module(xq_indicator)
 
 
 class IndicatorExportTests(unittest.TestCase):
+    class FakeTreeItem:
+        def __init__(self, text, children=()):
+            self._text = text
+            self._children = list(children)
+            self.expanded = False
+
+        def text(self):
+            return self._text
+
+        def children(self):
+            return self._children
+
+        def expand(self):
+            self.expanded = True
+
+    def test_codex_indicator_is_resolved_only_as_direct_codex_child(self):
+        target = self.FakeTreeItem("Demo")
+        private_duplicate = self.FakeTreeItem("Demo")
+        codex = self.FakeTreeItem("CODEX", [target])
+        custom = self.FakeTreeItem("自訂", [private_duplicate, codex])
+
+        resolved = xq_indicator.codex_indicator_item(custom, "Demo")
+
+        self.assertIs(resolved, target)
+        self.assertTrue(custom.expanded)
+        self.assertTrue(codex.expanded)
+
+    def test_codex_indicator_rejects_missing_or_duplicate_codex_folder(self):
+        with self.assertRaisesRegex(LookupError, "CODEX indicator folder"):
+            xq_indicator.codex_indicator_item(self.FakeTreeItem("自訂"), "Demo")
+        duplicate = self.FakeTreeItem(
+            "自訂", [self.FakeTreeItem("CODEX"), self.FakeTreeItem("CODEX")]
+        )
+        with self.assertRaisesRegex(LookupError, "found 2"):
+            xq_indicator.codex_indicator_item(duplicate, "Demo")
+
     def test_parses_excel_matrix_and_normalizes_dates(self):
         values = (
             ("時間", "收盤價", "CodexPlot"),

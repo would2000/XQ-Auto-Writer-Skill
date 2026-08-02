@@ -4,6 +4,8 @@
 
 官方策略雷達的洗價、觸發節流、回測、報告、通知、下單安全邊界與錯誤碼蒸餾另見 [sensor-learning-guide.md](sensor-learning-guide.md)。兩份文件的證據層級不同：本文件中的控制項是指定版本的真實 UI 證據；官方課程蒸餾則是跨版本文件證據，不能覆蓋目前視窗讀回。
 
+2026-08-02 第十一階段以 `MyBullishSignal` → `MyBullishSignalAlert` 的當次編譯證據完成 2330 代表回測：成功商品 1、失敗 0、交易 1。唯一新增報告的 caller marker 相符，報告已精確清理，後置 recovery-status 為 `safe_to_start` 且無 checkpoint。這是歷史回測流程證據，不等於盤中雷達訊號、通知送達或策略績效證明。
+
 ## 驗證範圍
 
 - 腳本類型：`{@type:sensor}`。

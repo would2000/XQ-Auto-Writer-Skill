@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_CONTRACT = Path("release/rc-interface-v2.json")
+DEFAULT_CONTRACT = Path("release/rc-interface-v3.json")
 SEMVER_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 
 
@@ -91,7 +91,7 @@ def validate_release_candidate(root: Path, contract_path: Path) -> dict[str, Any
         }
 
     contract_version = str(contract.get("contract_version", ""))
-    if contract.get("schema_version") != 1 or contract_version not in {"1", "2"}:
+    if contract.get("schema_version") != 1 or contract_version not in {"1", "2", "3"}:
         errors.append({"code": "unsupported_contract_version"})
 
     version_path = root / "VERSION"
@@ -107,10 +107,15 @@ def validate_release_candidate(root: Path, contract_path: Path) -> dict[str, Any
                 and target_semver[:2] == (stable_semver[0], stable_semver[1] + 1)
                 and target_semver[2] == 0
             )
-        else:
+        elif contract_version == "2":
             transition_ok = (
                 target_semver == (stable_semver[0] + 1, 0, 0)
                 and contract.get("release_transition") == "major"
+            )
+        else:
+            transition_ok = (
+                target_semver == (stable_semver[0], stable_semver[1] + 1, 0)
+                and contract.get("release_transition") == "minor"
             )
         if repository_version == stable_version:
             candidate_phase = "development"

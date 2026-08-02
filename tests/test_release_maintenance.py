@@ -94,6 +94,32 @@ class ReleaseMaintenanceTests(unittest.TestCase):
         self.assertEqual(result["error"], "release_candidate_evidence_not_ready")
         self.assertTrue(self.state.exists())
 
+    def test_leave_accepts_windows_powershell_utf8_bom_evidence(self) -> None:
+        maintenance.enter_maintenance(
+            self.state,
+            reason="test",
+            current_version="1.0.0",
+            target_version="1.1.0",
+            confirmed=True,
+        )
+        evidence = Path(self.temporary.name) / "rc-bom.json"
+        evidence.write_text(
+            json.dumps(
+                {
+                    "status": "success",
+                    "ready": True,
+                    "current_stable_version": "1.0.0",
+                    "target_release_version": "1.1.0",
+                }
+            ),
+            encoding="utf-8-sig",
+        )
+        result = maintenance.leave_maintenance(
+            self.state, confirmed=True, rc_evidence=evidence
+        )
+        self.assertEqual(result["status"], "success")
+        self.assertFalse(self.state.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

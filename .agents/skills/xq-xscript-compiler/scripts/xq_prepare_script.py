@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import xq_codex_scope
+import xq_ui_pacing
 
 
 SCRIPT_TYPES = {"indicator", "screener", "alert", "function", "autotrade"}
@@ -61,33 +62,45 @@ def control_by_id(root: Any, control_id: int) -> Any:
     return matches[0]
 
 
-def open_xscript(config: dict[str, Any], force_menu: bool) -> Any:
+def open_xscript(config: dict[str, Any], force_menu: bool, pacing: xq_ui_pacing.UiPacing) -> Any:
     from pywinauto import Desktop, keyboard
 
-    desktop = Desktop(backend="uia")
     timeout = float(config.get("connect_timeout_seconds", 15))
     xscript_selector = selector_kwargs(config["window"])
 
-    existing = desktop.window(**xscript_selector)
+    # The XScript top-level window is a native Win32 window.  Looking it up
+    # through a full UIA tree can block for minutes even though the visible
+    # editor is responsive, so use the narrow native lookup first.
+    native_desktop = Desktop(backend="win32")
+    existing = native_desktop.window(**xscript_selector)
     if existing.exists(timeout=0.2) and not force_menu:
         existing.wait("visible enabled ready", timeout=timeout)
-        return existing
+        return existing.wrapper_object()
 
+    desktop = Desktop(backend="uia")
     launcher = config["launcher"]
     xq = desktop.window(**selector_kwargs(launcher["xq_window"]))
     xq.wait("visible enabled ready", timeout=timeout)
     xq.set_focus()
     menu = xq.child_window(**selector_kwargs(launcher["strategy_menu"]))
     menu.click_input()
-    time.sleep(float(launcher.get("menu_wait_seconds", 0.3)))
-    keyboard.send_keys(launcher.get("open_xscript_keys", "{END}{ENTER}"), pause=0.05)
+    time.sleep(pacing.scale(float(launcher.get("menu_wait_seconds", 0.3)), floor_seconds=0.25))
+    keyboard.send_keys(
+        launcher.get("open_xscript_keys", "{END}{ENTER}"),
+        pause=pacing.keyboard_pause(0.05),
+    )
 
     xscript = desktop.window(**xscript_selector)
     xscript.wait("visible enabled ready", timeout=timeout)
     return xscript
 
 
-def open_new_script_dialog(config: dict[str, Any], xscript: Any) -> Any:
+def open_new_script_dialog(
+    config: dict[str, Any],
+    xscript: Any,
+    pacing: xq_ui_pacing.UiPacing,
+    action_settle_seconds: float,
+) -> Any:
     from pywinauto import keyboard
 
     dialog_config = config["new_script_dialog"]
@@ -99,15 +112,17 @@ def open_new_script_dialog(config: dict[str, Any], xscript: Any) -> Any:
     except TimeoutError:
         pass
 
-    action_settle = max(
-        1.0,
-        float(config.get("new_script_storage_scope", {}).get("action_settle_seconds", 2.0)),
-    )
     xscript.set_focus()
-    time.sleep(action_settle)
-    keyboard.send_keys(dialog_config.get("open_file_menu_keys", "%f"), pause=0.15)
-    time.sleep(max(action_settle, float(dialog_config.get("menu_wait_seconds", 0.3))))
-    keyboard.send_keys(dialog_config.get("new_script_keys", "{HOME}{ENTER}"), pause=0.15)
+    time.sleep(action_settle_seconds)
+    keyboard.send_keys(
+        dialog_config.get("open_file_menu_keys", "%f"), pause=pacing.keyboard_pause(0.15),
+    )
+    time.sleep(max(action_settle_seconds, pacing.scale(
+        float(dialog_config.get("menu_wait_seconds", 0.3)), floor_seconds=0.25,
+    )))
+    keyboard.send_keys(
+        dialog_config.get("new_script_keys", "{HOME}{ENTER}"), pause=pacing.keyboard_pause(0.15),
+    )
     return wait_for_win32_window(
         str(dialog_config["class_name"]), str(dialog_config["title"]), timeout
     )
@@ -120,7 +135,10 @@ def choose_checked(
     action_settle_seconds: float,
 ) -> None:
     control = control_by_id(dialog, control_id)
-    control.click()
+    # XQ 3.19.03 exposes the type choices as native Button controls.  The
+    # function choice did not update through a UIA-style click(), while a
+    # physical native click_input() did and can be verified by check state.
+    control.click_input()
     time.sleep(action_settle_seconds)
     if control.get_check_state() != 1:
         raise RuntimeError(f"XQ did not select {label}")
@@ -249,7 +267,7 @@ def main() -> int:
             storage_contract = xq_codex_scope.load_new_script_storage_contract(
                 config, args.folder,
             )
-        except xq_codex_scope.CodexScopeError as exc:
+        except (xq_codex_scope.CodexScopeError, xq_ui_pacing.UiPacingError) as exc:
             return emit(
                 "automation_error",
                 str(exc),
@@ -257,8 +275,10 @@ def main() -> int:
                 codex_scope_verified=False,
             )
 
-        xscript = open_xscript(config, args.force_open_via_xq_menu)
-        dialog = open_new_script_dialog(config, xscript)
+        xscript = open_xscript(config, args.force_open_via_xq_menu, storage_contract.ui_pacing)
+        dialog = open_new_script_dialog(
+            config, xscript, storage_contract.ui_pacing, storage_contract.action_settle_seconds,
+        )
         dialog_config = config["new_script_dialog"]
         type_id = int(dialog_config["type_control_ids"][args.script_type])
         choose_checked(
@@ -280,18 +300,23 @@ def main() -> int:
         scope_evidence = xq_codex_scope.ensure_new_script_codex_storage(
             dialog,
             storage_contract,
+            create_missing=not args.dry_run,
         )
-
-        name_control = control_by_id(dialog, int(dialog_config["name_control_id"]))
-        name_control.set_edit_text(name)
-        time.sleep(storage_contract.action_settle_seconds)
-        if " ".join(name_control.window_text().split()) != name:
-            raise RuntimeError("XQ script name verification failed")
 
         if args.dry_run:
             control_by_id(dialog, int(dialog_config["cancel_control_id"])).click()
             time.sleep(storage_contract.action_settle_seconds)
             dialog = None
+            if scope_evidence["would_create_folder"]:
+                return emit(
+                    "success",
+                    "CODEX folder is missing; dry run cancelled without creating it",
+                    script_type=args.script_type,
+                    function_return_type=args.function_return_type,
+                    name=name,
+                    codex_scope=scope_evidence,
+                    dry_run=True,
+                )
             return emit(
                 "success",
                 "XQ new-script selection verified and cancelled",
@@ -301,6 +326,12 @@ def main() -> int:
                 codex_scope=scope_evidence,
                 dry_run=True,
             )
+
+        name_control = control_by_id(dialog, int(dialog_config["name_control_id"]))
+        name_control.set_edit_text(name)
+        time.sleep(storage_contract.action_settle_seconds)
+        if " ".join(name_control.window_text().split()) != name:
+            raise RuntimeError("XQ script name verification failed")
 
         control_by_id(dialog, int(dialog_config["confirm_control_id"])).click()
         time.sleep(storage_contract.action_settle_seconds)

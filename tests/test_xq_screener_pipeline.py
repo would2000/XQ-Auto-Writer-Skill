@@ -108,14 +108,15 @@ class ScreenerPipelineTests(unittest.TestCase):
             config, source = self.make_inputs(directory)
             returncode, payload, runner, closer = self.run_main(
                 self.args(config, source),
-                [child(), child("compile_error", 2, compiler_output="line 2 error")],
+                [child(), child(), child("compile_error", 2, compiler_output="line 2 error")],
             )
         self.assertEqual(returncode, 2)
         self.assertEqual(payload["status"], "compile_error")
         self.assertEqual(payload["failed_stage"], "compile_script")
         self.assertEqual(payload["stage_result"]["compiler_output"], "line 2 error")
         self.assertIn("prepare", payload["completed_stages"])
-        self.assertEqual(runner.call_count, 2)
+        self.assertIn("preflight", payload["completed_stages"])
+        self.assertEqual(runner.call_count, 3)
         closer.assert_not_called()
         self.assertEqual(payload["editor_cleanup"]["reason"], "not_created")
 
@@ -125,6 +126,7 @@ class ScreenerPipelineTests(unittest.TestCase):
             returncode, payload, runner, closer = self.run_main(
                 self.args(config, source),
                 [
+                    child(),
                     child(active_title="XScript - [PipelineScript] (選股)"),
                     child(compiler_output="0 errors, 0 warnings"),
                     child(matched_count=3, returned_count=2, rows=[{"商品":"A"}, {"商品":"B"}]),
@@ -135,13 +137,16 @@ class ScreenerPipelineTests(unittest.TestCase):
         self.assertEqual(payload["status"], "success")
         self.assertEqual(payload["matched_count"], 3)
         self.assertEqual([call.args[0] for call in runner.call_args_list], [
-            "xq_prepare_script.py", "xq_compile.py", "xq_screener.py"
+            "xq_prepare_script.py", "xq_prepare_script.py", "xq_compile.py", "xq_screener.py"
         ])
-        prepare_args = runner.call_args_list[0].args[1]
-        compile_args = runner.call_args_list[1].args[1]
-        screener_args = runner.call_args_list[2].args[1]
+        preflight_args = runner.call_args_list[0].args[1]
+        prepare_args = runner.call_args_list[1].args[1]
+        compile_args = runner.call_args_list[2].args[1]
+        screener_args = runner.call_args_list[3].args[1]
+        self.assertIn("--dry-run", preflight_args)
         self.assertIn("screener", prepare_args)
         self.assertIn("screener", compile_args)
+        self.assertEqual(compile_args[compile_args.index("--script-name") + 1], "PipelineScript")
         self.assertIn("--create-strategy", screener_args)
         self.assertIn("PipelineScript", screener_args)
         closer.assert_called_once_with({77}, "PipelineScript")
@@ -152,12 +157,12 @@ class ScreenerPipelineTests(unittest.TestCase):
             config, source = self.make_inputs(directory)
             returncode, payload, runner, closer = self.run_main(
                 self.args(config, source),
-                [child(), child(), child("failure", 2, strategy_created=False)],
+                [child(), child(), child(), child("failure", 2, strategy_created=False)],
             )
         self.assertEqual(returncode, 2)
         self.assertEqual(payload["status"], "failure")
         self.assertEqual(payload["failed_stage"], "create_run_capture")
-        self.assertEqual(runner.call_count, 3)
+        self.assertEqual(runner.call_count, 4)
         closer.assert_called_once()
 
     def test_transient_script_search_failure_gets_one_safe_retry(self):
@@ -166,6 +171,7 @@ class ScreenerPipelineTests(unittest.TestCase):
             returncode, payload, runner, _ = self.run_main(
                 self.args(config, source),
                 [
+                    child(),
                     child(),
                     child(),
                     child(
@@ -179,7 +185,7 @@ class ScreenerPipelineTests(unittest.TestCase):
             )
         self.assertEqual(returncode, 0)
         self.assertEqual(payload["screener_attempts"], 2)
-        self.assertEqual(runner.call_count, 4)
+        self.assertEqual(runner.call_count, 5)
 
     def test_cleanup_preserves_preexisting_and_nonmatching_windows(self):
         existing = Mock(handle=10)

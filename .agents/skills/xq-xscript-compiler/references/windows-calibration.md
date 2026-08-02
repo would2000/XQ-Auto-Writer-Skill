@@ -2,7 +2,7 @@
 
 ## 為何不能直接錄製 Codex skill
 
-OpenAI 的 Codex Record & Replay 目前只在 macOS 提供，且需啟用 Computer Use。XQ 全球贏家是 Windows 軟體，因此本專案採用 UI Automation 控制項校準，而不是螢幕座標巨集。所有 XQ 視窗都禁止固定、相對、矩形計算或猜測座標，也不得傳入 `coords`；必須使用可讀回且唯一的控制項或正式命令。
+OpenAI 的 Codex Record & Replay 目前只在 macOS 提供，且需啟用 Computer Use。XQ 全球贏家是 Windows 軟體，因此本專案仍以 UI Automation／MSAA／Win32 控制項校準為主，不使用可跨工作階段重播的螢幕座標巨集。只有自繪控制項經探測後確實沒有語意介面時，才可依 XQ 操作憲法第四條使用目前視窗內的局部相對座標，並逐步驗證；登入、真實帳號、券商串接、帳號設定及實單功能完全禁止座標操作。
 
 ## 第一次校準
 
@@ -24,9 +24,9 @@ OpenAI 的 Codex Record & Replay 目前只在 macOS 提供，且需啟用 Comput
    - 編譯按鈕 `compile_button`
    - 編譯訊息區 `result`
 5. 將 `auto_id`、`control_type`、`title` 或 `title_re` 填入 `.xq-auto-writer/xq-ui.json`。優先使用 `auto_id + control_type`，避免只用會隨內容變動的標題。
-6. 校準 `launcher`：確認 XQ 主視窗的「策略」選單可開啟 XScript。校準 `new_script_dialog`：記錄「新增腳本」對話框內五種腳本、名稱、函數回傳類型、確認與取消的 Win32 control ID。不得使用固定、相對或矩形計算座標；缺少穩定控制項時停止校正。
+6. 校準 `launcher`：確認 XQ 主視窗的「策略」選單可開啟 XScript。校準 `new_script_dialog`：記錄「新增腳本」對話框內五種腳本、名稱、函數回傳類型、確認與取消的 Win32 control ID。缺少穩定語意控制時先完成 UIA、MSAA、Win32 與正式命令探測；仍不可讀時，才依操作憲法第四條校正單步局部相對座標及其前後驗證。
 7. 另校準新增腳本的儲存位置路徑：儲存位置 Edit、資料夾 Button、類型限定的「選擇資料夾」TreeView、`自訂` 根節點、確認／取消，以及缺少 CODEX 時的標準內容選單與「新增資料夾」對話框。必須先選腳本類型，再進入資料夾瀏覽器；不得以自繪分類頁籤代替類型路由。
-8. 對五種腳本及函數三種回傳類型執行 `xq_prepare_script.py --dry-run`；工具會驗證選項、精確 `自訂/CODEX/` 儲存位置後按取消，不留下測試文件。再至少實際建立並編譯一份安全的最小腳本，確認開啟、建檔、寫入與編譯能串接。
+8. 對五種腳本及函數三種回傳類型執行 `xq_prepare_script.py --dry-run`；若 `自訂/CODEX/` 已存在，工具會驗證其精確位置後按取消，不留下測試文件。若資料夾缺少，dry-run 必須回傳 `would_create_folder: true` 並取消，不能補建資料夾。再至少實際建立並編譯一份安全的最小腳本，確認開啟、建檔、寫入與編譯能串接。
 9. 先以不含交易指令的最小測試碼測試每一類。確認工具能讀到真實的成功與完整錯誤訊息後，才把 `calibrated` 改為 `true`。在自動建立動作完成前保留 `requires_preopened_script: true`；完成後才改為 `false`。
 
    驗證尚未列入 `verified_preopened_types` 的類型時，在編譯命令加入 `--calibration-mode`；成功、錯誤、修復三段測試皆通過後，再把該類型加入清單。正式腳本工作流不得使用這個旗標繞過校準保護。
@@ -65,25 +65,42 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_category_observer.py `
 - 使用者手動重新命名時，對話框類別為 `#32770`；舊名稱欄位 ID `30021` 為 disabled，新名稱欄位 ID `30022` 為 enabled，確認／取消 ID 分別為 `30001`／`30002`。輸入 `CODEX` 後，樹狀控制項精確讀回唯一 `CODEX (0)`。
 - 使用者依序手動切換五類後，唯一可見公式窗格／TreeView 的對照為：指標 `1`／`661964`、選股 `4`／`1382856`、警示 `2`／`15139136`、交易 `7`／`662272`、函數 `3`／`6227360`。這些 handle 只屬於當次 XQ 行程；可攜識別應使用窗格 control ID、父層 `1000 → 1100` 與 TreeView control ID `45242`。
 
-使用者說明的建立流程是：在「自訂」根節點開啟右鍵選單、選「新增資料夾」、輸入精確 `CODEX` 並確認。觀察器捕捉到該選單及最終父子讀回，但原始建立動作發生在觀察器啟動前；上述對話框 ID 是重新命名流程的真實證據，不得推測建立對話框必然完全相同。自動建立仍須另做一次完整、無座標、從命令到最終讀回的校正。
+使用者說明的建立流程是：在「自訂」根節點開啟右鍵選單、選「新增資料夾」、輸入精確 `CODEX` 並確認。觀察器捕捉到該選單及最終父子讀回，但原始建立動作發生在觀察器啟動前；上述對話框 ID 是重新命名流程的真實證據，不得推測建立對話框必然完全相同。自動建立仍須另做一次從命令到最終讀回的完整校正；語意介面確實不可用的自繪步驟只能依憲法第四條加入當次視窗內的受控座標例外。
 
-上述切換觀察已證明 XQ 3.19.03 當次行程的五種腳本類型窗格對照，但沒有證明自繪頁籤提供 UIA／MSAA `Invoke`／`Select` 或正式切換命令。不得把 control ID 對照直接當成可送出的 `WM_COMMAND`，也不得改用頁籤幾何位置。該次觀察只有指標分類讀回唯一 `CODEX (0)`；其餘四類仍為零個 CODEX 直接子節點。
+上述切換觀察已證明 XQ 3.19.03 當次行程的五種腳本類型窗格對照，但沒有證明自繪頁籤提供 UIA／MSAA `Invoke`／`Select` 或正式切換命令。不得把 control ID 對照直接當成可送出的 `WM_COMMAND`；若要以頁籤局部相對位置切換，必須另依憲法第四條取得當次視窗基準、單步點擊及切換後讀回證據。該次觀察只有指標分類讀回唯一 `CODEX (0)`；其餘四類仍為零個 CODEX 直接子節點。
 
-2026-07-25 針對自動切換再校正 XQ 3.19.03，結果仍為 fail-closed：
+2026-07-25 針對自動切換再校正 XQ 3.19.03，確認語意／正式命令路徑不可用：
 
 - 公式 host `1100 → 1000` 的 Win32 子窗格只有已知五個內容 pane；host 沒有原生 Menu、`WS_TABSTOP` 或 `WM_GETDLGCODE` 的方向鍵／Tab 鍵要求。
 - UIA control view、Raw View 與 MSAA 皆未暴露具有「指標／選股／警示／交易／函數」名稱及 `Invoke`、`Select` 或 default action 的頁籤元素。Raw UIA 探測 129 個節點、MSAA 探測 883 個節點，匹配數都是零。
 - 以正式選單快捷鍵慢速開啟「檢視(V)」，唯一選單只讀回「佈景主題、工具列、公式區、訊息區、屬性區」，沒有五類切換命令；選單已用 Esc 正常關閉。
-- XQ 官方「公式區」說明只記錄頁籤與滑鼠左鍵操作，官方「工具列」快捷鍵清單也沒有分類切換快捷鍵。這是文件證據，不代表可以用滑鼠座標自動化。
+- XQ 官方「公式區」說明只記錄頁籤與滑鼠左鍵操作，官方「工具列」快捷鍵清單也沒有分類切換快捷鍵。
 
-因此目前 `.xq-auto-writer/xq-ui.json` 的 `formula_category_switch.method` 必須維持 `manual_only`，`automatic_switch_available` 必須維持 `false`。可執行：
+2026-08-02 依操作憲法第四條完成截圖型替代路徑並以五類 CODEX 文件真實驗證。`.xq-auto-writer/xq-ui.json` 的本機契約使用 `screenshot_formula_tabs_v1`，不保存固定座標或頁籤比例：
+
+- 每次動作前只擷取目前公式 host 至記憶體，從多個穩定色彩列偵測恰好五個頁籤區段；唯一作用中填色索引必須與 Win32 公式 pane control ID 的分類讀回一致。
+- 已在目標分類時不送輸入；否則先驗證 XScript 位於前景、可見、啟用且未無回應，再依當次截圖算出的 host 局部位置點擊一次。畫面、前景或配置改變就重新擷取，不沿用先前結果。
+- 點擊後以自適應唯讀輪詢要求目標分類與唯一直接 `自訂/CODEX/` 同時成立。偵測不唯一、頁籤晚到、視窗 disabled／hung、CODEX 缺少或重複時 fail closed 並保存 incident。
+- 成功截圖、點擊螢幕座標與私人樹節點名稱均不落地；JSON 只回報局部邊界、雜湊、分類讀回與是否送出輸入。
+
+切換分類：
 
 ```powershell
 python .agents/skills/xq-xscript-compiler/scripts/xq_category_selector.py `
   --config .xq-auto-writer/xq-ui.json --script-type <type>
 ```
 
-工具只讀回目前唯一可見 pane、TreeView 與 `自訂/CODEX` 直接階層。目標分類已在前景且 CODEX 唯一時回傳 `success`；否則回傳 `automation_error`、`manual_switch_required: true`、`input_sent: false`。不得用 `ShowWindow` 切換內容 pane、把 pane control ID 猜成 `WM_COMMAND`、嘗試未文件化快捷鍵、建立臨時空腳本或用幾何點擊補救。文件頁籤只暴露為 MDI 文件子視窗，未暴露可操作的 `TabItem`；特定分類工作一律由使用者先手動切換，再以 selector 驗證。
+開啟指定的既有 CODEX 文件：
+
+```powershell
+python .agents/skills/xq-xscript-compiler/scripts/xq_open_existing_script.py `
+  --config .xq-auto-writer/xq-ui.json --script-type <type> `
+  --script-name <exact-name>
+```
+
+開啟工具只在唯一 `自訂/CODEX/` 的直接文件中比對完整名稱，不列舉或回傳私人資料夾內容。已在作用中的相同文件不送輸入；否則先選取語意 TreeItem，再擷取當次 TreeView 至記憶體，只在目標項目與 TreeView 的可見交集內送出一次原子雙擊，最後從文件標題、類型與屬性區讀回相同名稱及 `自訂/CODEX/`。2026-08-02 真實驗證通過指標 `MyTrendScoreIndicator`、選股 `MyBreakoutStrengthScreener`、警示 `MyBullishSignalAlert`、交易 `CodexV1FlowAutotrade`、函數 `CodexV1FlowMomentum`；重複開啟交易文件時分類與文件輸入皆為零。不得用 `ShowWindow` 切換內容 pane、把 pane control ID 猜成 `WM_COMMAND`、嘗試未文件化快捷鍵、建立臨時空腳本或雙擊自繪 MDI 文件頁籤。
+
+第一次函數文件校正曾於 2026-08-02 04:59:19 UTC 發生 `document_open_timeout`：標準 Enter 已送出但 XQ 未開啟文件；當時 PID 8300、XQ／XScript 均可見、啟用且未無回應，無 checkpoint 或回測報告。流程停止追加輸入並保存 incident，之後改用上述局部截圖單次雙擊才成功。不得把此 timeout 推測為 XQ 錯誤碼、斷網或當機。
 
 ## 新增腳本儲存位置路徑
 
@@ -93,7 +110,7 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_category_selector.py `
 - 點擊資料夾 Button 後，唯一「選擇資料夾」對話框為 `#32770`，TreeView ID `30065`，確認 `30002`、取消 `30003`。先選類型會使此 TreeView 限定在對應類型，根節點顯示精確 `自訂`。
 - TreeView 內的 CODEX 顯示為精確直接子節點 `CODEX`，不是主公式樹的 `CODEX (<count>)`。缺少時，對精確 `自訂` 根節點執行控制項層級右鍵，標準 `#32768` 選單唯一讀回「新增資料夾」。
 - 「新增資料夾」對話框為 `#32770`，名稱 Edit `30021`、確認 `30002`、取消 `30003`。輸入 CODEX 後，必須回到 TreeView 重新讀回唯一 `自訂 > CODEX`，選取並確認，再從新增腳本 Edit `30023` 讀回精確 `自訂/CODEX/`。
-- 真實交易分支先由使用者刪除 CODEX，工具依上述路徑補建並讀回成功；函數分支讀回既有唯一 CODEX，沒有重複建立。其後正式 `xq_prepare_script.py --dry-run` 在交易與數值函數皆回傳 `success`、`readback_verified: true`、`created_folder: false`，並取消新增腳本，沒有留下測試文件。
+- 真實交易分支先由使用者刪除 CODEX，正式建檔工具依上述路徑補建並讀回成功；函數分支讀回既有唯一 CODEX，沒有重複建立。既有 CODEX 的 `xq_prepare_script.py --dry-run` 在交易與數值函數皆回傳 `success`、`readback_verified: true`、`created_folder: false`，並取消新增腳本，沒有留下測試文件。缺少 CODEX 的 dry-run 則必須取消並回傳 `would_create_folder: true`。
 
 此路徑取代「先自動切換五個自繪分類頁籤」作為新建文件的必要條件。自繪頁籤窗格 ID 仍可用於唯讀判斷目前分類與管理既有文件，但不得用於猜測切換命令。
 

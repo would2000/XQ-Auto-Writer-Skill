@@ -16,6 +16,16 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 from uuid import UUID, uuid4
 
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+if str(SCRIPT_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIRECTORY))
+
+from xq_backtest_scope import (
+    BacktestScopeError,
+    replace_explicit_products,
+    validate_product_code,
+)
+
 
 FREQUENCIES = tuple(str(value) for value in (1, 2, 3, 5, 10, 15, 20, 30, 45, 60)) + ("day",)
 PRICE_BASES = {"original": "原始值", "adjusted": "還原值"}
@@ -34,6 +44,186 @@ EXIT_CODES = {
     "environment_interruption": 3,
     "automation_error": 3,
 }
+
+# Desktop input is deliberately paced only after main() has loaded the local
+# configuration.  Keeping it unset for imported unit tests prevents wall-clock
+# delays while retaining the same production action order.
+_UI_PACING: Any | None = None
+
+
+class ForegroundGuardError(RuntimeError):
+    """Desktop input is unsafe because its owning window is not foreground."""
+
+
+def configure_ui_pacing(config: dict[str, Any]) -> None:
+    global _UI_PACING
+    from xq_ui_pacing import load_ui_pacing
+
+    _UI_PACING = load_ui_pacing(config)
+
+
+def ui_action_pause() -> None:
+    if _UI_PACING is not None:
+        # Keep at least the configured interval between semantic inputs.  The
+        # next readback/action supplies the synchronization point; a second
+        # fixed post-action pause would make long forms needlessly slow.
+        time.sleep(_UI_PACING.action_interval(1.0))
+
+
+def paced_click(control: Any) -> None:
+    ui_action_pause()
+    control.click_input()
+
+
+def paced_select(control: Any, label: str) -> None:
+    ui_action_pause()
+    control.select(label)
+
+
+def paced_set_edit(control: Any, value: str) -> None:
+    ui_action_pause()
+    control.set_edit_text(value)
+
+
+def paced_set_time(control: Any, value: date) -> None:
+    ui_action_pause()
+    control.set_time(year=value.year, month=value.month, day=value.day)
+
+
+def ensure_window_foreground(
+    window: Any,
+    *,
+    get_foreground_handle: Callable[[], int] | None = None,
+    set_foreground: Callable[[int], bool] | None = None,
+    show_window: Callable[[int], bool] | None = None,
+    is_window: Callable[[int], bool] | None = None,
+    is_hung: Callable[[int], bool] | None = None,
+    sleeper: Callable[[float], None] = time.sleep,
+) -> dict[str, Any]:
+    """Require one exact healthy owner window before any physical input.
+
+    ``click_input`` targets screen coordinates.  A visible control can still
+    be covered by another application, so wrapper visibility alone is not
+    sufficient evidence.  The guard uses only formal Win32 window commands,
+    waits at the configured pacing floor, and verifies the exact foreground
+    handle before the caller may send input.
+    """
+
+    handle = int(window.handle)
+    user32 = ctypes.windll.user32
+    get_foreground_handle = get_foreground_handle or (
+        lambda: int(user32.GetForegroundWindow())
+    )
+    set_foreground = set_foreground or (
+        lambda target: bool(user32.SetForegroundWindow(target))
+    )
+    show_window = show_window or (
+        lambda target: bool(user32.ShowWindow(target, 5))
+    )
+    is_window = is_window or (lambda target: bool(user32.IsWindow(target)))
+    is_hung = is_hung or (lambda target: bool(user32.IsHungAppWindow(target)))
+
+    if not is_window(handle):
+        raise ForegroundGuardError("The intended input window no longer exists")
+    try:
+        visible = bool(window.is_visible())
+        enabled = bool(window.is_enabled())
+    except Exception as exc:
+        if "WaitGuiThreadIdle" in str(exc):
+            raise ForegroundGuardError(
+                "WaitGuiThreadIdle while checking the intended input window"
+            ) from exc
+        raise
+    hung = is_hung(handle)
+    if not visible or not enabled or hung:
+        raise ForegroundGuardError(
+            "The intended input window is not visible, enabled, and responsive"
+        )
+
+    before = get_foreground_handle()
+    request_sent = before != handle
+    request_accepted: bool | None = None
+    if request_sent:
+        show_window(handle)
+        request_accepted = set_foreground(handle)
+        interval = (
+            float(_UI_PACING.action_interval(1.0))
+            if _UI_PACING is not None
+            else 1.0
+        )
+        sleeper(interval)
+    after = get_foreground_handle()
+    verified = after == handle
+    evidence = {
+        "window_handle": handle,
+        "window_visible": visible,
+        "window_enabled": enabled,
+        "window_hung": hung,
+        "foreground_before": before,
+        "foreground_request_sent": request_sent,
+        "foreground_request_accepted": request_accepted,
+        "foreground_after": after,
+        "foreground_verified": verified,
+    }
+    if not verified:
+        raise ForegroundGuardError(
+            "Windows did not retain the intended input window in the foreground"
+        )
+    return evidence
+
+
+def guarded_paced_click(window: Any, control: Any) -> dict[str, Any]:
+    evidence = ensure_window_foreground(window)
+    paced_click(control)
+    return evidence
+
+
+def guarded_paced_select(window: Any, control: Any, label: str) -> dict[str, Any]:
+    evidence = ensure_window_foreground(window)
+    paced_select(control, label)
+    return evidence
+
+
+def guarded_paced_set_edit(window: Any, control: Any, value: str) -> dict[str, Any]:
+    evidence = ensure_window_foreground(window)
+    paced_set_edit(control, value)
+    return evidence
+
+
+def summarize_foreground_guards(records: Sequence[dict[str, Any]]) -> dict[str, Any]:
+    if not records:
+        return {
+            "required": True,
+            "all_verified": False,
+            "verification_count": 0,
+            "focus_request_count": 0,
+            "target_window_handles": [],
+        }
+    return {
+        "required": True,
+        "all_verified": all(record.get("foreground_verified") is True for record in records),
+        "verification_count": len(records),
+        "focus_request_count": sum(
+            record.get("foreground_request_sent") is True for record in records
+        ),
+        "target_window_handles": sorted(
+            {int(record["window_handle"]) for record in records}
+        ),
+    }
+
+
+def input_must_stop(exc: BaseException) -> bool:
+    return isinstance(exc, (TimeoutError, ForegroundGuardError)) or any(
+        marker in str(exc).lower()
+        for marker in (
+            "waitguithreadidle",
+            "not responding",
+            "沒有回應",
+            "dialog_late",
+            "dialog_timeout",
+            "window_disabled",
+        )
+    )
 
 
 @dataclass(frozen=True)
@@ -278,7 +468,14 @@ def validate_checkpoint_payload(payload: Any) -> RecoveryCheckpoint:
     if checkpoint.schema_version != RECOVERY_SCHEMA_VERSION:
         raise ValueError("Unsupported recovery checkpoint schema")
     UUID(checkpoint.run_id)
-    if checkpoint.stage not in {"starting", "running", "cancelling", "interrupted"}:
+    if checkpoint.stage not in {
+        "starting",
+        "running",
+        "late_report",
+        "completed",
+        "cancelling",
+        "interrupted",
+    }:
         raise ValueError("Invalid recovery checkpoint stage")
     datetime.fromisoformat(checkpoint.started_at)
     datetime.fromisoformat(checkpoint.updated_at)
@@ -451,10 +648,10 @@ def decimal_text(value: str, label: str) -> str:
 
 
 def validate_product(value: str) -> str:
-    product = value.strip()
-    if not product or len(product) > 40 or any(ord(char) < 32 or char.isspace() for char in product):
-        raise ValueError("--product must be one non-whitespace XQ product code of at most 40 characters")
-    return product
+    try:
+        return validate_product_code(value)
+    except BacktestScopeError as exc:
+        raise ValueError("--product must be one non-whitespace XQ product code of at most 40 characters") from exc
 
 
 def report_summary(elements: Sequence[tuple[str, str]]) -> ReportSummary | None:
@@ -535,89 +732,202 @@ def visible_dialog_with_control(control_id: int, timeout: float, exclude_handle:
     raise TimeoutError(f"Timed out waiting for dialog containing control id {control_id}")
 
 
-def set_combo(root: Any, control_id: int, label: str) -> None:
+def _record_foreground_guard(
+    records: list[dict[str, Any]] | None,
+    evidence: dict[str, Any],
+) -> None:
+    if records is not None:
+        records.append(evidence)
+
+
+def set_combo(
+    root: Any,
+    control_id: int,
+    label: str,
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> None:
     control = control_by_id(root, control_id)
     options = [normalized(item) for item in control.item_texts()]
     if normalized(label) not in options:
         raise ValueError(f"Unsupported option for control {control_id}: {label}")
-    control.select(label)
+    _record_foreground_guard(
+        foreground_records,
+        guarded_paced_select(root, control, label),
+    )
     if normalized(control.window_text()) != normalized(label):
         raise RuntimeError(f"XQ did not retain option for control {control_id}")
 
 
-def set_edit(root: Any, control_id: int, value: int | str) -> None:
+def set_edit(
+    root: Any,
+    control_id: int,
+    value: int | str,
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> None:
     control = control_by_id(root, control_id)
     expected = str(value)
-    control.set_edit_text(expected)
+    _record_foreground_guard(
+        foreground_records,
+        guarded_paced_set_edit(root, control, expected),
+    )
     if normalized(control.window_text()) != normalized(expected):
         raise RuntimeError(f"XQ did not retain value for control {control_id}")
 
 
-def set_checked(root: Any, control_id: int, expected: bool) -> None:
+def set_checked(
+    root: Any,
+    control_id: int,
+    expected: bool,
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> None:
     control = control_by_id(root, control_id)
     current = bool(control.get_check_state())
     if current != expected:
         if not control.is_enabled():
             raise RuntimeError(f"Control {control_id} is disabled and cannot be changed")
-        control.click_input()
+        _record_foreground_guard(
+            foreground_records,
+            guarded_paced_click(root, control),
+        )
     if bool(control.get_check_state()) != expected:
         raise RuntimeError(f"XQ did not retain checkbox state for control {control_id}")
 
 
-def set_radio(root: Any, target_id: int, other_id: int) -> None:
+def set_radio(
+    root: Any,
+    target_id: int,
+    other_id: int,
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> None:
     target = control_by_id(root, target_id)
     if target.get_check_state() != 1:
-        target.click_input()
+        _record_foreground_guard(
+            foreground_records,
+            guarded_paced_click(root, target),
+        )
     if target.get_check_state() != 1 or control_by_id(root, other_id).get_check_state() != 0:
         raise RuntimeError(f"XQ did not retain radio selection for control {target_id}")
 
 
-def set_date(root: Any, control_id: int, value: date) -> None:
+def set_date(
+    root: Any,
+    control_id: int,
+    value: date,
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> None:
     control = control_by_id(root, control_id)
-    control.set_time(year=value.year, month=value.month, day=value.day)
+    evidence = ensure_window_foreground(root)
+    paced_set_time(control, value)
+    _record_foreground_guard(foreground_records, evidence)
     actual = control.get_time()
     if (actual.wYear, actual.wMonth, actual.wDay) != (value.year, value.month, value.day):
         raise RuntimeError(f"XQ did not retain date for control {control_id}")
 
 
-def choose_products(settings_window: Any, products: Sequence[str], timeout: float) -> None:
+def selected_product_codes(product_dialog: Any) -> list[str]:
+    selected = [
+        normalized(item)
+        for item in control_by_id(product_dialog, 781).item_texts()
+        if normalized(item)
+    ]
+    return [item.split(maxsplit=1)[0].split(".", maxsplit=1)[0] for item in selected]
+
+
+def choose_products(
+    settings_window: Any,
+    products: Sequence[str],
+    timeout: float,
+) -> dict[str, Any]:
     product_dialog = None
+    foreground_records: list[dict[str, Any]] = []
     try:
         source = control_by_id(settings_window, 2092)
         if normalized(source.window_text()) == "商品":
-            control_by_id(settings_window, 2031).click_input()
+            foreground_records.append(
+                guarded_paced_click(
+                    settings_window,
+                    control_by_id(settings_window, 2031),
+                )
+            )
         else:
             options = [normalized(item) for item in source.item_texts()]
             if "商品" not in options:
                 raise ValueError("The XQ backtest dialog does not offer the product source")
-            source.select("商品")
+            foreground_records.append(
+                guarded_paced_select(settings_window, source, "商品")
+            )
         product_dialog = visible_dialog_with_control(782, timeout, exclude_handle=settings_window.handle)
-        control_by_id(product_dialog, 805).click_input()
         query = control_by_id(product_dialog, 741)
         result_list = control_by_id(product_dialog, 782)
-        for product in products:
-            query.set_edit_text(product)
-            control_by_id(product_dialog, 802).click_input()
+        # This adapter touches only the transient backtest selector.  The
+        # shared contract below never receives prior item text, so a user's
+        # private working list cannot be exposed in result evidence.
+        def wait_for_empty() -> bool:
             deadline = time.monotonic() + timeout
-            exact_rows: list[int] = []
             while time.monotonic() < deadline:
-                exact_rows = []
-                for row in range(result_list.item_count()):
-                    if normalized(result_list.get_item(row, 0).text()) == product:
-                        exact_rows.append(row)
-                if exact_rows:
-                    break
+                if not selected_product_codes(product_dialog):
+                    return True
                 time.sleep(0.1)
-            if len(exact_rows) != 1:
-                raise LookupError(f"Expected one exact XQ product match for {product!r}, found {len(exact_rows)}")
-            result_list.get_item(exact_rows[0]).select()
-            control_by_id(product_dialog, 803).click_input()
+            return not selected_product_codes(product_dialog)
 
-        selected = [normalized(item) for item in control_by_id(product_dialog, 781).item_texts() if normalized(item)]
-        selected_codes = [item.split(maxsplit=1)[0] for item in selected]
-        if len(selected_codes) != len(products) or set(selected_codes) != set(products):
-            raise RuntimeError("XQ product selection verification failed")
-        control_by_id(product_dialog, 1).click_input()
+        def find_exact_rows(product: str) -> Sequence[int]:
+            foreground_records.append(
+                guarded_paced_set_edit(product_dialog, query, product)
+            )
+            foreground_records.append(
+                guarded_paced_click(
+                    product_dialog,
+                    control_by_id(product_dialog, 802),
+                )
+            )
+            deadline = time.monotonic() + timeout
+            while time.monotonic() < deadline:
+                exact_rows = [
+                    row
+                    for row in range(result_list.item_count())
+                    if normalized(result_list.get_item(row, 0).text()) == product
+                ]
+                if exact_rows:
+                    return exact_rows
+                time.sleep(0.1)
+            return [
+                row
+                for row in range(result_list.item_count())
+                if normalized(result_list.get_item(row, 0).text()) == product
+            ]
+
+        def add_exact_row(_product: str, row: int) -> None:
+            foreground_records.append(ensure_window_foreground(product_dialog))
+            ui_action_pause()
+            result_list.get_item(row).select()
+            foreground_records.append(
+                guarded_paced_click(
+                    product_dialog,
+                    control_by_id(product_dialog, 803),
+                )
+            )
+
+        evidence = replace_explicit_products(
+            products,
+            read_selected_codes=lambda: selected_product_codes(product_dialog),
+            clear_selected=lambda: foreground_records.append(
+                guarded_paced_click(
+                    product_dialog,
+                    control_by_id(product_dialog, 805),
+                )
+            ),
+            wait_for_empty=wait_for_empty,
+            find_exact_matches=find_exact_rows,
+            add_exact_match=add_exact_row,
+        )
+        foreground_records.append(
+            guarded_paced_click(product_dialog, control_by_id(product_dialog, 1))
+        )
         product_dialog = None
 
         deadline = time.monotonic() + timeout
@@ -626,16 +936,25 @@ def choose_products(settings_window: Any, products: Sequence[str], timeout: floa
         summary = normalized(control_by_id(settings_window, 2001).window_text())
         if not settings_window.is_enabled() or not summary:
             raise RuntimeError("XQ did not apply the selected product")
-    except Exception:
-        if product_dialog is not None:
+        evidence["foreground_guard"] = summarize_foreground_guards(foreground_records)
+        return evidence
+    except Exception as exc:
+        if product_dialog is not None and not input_must_stop(exc):
             try:
-                control_by_id(product_dialog, 806).click_input()
+                guarded_paced_click(
+                    product_dialog,
+                    control_by_id(product_dialog, 806),
+                )
             except Exception:
                 pass
         raise
 
 
-def open_backtest_settings(config: dict[str, Any]) -> Any:
+def open_backtest_settings(
+    config: dict[str, Any],
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> Any:
     from pywinauto import Desktop
 
     timeout = float(config.get("connect_timeout_seconds", 15))
@@ -653,15 +972,27 @@ def open_backtest_settings(config: dict[str, Any]) -> Any:
     ]
     if len(buttons) != 1:
         raise LookupError(f"Expected one XScript backtest button, found {len(buttons)}")
-    buttons[0].click_input()
+    guard = guarded_paced_click(root, buttons[0])
+    if foreground_records is not None:
+        foreground_records.append(guard)
     return visible_dialog_with_control(2033, timeout)
 
 
-def apply_preload_records(window: Any, preload_records: int) -> dict[str, Any]:
+def apply_preload_records(
+    window: Any,
+    preload_records: int,
+    *,
+    foreground_records: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     control = control_by_id(window, 2007)
     enabled = bool(control.is_enabled())
     if enabled:
-        set_edit(window, 2007, preload_records)
+        set_edit(
+            window,
+            2007,
+            preload_records,
+            foreground_records=foreground_records,
+        )
     return {
         "preload_control_enabled": enabled,
         "preload_records_requested": preload_records,
@@ -670,31 +1001,45 @@ def apply_preload_records(window: Any, preload_records: int) -> dict[str, Any]:
 
 
 def apply_settings(window: Any, settings: BacktestSettings, timeout: float) -> dict[str, Any]:
-    choose_products(window, settings.products, timeout)
+    foreground_records: list[dict[str, Any]] = []
+    product_selection_evidence = choose_products(
+        window,
+        settings.products,
+        timeout,
+    )
     frequency_label = "日" if settings.frequency == "day" else f"{settings.frequency}分鐘"
-    set_combo(window, 2091, frequency_label)
-    set_radio(window, 2069 if settings.price_basis == "original" else 2070, 2070 if settings.price_basis == "original" else 2069)
-    set_date(window, 2200, settings.start_date)
-    set_date(window, 2201, settings.end_date)
-    settings_evidence = apply_preload_records(window, settings.preload_records)
+    set_combo(window, 2091, frequency_label, foreground_records=foreground_records)
+    set_radio(
+        window,
+        2069 if settings.price_basis == "original" else 2070,
+        2070 if settings.price_basis == "original" else 2069,
+        foreground_records=foreground_records,
+    )
+    set_date(window, 2200, settings.start_date, foreground_records=foreground_records)
+    set_date(window, 2201, settings.end_date, foreground_records=foreground_records)
+    settings_evidence = apply_preload_records(
+        window,
+        settings.preload_records,
+        foreground_records=foreground_records,
+    )
 
     for checkbox_id, edit_id, value in (
         (2124, 2004, settings.max_position),
         (2125, 2005, settings.max_entries_per_day),
         (2126, 2006, settings.max_trades_per_minute),
     ):
-        set_checked(window, checkbox_id, True)
-        set_edit(window, edit_id, value)
+        set_checked(window, checkbox_id, True, foreground_records=foreground_records)
+        set_edit(window, edit_id, value, foreground_records=foreground_records)
 
-    set_combo(window, 2093, PRICE_MODES[settings.buy_price])
-    set_combo(window, 2094, PRICE_MODES[settings.sell_price])
+    set_combo(window, 2093, PRICE_MODES[settings.buy_price], foreground_records=foreground_records)
+    set_combo(window, 2094, PRICE_MODES[settings.sell_price], foreground_records=foreground_records)
     if settings.buy_price == "trigger":
-        set_edit(window, 2009, settings.buy_offset)
+        set_edit(window, 2009, settings.buy_offset, foreground_records=foreground_records)
     if settings.sell_price == "trigger":
-        set_edit(window, 2010, settings.sell_offset)
-    set_edit(window, 2016, settings.initial_capital_wan)
-    set_edit(window, 2014, settings.stock_fee_percent)
-    set_edit(window, 2015, settings.futures_fee)
+        set_edit(window, 2010, settings.sell_offset, foreground_records=foreground_records)
+    set_edit(window, 2016, settings.initial_capital_wan, foreground_records=foreground_records)
+    set_edit(window, 2014, settings.stock_fee_percent, foreground_records=foreground_records)
+    set_edit(window, 2015, settings.futures_fee, foreground_records=foreground_records)
 
     for control_id, expected in (
         (2121, settings.simulate_ticks),
@@ -704,8 +1049,12 @@ def apply_settings(window: Any, settings: BacktestSettings, timeout: float) -> d
         (2127, settings.us_all_sessions),
         (2128, settings.direct_order),
     ):
-        set_checked(window, control_id, expected)
+        set_checked(window, control_id, expected, foreground_records=foreground_records)
 
+    settings_evidence["product_selection"] = product_selection_evidence
+    settings_evidence["foreground_guard"] = summarize_foreground_guards(
+        foreground_records
+    )
     return settings_evidence
 
 
@@ -792,7 +1141,7 @@ def current_top_level_handles() -> set[int]:
     from pywinauto import Desktop
 
     result: set[int] = set()
-    for window in Desktop(backend="uia").windows():
+    for window in Desktop(backend="win32").windows(visible_only=False):
         try:
             if window.is_visible():
                 result.add(window.handle)
@@ -801,22 +1150,31 @@ def current_top_level_handles() -> set[int]:
     return result
 
 
-def visible_progress_window(exclude_handles: set[int] | None = None) -> Any | None:
+def progress_windows(
+    exclude_handles: set[int] | None = None,
+    *,
+    include_hidden: bool = False,
+) -> list[Any]:
     from pywinauto import Desktop
 
     excluded = exclude_handles or set()
-    matches = []
-    for window in Desktop(backend="win32").windows():
+    matches: list[Any] = []
+    for window in Desktop(backend="win32").windows(visible_only=False):
         try:
             if (
                 window.handle not in excluded
-                and window.is_visible()
+                and (include_hidden or window.is_visible())
                 and window.class_name() == "#32770"
                 and any(item.control_id() == 3002 for item in window.descendants())
             ):
                 matches.append(window)
         except Exception:
             continue
+    return matches
+
+
+def visible_progress_window(exclude_handles: set[int] | None = None) -> Any | None:
+    matches = progress_windows(exclude_handles)
     return matches[0] if len(matches) == 1 else None
 
 
@@ -849,21 +1207,53 @@ def completed_product_count(states: Sequence[str]) -> int:
     return sum(1 for state in states if terminal.search(normalized(state)))
 
 
-def new_report_window(existing_handles: set[int]) -> Any | None:
+def _native_dialog_windows(*, include_hidden: bool = False) -> list[Any]:
+    """Return cheap native dialog candidates before any UIA tree traversal."""
     from pywinauto import Desktop
 
-    for window in Desktop(backend="uia").windows():
+    dialogs: list[Any] = []
+    for window in Desktop(backend="win32").windows(visible_only=False):
         try:
-            if (
-                window.handle not in existing_handles
-                and window.is_visible()
-                and window.class_name() == "#32770"
-                and report_elements(window) is not None
-            ):
-                return window
+            if window.class_name() != "#32770":
+                continue
+            if not include_hidden and not window.is_visible():
+                continue
+            dialogs.append(window)
         except Exception:
             continue
-    return None
+    return dialogs
+
+
+def visible_report_records(
+    exclude_handles: set[int] | None = None,
+) -> list[tuple[Any, list[tuple[str, str]]]]:
+    """Resolve only native dialog candidates into UIA report windows.
+
+    Enumerating every top-level UIA window was observably slow on a populated
+    Windows desktop. Native enumeration is inexpensive, so the report parser
+    crosses into UIA only for visible ``#32770`` candidates.
+    """
+    from pywinauto import Desktop
+
+    excluded = exclude_handles or set()
+    records: list[tuple[Any, list[tuple[str, str]]]] = []
+    for native in _native_dialog_windows():
+        try:
+            handle = int(native.handle)
+            if handle in excluded:
+                continue
+            window = Desktop(backend="uia").window(handle=handle).wrapper_object()
+            elements = report_elements(window)
+            if elements is not None:
+                records.append((window, elements))
+        except Exception:
+            continue
+    return records
+
+
+def new_report_window(existing_handles: set[int]) -> Any | None:
+    records = visible_report_records(existing_handles)
+    return records[0][0] if len(records) == 1 else None
 
 
 def new_report_seen(existing_handles: set[int]) -> bool:
@@ -871,20 +1261,7 @@ def new_report_seen(existing_handles: set[int]) -> bool:
 
 
 def visible_report_windows() -> list[Any]:
-    from pywinauto import Desktop
-
-    reports = []
-    for window in Desktop(backend="uia").windows():
-        try:
-            if not window.is_visible() or window.class_name() != "#32770":
-                continue
-            elements = report_elements(window)
-            if elements is None:
-                continue
-            reports.append(window)
-        except Exception:
-            continue
-    return reports
+    return [window for window, _elements in visible_report_records()]
 
 
 def visible_report_handles() -> set[int]:
@@ -893,11 +1270,8 @@ def visible_report_handles() -> set[int]:
 
 def visible_report_evidence() -> list[dict[str, Any]]:
     reports: list[dict[str, Any]] = []
-    for window in visible_report_windows():
+    for window, elements in visible_report_records():
         try:
-            elements = report_elements(window)
-            if elements is None:
-                continue
             summary = report_summary(elements)
             reports.append(
                 {
@@ -1103,7 +1477,30 @@ def run_and_monitor(
     runtime_probe: Callable[[], RuntimeSnapshot] | None = None,
     checkpoint_callback: Callable[[str, int | None, bool], None] | None = None,
     baseline_report_handles: set[int] | None = None,
+    baseline_progress_handles: set[int] | None = None,
+    expected_report_marker: str | None = None,
 ) -> tuple[str, dict[str, Any]]:
+    if (
+        not cancel_on_timeout
+        and cancel_after_seconds is None
+        and cancel_after_completed_products is None
+    ):
+        if not normalized(expected_report_marker):
+            raise ValueError(
+                "A script-name report marker is required for normal backtest monitoring"
+            )
+        from xq_backtest_monitor import run_report_monitor
+
+        return run_report_monitor(
+            settings_window,
+            timeout,
+            normalized(expected_report_marker),
+            runtime_probe=runtime_probe,
+            checkpoint_callback=checkpoint_callback,
+            baseline_report_handles=baseline_report_handles,
+            baseline_progress_handles=baseline_progress_handles,
+        )
+
     from pywinauto import Desktop
 
     existing_handles = current_top_level_handles()
@@ -1112,7 +1509,7 @@ def run_and_monitor(
         report_baseline = visible_report_handles()
     existing_handles.update(report_baseline)
     progress_seen = False
-    control_by_id(settings_window, 2033).click_input()
+    guarded_paced_click(settings_window, control_by_id(settings_window, 2033))
     if checkpoint_callback is not None:
         checkpoint_callback("running", None, False)
     started_at = time.monotonic()
@@ -1242,9 +1639,73 @@ def run_and_monitor(
     }
 
 
+def verify_active_autotrade_script(config: dict[str, Any]) -> dict[str, Any]:
+    """Read back one compiled autotrade document in 自訂/CODEX/."""
+    from pywinauto import Desktop
+    from xq_function_boundary_runner import (
+        _read_active_document,
+        _verify_formula_property_readback,
+    )
+
+    xscript = Desktop(backend="win32").window(
+        title_re="^XScript.*"
+    ).wrapper_object()
+    title = normalized(xscript.window_text())
+    expected = config.get("active_type_title_regex", {}).get(
+        "autotrade", r"\((?:自動交易|交易)\)"
+    )
+    if not isinstance(expected, str) or re.search(expected, title) is None:
+        raise RuntimeError("The active XScript document is not an autotrade script")
+    if "未編譯" in title:
+        raise RuntimeError(
+            "The active autotrade script is uncompiled; obtain a current real "
+            "XQ compiler success before opening the backtest environment"
+        )
+    match = re.search(r"\[([^\[\]]+?)\((?:自動交易|交易)\)", title)
+    if match is None:
+        raise RuntimeError("The active autotrade script name could not be read")
+    expected_name = normalized(match.group(1))
+    name, script_type = _read_active_document(
+        xscript, expected_name, "autotrade"
+    )
+    if not _verify_formula_property_readback(
+        int(xscript.handle), expected_name, "autotrade"
+    ):
+        raise RuntimeError(
+            "The active autotrade name, type, or 自訂/CODEX/ location did not match"
+        )
+    return {
+        "script_name": name,
+        "script_type": script_type,
+        "location": "自訂/CODEX/",
+        "active_title": title,
+        "uncompiled_marker_present": False,
+        "read_only": True,
+    }
+
+
+def require_expected_script_name(active_script: dict[str, Any], expected_name: str | None) -> None:
+    if expected_name is None:
+        return
+    if normalized(str(active_script.get("script_name") or "")) != normalized(expected_name):
+        raise RuntimeError(
+            "The active CODEX autotrade script does not match the explicitly requested script name"
+        )
+
+
+def close_completed_report(handle: int) -> dict[str, Any]:
+    from xq_function_boundary_runner import close_manifest_reports
+
+    results = close_manifest_reports([handle])
+    if len(results) != 1 or results[0].get("closed") is not True:
+        raise RuntimeError(f"The completed report could not be safely closed: {results}")
+    return results[0]
+
+
 def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--script-name")
     parser.add_argument("--recovery-status", action="store_true")
     parser.add_argument("--product", action="append")
     parser.add_argument("--frequency", choices=FREQUENCIES)
@@ -1383,6 +1844,7 @@ def main(argv: Iterable[str] | None = None) -> int:
     tracked_xq_process_id = None
     checkpoint = None
     checkpoint_file = None
+    input_stop_required = False
     try:
         args = parse_args(argv)
         config = json.loads(args.config.read_text(encoding="utf-8"))
@@ -1393,6 +1855,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         settings = settings_from_args(args)
         if not config.get("calibrated"):
             return emit("automation_error", "XQ UI configuration is not calibrated")
+        configure_ui_pacing(config)
 
         checkpoint_file = recovery_path(args.config)
         stale_checkpoint_cleared = False
@@ -1413,22 +1876,27 @@ def main(argv: Iterable[str] | None = None) -> int:
                 process_is_running(stale_checkpoint.xq_process_id),
                 progress_visible,
             )
-            if stale_action == "block" and not (
-                args.acknowledge_stale_checkpoint and not progress_visible
-            ):
+            if args.acknowledge_stale_checkpoint:
                 return emit(
-                    "environment_interruption",
-                    "A previous XQ backtest recovery checkpoint still requires reconciliation",
-                    failure_kind="stale_checkpoint",
+                    "automation_error",
+                    "--acknowledge-stale-checkpoint no longer clears recovery state; use xq_recovery_acknowledge.py with the exact run ID and explicit manual confirmation",
                     recovery_checkpoint_retained=True,
                     recovery_run_id=stale_checkpoint.run_id,
-                    checkpoint_stage=stale_checkpoint.stage,
-                    checkpoint_backtest_started=stale_checkpoint.backtest_started,
-                    saved_process_running=process_is_running(stale_checkpoint.xq_process_id),
                     visible_progress=progress_visible,
                 )
-            remove_checkpoint(checkpoint_file)
-            stale_checkpoint_cleared = True
+            return emit(
+                "environment_interruption",
+                "A previous XQ backtest recovery checkpoint still requires reconciliation",
+                failure_kind="stale_checkpoint",
+                recovery_checkpoint_retained=True,
+                recovery_run_id=stale_checkpoint.run_id,
+                checkpoint_stage=stale_checkpoint.stage,
+                checkpoint_backtest_started=stale_checkpoint.backtest_started,
+                saved_process_running=process_is_running(stale_checkpoint.xq_process_id),
+                visible_progress=progress_visible,
+                stale_reconciliation=stale_action,
+                manual_acknowledgement_required=True,
+            )
 
         baseline_snapshot = capture_runtime_snapshot(config)
         tracked_xq_process_id = baseline_snapshot.expected_xq_process_id
@@ -1443,14 +1911,20 @@ def main(argv: Iterable[str] | None = None) -> int:
                 runtime=runtime_evidence(baseline_snapshot),
             )
 
+        active_script = verify_active_autotrade_script(config)
+        require_expected_script_name(active_script, args.script_name)
         settings_window = open_backtest_settings(config)
         settings_evidence = apply_settings(
             settings_window,
             settings,
             float(config.get("connect_timeout_seconds", 15)),
         )
+        settings_evidence["active_script"] = active_script
         if args.dry_run:
-            control_by_id(settings_window, 2034).click_input()
+            guarded_paced_click(
+                settings_window,
+                control_by_id(settings_window, 2034),
+            )
             settings_window = None
             return emit(
                 "success",
@@ -1460,12 +1934,19 @@ def main(argv: Iterable[str] | None = None) -> int:
                 settings_evidence=settings_evidence,
             )
 
-        if visible_progress_window() is not None:
+        progress_before_start = progress_windows(include_hidden=True)
+        if any(progress.is_visible() for progress in progress_before_start):
             raise RuntimeError("A visible XQ backtest job already exists")
+        baseline_progress_handles = {
+            int(progress.handle) for progress in progress_before_start
+        }
         start_snapshot = capture_runtime_snapshot(config, tracked_xq_process_id)
         start_failure = classify_runtime_interruption(start_snapshot)
         if start_failure is not None:
-            control_by_id(settings_window, 2034).click_input()
+            guarded_paced_click(
+                settings_window,
+                control_by_id(settings_window, 2034),
+            )
             settings_window = None
             return emit(
                 "environment_interruption",
@@ -1503,10 +1984,21 @@ def main(argv: Iterable[str] | None = None) -> int:
             runtime_probe=lambda: capture_runtime_snapshot(config, tracked_xq_process_id),
             checkpoint_callback=checkpoint_callback,
             baseline_report_handles=baseline_report_handles,
+            baseline_progress_handles=baseline_progress_handles,
+            expected_report_marker=active_script["script_name"],
         )
         if status in {"success", "failure", "partial_failure", "cancelled"}:
             remove_checkpoint(checkpoint_file)
+            checkpoint = None
             evidence["recovery_checkpoint_retained"] = False
+            if status in {"success", "failure", "partial_failure"}:
+                report_handle = evidence.get("report_window_handle")
+                if not isinstance(report_handle, int) or report_handle <= 0:
+                    raise RuntimeError(
+                        "Completed backtest evidence has no exact report handle"
+                    )
+                evidence["report_cleanup"] = close_completed_report(report_handle)
+                evidence["report_cleanup_complete"] = True
         else:
             evidence["recovery_checkpoint_retained"] = True
             evidence["recovery_run_id"] = checkpoint.run_id
@@ -1522,9 +2014,13 @@ def main(argv: Iterable[str] | None = None) -> int:
         }
         return emit(status, messages[status], **evidence)
     except Exception as exc:
-        if settings_window is not None:
+        input_stop_required = input_must_stop(exc)
+        if settings_window is not None and not input_stop_required:
             try:
-                control_by_id(settings_window, 2034).click_input()
+                guarded_paced_click(
+                    settings_window,
+                    control_by_id(settings_window, 2034),
+                )
             except Exception:
                 pass
         runtime = None
@@ -1558,6 +2054,7 @@ def main(argv: Iterable[str] | None = None) -> int:
         return emit(
             "automation_error",
             f"XQ backtest automation failed: {type(exc).__name__}: {exc}",
+            input_stopped=input_stop_required,
             recovery_checkpoint_retained=checkpoint is not None,
             recovery_run_id=checkpoint.run_id if checkpoint is not None else None,
         )

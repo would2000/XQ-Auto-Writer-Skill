@@ -24,7 +24,9 @@ from xml.etree import ElementTree
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 import xq_backtest  # noqa: E402
+import xq_category_selector  # noqa: E402
 import xq_codex_scope  # noqa: E402
+import xq_ui_pacing  # noqa: E402
 
 
 CASE_ID_RE = re.compile(r"^[a-z][a-z0-9-]{2,39}$")
@@ -857,11 +859,18 @@ def compile_document(
         "--config", str(config), "--script-type", script_type, "--name", name,
         "--folder", xq_codex_scope.CODEX_FOLDER_NAME,
     ]
-    compile_args = ["--config", str(config), "--source", str(source), "--script-type", script_type]
+    compile_args = [
+        "--config", str(config), "--source", str(source),
+        "--script-type", script_type, "--script-name", name,
+    ]
     if script_type == "function":
         prepare_args.extend(["--function-return-type", "number"])
         compile_args.extend(["--function-return-type", "number"])
     try:
+        require_tool_success(
+            run_json_tool("xq_prepare_script.py", [*prepare_args, "--dry-run"], 45),
+            f"preflight_{name}",
+        )
         prepared = require_tool_success(
             run_json_tool("xq_prepare_script.py", prepare_args, 45), f"prepare_{name}",
         )
@@ -1474,9 +1483,23 @@ def _formula_area_controls(xscript_handle: int) -> tuple[Any, Any, Any]:
     return pane, edit, listing
 
 
-def _select_formula_document(xscript_handle: int, script_type: str, name: str) -> tuple[Any, Any]:
+def _select_formula_document(
+    xscript_handle: int,
+    script_type: str,
+    name: str,
+    config: dict[str, Any],
+) -> tuple[Any, Any]:
     from pywinauto import Desktop, mouse
 
+    win32_root = Desktop(backend="win32").window(handle=xscript_handle).wrapper_object()
+    xq_backtest.configure_ui_pacing(config)
+    xq_category_selector.switch_category(
+        win32_root,
+        script_type,
+        xq_category_selector.load_contract(config),
+        foreground_guard=xq_backtest.ensure_window_foreground,
+        clicker=mouse.click,
+    )
     win32_root = Desktop(backend="win32").window(handle=xscript_handle).wrapper_object()
     panes = [
         item for item in win32_root.descendants()
@@ -1488,20 +1511,7 @@ def _select_formula_document(xscript_handle: int, script_type: str, name: str) -
     ]
     if len(panes) != 1:
         raise LookupError(f"Expected one visible formula content pane, found {len(panes)}")
-    wait_for_window_enabled(win32_root, "cleanup_formula_select_type")
     pane_rectangle = panes[0].rectangle()
-    category_ratios = {
-        "indicator": 0.22,
-        "screener": 0.37,
-        "alert": 0.507,
-        "autotrade": 0.657,
-        "function": 0.81,
-    }
-    mouse.click(coords=(
-        pane_rectangle.left + round(pane_rectangle.width() * category_ratios[script_type]),
-        pane_rectangle.top + 10,
-    ))
-    ui_action_pause()
     list_mode_buttons = [
         item for item in win32_root.descendants()
         if item.class_name() == "Button"
@@ -1576,16 +1586,24 @@ def _select_formula_document(xscript_handle: int, script_type: str, name: str) -
 
 def _verify_formula_property_readback(xscript_handle: int, name: str, script_type: str) -> bool:
     from pywinauto import Desktop
+    from pywinauto.uia_defines import IUIA
 
     labels = {"indicator": "指標", "screener": "選股", "alert": "警示", "autotrade": "交易", "function": "函數"}
     win32_root = Desktop(backend="win32").window(handle=xscript_handle).wrapper_object()
     title = " ".join(win32_root.window_text().split())
-    root = Desktop(backend="uia").window(handle=xscript_handle).wrapper_object()
-    texts = [
-        " ".join(str(item.element_info.name or "").split())
-        for item in root.descendants(control_type="Text")
-        if item.is_visible()
-    ]
+    # A pywinauto wrapper traversal of the complete XScript UIA tree can block
+    # for minutes on an otherwise healthy local window.  Query the native UIA
+    # element array once; XQ exposes the property-grid values as element names.
+    # This keeps the exact name/type/CODEX readback while avoiding repeated
+    # cross-process wrapper calls for every descendant.
+    uia = IUIA()
+    root = uia.iuia.ElementFromHandle(xscript_handle)
+    elements = root.FindAll(uia.tree_scope["descendants"], uia.true_condition)
+    texts = []
+    for index in range(elements.Length):
+        value = " ".join(str(elements.GetElement(index).CurrentName or "").split())
+        if value:
+            texts.append(value)
     return (
         f"{name}({labels[script_type]})" in title
         and name in texts
@@ -1657,7 +1675,7 @@ def delete_manifest_document(
     readback_name, readback_type = _read_active_document(xscript, name, script_type)
     if not authorize_document_cleanup(record, readback_name, readback_type):
         return {"name": name, "deleted": False, "reason": "manifest_readback_mismatch"}
-    listing, edit = _select_formula_document(int(xscript.handle), script_type, name)
+    listing, edit = _select_formula_document(int(xscript.handle), script_type, name, config)
     if not _verify_formula_property_readback(int(xscript.handle), name, script_type):
         return {"name": name, "deleted": False, "reason": "formula_property_readback_mismatch"}
     if edit.window_text() != name or listing.item_count() != 1:
@@ -1807,6 +1825,19 @@ def recover_attempted_active_document(record: dict[str, Any]) -> bool:
     return True
 
 
+def report_close_wait_outcome(close_wait: dict[str, Any]) -> dict[str, bool]:
+    content_closed = bool(close_wait.get("value"))
+    late = close_wait.get("status") == "late"
+    if late and not content_closed:
+        raise UiWaitIncident(
+            "report_close_late", "cleanup_report_close", evidence=close_wait,
+        )
+    return {
+        "closed": content_closed,
+        "late_wait_observed": late,
+    }
+
+
 def close_manifest_reports(report_handles: Iterable[int]) -> list[dict[str, Any]]:
     from pywinauto import Desktop, mouse
 
@@ -1900,14 +1931,12 @@ def close_manifest_reports(report_handles: Iterable[int]) -> list[dict[str, Any]
                 timeout_seconds=ACTIVE_UI_WAIT_POLICY.state_timeout_seconds,
                 late_after_seconds=ACTIVE_UI_WAIT_POLICY.dialog_late_after_seconds,
             )
-            content_closed = bool(close_wait["value"])
-            if close_wait["status"] == "late":
-                raise UiWaitIncident(
-                    "report_close_late", "cleanup_report_close", evidence=close_wait,
-                )
+            close_outcome = report_close_wait_outcome(close_wait)
+            content_closed = close_outcome["closed"]
             results.append({
                 "window_handle": handle,
                 "closed": content_closed,
+                "late_wait_observed": close_outcome["late_wait_observed"],
                 **discard,
                 **({} if content_closed else {"reason": "report_content_still_visible"}),
             })
@@ -2254,16 +2283,20 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def wait_policy_from_args(args: argparse.Namespace) -> UiWaitPolicy:
+def wait_policy_from_args(args: argparse.Namespace, config: dict[str, Any] | None = None) -> UiWaitPolicy:
+    pacing = xq_ui_pacing.load_ui_pacing(config)
     return UiWaitPolicy(
-        action_settle_seconds=args.ui_action_settle_seconds,
+        action_settle_seconds=max(
+            UI_ACTION_SETTLE_SECONDS,
+            pacing.action_interval(args.ui_action_settle_seconds),
+        ),
         poll_initial_seconds=args.ui_poll_initial_seconds,
         poll_max_seconds=args.ui_poll_max_seconds,
         poll_backoff=args.ui_poll_backoff,
         dialog_late_after_seconds=args.ui_dialog_late_after_seconds,
         dialog_timeout_seconds=args.ui_dialog_timeout_seconds,
         state_timeout_seconds=args.ui_state_timeout_seconds,
-        inter_case_seconds=args.inter_case_seconds,
+        inter_case_seconds=pacing.scale(args.inter_case_seconds, floor_seconds=1.0),
     ).validate()
 
 
@@ -2289,7 +2322,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     ):
         return emit("automation_error", "Timeout values are invalid", xq_touched=False, backtest_started=False)
     try:
-        requested_wait_policy = wait_policy_from_args(args)
+        config = json.loads(args.config.read_text(encoding="utf-8"))
+        requested_wait_policy = wait_policy_from_args(args, config)
     except ValueError as exc:
         return emit(
             "automation_error", str(exc), xq_touched=False, backtest_started=False,
@@ -2329,7 +2363,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         suite, all_cases = load_case_file(args.cases)
         cases, selected_pair_ids = select_case_pairs(all_cases, args.only_pair)
-        config = json.loads(args.config.read_text(encoding="utf-8"))
         if not config.get("calibrated"):
             raise RunnerError("XQ UI configuration is not calibrated")
         for required_type in ("function", "autotrade"):

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "suite_version": "1.1.0-rc1",
+  "xq_version": "3.19.03",
+  "cases": [
+    {
+      "id": "numeric-function-indicator",
+      "caller_type": "indicator",
+      "function": {
+        "source": "generated/my-trend-score-function.xs",
+        "name": "MyTrendScore",
+        "return_type": "number"
+      },
+      "caller": {
+        "source": "generated/my-trend-score-indicator.xs",
+        "name": "MyTrendScoreIndicator"
+      },
+      "runtime_args": [
+        "--plot-label", "趨勢分數",
+        "--restore-bookmark", "指數日線圖",
+        "--max-rows", "5"
+      ]
+    },
+    {
+      "id": "numeric-function-screener",
+      "caller_type": "screener",
+      "function": {
+        "source": "generated/my-breakout-strength-function.xs",
+        "name": "MyBreakoutStrength",
+        "return_type": "number"
+      },
+      "caller": {
+        "source": "generated/my-breakout-strength-screener.xs",
+        "name": "MyBreakoutStrengthScreener"
+      },
+      "runtime_args": [
+        "--market", "台股",
+        "--system-default-scope", "台灣五十成分股(系統)",
+        "--direction", "long",
+        "--frequency", "day",
+        "--start-date", "2026-06-01",
+        "--end-date", "2026-06-30",
+        "--entry-price", "next_open",
+        "--exit-price", "current_close",
+        "--take-profit-enabled",
+        "--take-profit", "8",
+        "--take-profit-unit", "percent",
+        "--stop-loss-enabled",
+        "--stop-loss", "8",
+        "--stop-loss-unit", "percent",
+        "--max-holding-enabled",
+        "--max-holding-periods", "20",
+        "--stock-fee-percent", "0.2",
+        "--no-print-enabled",
+        "--timeout-seconds", "120"
+      ]
+    },
+    {
+      "id": "boolean-function-alert",
+      "caller_type": "alert",
+      "function": {
+        "source": "generated/my-bullish-signal-function.xs",
+        "name": "MyBullishSignal",
+        "return_type": "boolean"
+      },
+      "caller": {
+        "source": "generated/MyBullishSignalAlert.xs",
+        "name": "MyBullishSignalAlert"
+      },
+      "runtime_args": [
+        "--product", "2330",
+        "--product-kind", "stock",
+        "--direction", "long",
+        "--frequency", "day",
+        "--start-date", "2026-06-01",
+        "--end-date", "2026-06-30",
+        "--price-basis", "original",
+        "--entry-price", "next_open",
+        "--exit-price", "next_open",
+        "--no-simulate-entry-ticks",
+        "--no-simulate-exit-ticks",
+        "--max-concurrent-entries", "1",
+        "--take-profit", "8",
+        "--take-profit-unit", "percent",
+        "--stop-loss", "8",
+        "--stop-loss-unit", "percent",
+        "--max-holding-periods", "20",
+        "--stock-fee-percent", "0.2",
+        "--no-print-enabled",
+        "--timeout-seconds", "120"
+      ]
+    },
+    {
+      "id": "numeric-function-autotrade",
+      "caller_type": "autotrade",
+      "function": {
+        "source": "generated/codex-v1-flow-momentum.xs",
+        "name": "CodexV1FlowMomentum",
+        "return_type": "number"
+      },
+      "caller": {
+        "source": "generated/codex-v1-flow-autotrade.xs",
+        "name": "CodexV1FlowAutotrade"
+      },
+      "runtime_args": [
+        "--product", "2330",
+        "--frequency", "day",
+        "--start-date", "2026-06-01",
+        "--end-date", "2026-06-30",
+        "--preload-records", "1",
+        "--initial-capital-wan", "100",
+        "--max-position", "1",
+        "--max-entries-per-day", "1",
+        "--max-trades-per-minute", "1",
+        "--price-basis", "original",
+        "--buy-price", "trigger",
+        "--sell-price", "trigger",
+        "--buy-offset", "0",
+        "--sell-offset", "0",
+        "--stock-fee-percent", "0.2",
+        "--futures-fee", "100",
+        "--simulate-ticks",
+        "--no-daily-position-reset",
+        "--fill-on-trigger",
+        "--no-enable-print",
+        "--no-us-all-sessions",
+        "--no-direct-order",
+        "--timeout-seconds", "120"
+      ]
+    }
+  ]
+}
