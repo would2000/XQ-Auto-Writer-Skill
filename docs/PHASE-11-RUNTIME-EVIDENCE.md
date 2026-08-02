@@ -4,7 +4,7 @@
 
 ## 固定案例與安全邊界
 
-版本化案例位於 `.agents/skills/xq-xscript-compiler/references/runtime-evidence-cases-v1.json`，只保存公開測試設定。runner 拒絕案例自行控制 `--config`、`--script-name`、確認旗標、dry-run 或 recovery-status；非乾跑的選股、警示與自動交易案必須明確帶入 `--confirm-historical-backtest`。
+版本化案例位於 `.agents/skills/xq-xscript-compiler/references/runtime-evidence-cases-v1.json`，只保存公開測試設定；八份不含私人資料的最小 XScript 位於同層 `runtime-evidence-sources/`，因此乾淨 clone 與 CI 不依賴本機忽略的 `generated/`。這些追蹤來源與真實 XQ 驗證來源的 SHA-256 完全一致。runner 拒絕案例自行控制 `--config`、`--script-name`、確認旗標、dry-run 或 recovery-status；非乾跑的選股、警示與自動交易案必須明確帶入 `--confirm-historical-backtest`。
 
 執行順序固定為：
 

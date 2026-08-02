@@ -7,12 +7,12 @@
       "id": "numeric-function-indicator",
       "caller_type": "indicator",
       "function": {
-        "source": "generated/my-trend-score-function.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/my-trend-score-function.xs",
         "name": "MyTrendScore",
         "return_type": "number"
       },
       "caller": {
-        "source": "generated/my-trend-score-indicator.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/my-trend-score-indicator.xs",
         "name": "MyTrendScoreIndicator"
       },
       "runtime_args": [
@@ -25,12 +25,12 @@
       "id": "numeric-function-screener",
       "caller_type": "screener",
       "function": {
-        "source": "generated/my-breakout-strength-function.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/my-breakout-strength-function.xs",
         "name": "MyBreakoutStrength",
         "return_type": "number"
       },
       "caller": {
-        "source": "generated/my-breakout-strength-screener.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/my-breakout-strength-screener.xs",
         "name": "MyBreakoutStrengthScreener"
       },
       "runtime_args": [
@@ -59,12 +59,12 @@
       "id": "boolean-function-alert",
       "caller_type": "alert",
       "function": {
-        "source": "generated/my-bullish-signal-function.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/my-bullish-signal-function.xs",
         "name": "MyBullishSignal",
         "return_type": "boolean"
       },
       "caller": {
-        "source": "generated/MyBullishSignalAlert.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/MyBullishSignalAlert.xs",
         "name": "MyBullishSignalAlert"
       },
       "runtime_args": [
@@ -94,12 +94,12 @@
       "id": "numeric-function-autotrade",
       "caller_type": "autotrade",
       "function": {
-        "source": "generated/codex-v1-flow-momentum.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/codex-v1-flow-momentum.xs",
         "name": "CodexV1FlowMomentum",
         "return_type": "number"
       },
       "caller": {
-        "source": "generated/codex-v1-flow-autotrade.xs",
+        "source": ".agents/skills/xq-xscript-compiler/references/runtime-evidence-sources/codex-v1-flow-autotrade.xs",
         "name": "CodexV1FlowAutotrade"
       },
       "runtime_args": [

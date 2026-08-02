@@ -213,7 +213,7 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_existing_script_pipeline.py
 
 `--dry-run` 只驗證開啟計畫，不會編譯或進入下游。搭配 `--runtime-tool` 時，其後以 `--` 傳遞該類型工具的設定；下游乾跑只證明設定讀回與取消，不代表已執行或有績效。
 
-若要做五類代表性發布驗證，使用 `runtime-evidence-cases-v1.json` 與 `xq_runtime_evidence_suite.py`。四組函數／caller pair 共同涵蓋函數、指標、選股、警示及自動交易；每案都重新編譯、執行、清理並做前後 recovery。私有 manifest 可安全續跑，completed 案不重做，failed 案必須明確 `--retry-failed`。公開結果只能透過 `xq_runtime_evidence_attestation.py` 蒸餾成新的不可覆寫檔案；詳見[第十一階段](docs/PHASE-11-RUNTIME-EVIDENCE.md)。
+若要做五類代表性發布驗證，使用 `runtime-evidence-cases-v1.json` 與 `xq_runtime_evidence_suite.py`。四組函數／caller pair 共同涵蓋函數、指標、選股、警示及自動交易；所需最小 XScript 固定放在追蹤中的 `references/runtime-evidence-sources/`，乾淨 clone 不依賴本機 `generated/`。每案都重新編譯、執行、清理並做前後 recovery。私有 manifest 可安全續跑，completed 案不重做，failed 案必須明確 `--retry-failed`。公開結果只能透過 `xq_runtime_evidence_attestation.py` 蒸餾成新的不可覆寫檔案；詳見[第十一階段](docs/PHASE-11-RUNTIME-EVIDENCE.md)。
 
 已編譯的指標可在目前作用中的個股技術分析圖執行實際 Plot 擷取與逐列驗算：
 
