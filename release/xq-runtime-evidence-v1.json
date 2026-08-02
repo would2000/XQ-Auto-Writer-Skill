@@ -1,0 +1,154 @@
+{
+  "case_schema_version": 1,
+  "cases": [
+    {
+      "caller_type": "indicator",
+      "case_id": "numeric-function-indicator",
+      "compile": {
+        "caller_source_sha256": "810cf3f83fcade13927200a49d73663e32305ea81767ec91f45599f1733736cf",
+        "caller_status": "success",
+        "function_source_sha256": "cd78f773895107720690aa71ffd9d731c2ff5dc9f9eb855250fd5d736912bd91",
+        "function_status": "success"
+      },
+      "post_recovery_clean": true,
+      "runtime": {
+        "actual_error_code": null,
+        "actual_error_code_observed": false,
+        "chart_recovery_complete": true,
+        "failure_count": null,
+        "marker_matched": null,
+        "new_report_count": null,
+        "progress_seen": null,
+        "recovery_checkpoint_retained": null,
+        "report_cleanup_complete": null,
+        "report_decision": null,
+        "row_count": 99,
+        "status": "success",
+        "success_count": null,
+        "total_trades": null
+      },
+      "settings": {
+        "active_script_bound": true,
+        "preload_control_enabled": null,
+        "preload_records_applied": null,
+        "preload_records_requested": null,
+        "settings_evidence_present": false
+      }
+    },
+    {
+      "caller_type": "screener",
+      "case_id": "numeric-function-screener",
+      "compile": {
+        "caller_source_sha256": "f78ea0d78dfa279b928cc479c4972d38e2358eb39b2608bf98688a23c972890c",
+        "caller_status": "success",
+        "function_source_sha256": "4a0ed812753908988e095adef289627b0dc2e14e5c24e824b8beeaf58c85ebd2",
+        "function_status": "success"
+      },
+      "post_recovery_clean": true,
+      "runtime": {
+        "actual_error_code": null,
+        "actual_error_code_observed": false,
+        "chart_recovery_complete": null,
+        "failure_count": 0,
+        "marker_matched": true,
+        "new_report_count": 1,
+        "progress_seen": true,
+        "recovery_checkpoint_retained": false,
+        "report_cleanup_complete": true,
+        "report_decision": "unique_new_report_and_marker_matched",
+        "row_count": null,
+        "status": "success",
+        "success_count": 50,
+        "total_trades": 32
+      },
+      "settings": {
+        "active_script_bound": true,
+        "preload_control_enabled": null,
+        "preload_records_applied": null,
+        "preload_records_requested": null,
+        "settings_evidence_present": true
+      }
+    },
+    {
+      "caller_type": "alert",
+      "case_id": "boolean-function-alert",
+      "compile": {
+        "caller_source_sha256": "d4d880288c4d7cf324c6a1201951c2556a93fc908ffba170b40f877f6a1cda9a",
+        "caller_status": "success",
+        "function_source_sha256": "52a5f32f1f1630aaec170ef5c3deedbe5e696fc2944a86901dbbb495cc5dc3e1",
+        "function_status": "success"
+      },
+      "post_recovery_clean": true,
+      "runtime": {
+        "actual_error_code": null,
+        "actual_error_code_observed": false,
+        "chart_recovery_complete": null,
+        "failure_count": 0,
+        "marker_matched": true,
+        "new_report_count": 1,
+        "progress_seen": true,
+        "recovery_checkpoint_retained": false,
+        "report_cleanup_complete": true,
+        "report_decision": "unique_new_report_and_marker_matched",
+        "row_count": null,
+        "status": "success",
+        "success_count": 1,
+        "total_trades": 1
+      },
+      "settings": {
+        "active_script_bound": true,
+        "preload_control_enabled": null,
+        "preload_records_applied": null,
+        "preload_records_requested": null,
+        "settings_evidence_present": true
+      }
+    },
+    {
+      "caller_type": "autotrade",
+      "case_id": "numeric-function-autotrade",
+      "compile": {
+        "caller_source_sha256": "cc34bd40f5eedf42b6dd098b605ef569f93178097de5334a9c72228fb203b73e",
+        "caller_status": "success",
+        "function_source_sha256": "136e595f700651690db2f39d8971e53e151ebdc080f0a091c9fb47c1aee83815",
+        "function_status": "success"
+      },
+      "post_recovery_clean": true,
+      "runtime": {
+        "actual_error_code": null,
+        "actual_error_code_observed": false,
+        "chart_recovery_complete": null,
+        "failure_count": 0,
+        "marker_matched": true,
+        "new_report_count": 1,
+        "progress_seen": true,
+        "recovery_checkpoint_retained": false,
+        "report_cleanup_complete": true,
+        "report_decision": "unique_new_report_and_marker_matched",
+        "row_count": null,
+        "status": "success",
+        "success_count": 1,
+        "total_trades": 8
+      },
+      "settings": {
+        "active_script_bound": true,
+        "preload_control_enabled": false,
+        "preload_records_applied": false,
+        "preload_records_requested": 1,
+        "settings_evidence_present": true
+      }
+    }
+  ],
+  "contains_private_data": false,
+  "contract_version": "1",
+  "limitations": [
+    "Representative smoke evidence is not strategy-performance evidence.",
+    "A null actual_error_code means XQ did not report one; no code was inferred.",
+    "Products, dates, report handles, window titles, raw compiler output, and exported rows are excluded.",
+    "After CI packaging validation, source locators moved from ignored generated output to tracked reference fixtures; every attested XScript source SHA-256 remains unchanged."
+  ],
+  "proof_scope": "current-source compile plus representative XQ runtime smoke",
+  "runner_contract_version": 1,
+  "schema_version": 1,
+  "suite_digest": "ffb3a978d6d182c1fe1d06bfccda7fc6857f488568a7e7a356702034d0e06798",
+  "xq_version": "3.19.03"
+}

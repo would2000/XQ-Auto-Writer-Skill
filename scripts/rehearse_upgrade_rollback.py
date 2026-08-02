@@ -143,7 +143,7 @@ def rehearse(root: Path, source_tag: str) -> dict[str, Any]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd())
-    parser.add_argument("--source-tag", default="v0.3.0")
+    parser.add_argument("--source-tag", default="v1.0.0")
     return parser
 
 

@@ -8,6 +8,9 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = PROJECT_ROOT / ".agents" / "skills" / "xq-xscript-compiler" / "scripts" / "xq_compile.py"
+SCRIPT_DIRECTORY = SCRIPT_PATH.parent
+if str(SCRIPT_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIRECTORY))
 SPEC = importlib.util.spec_from_file_location("xq_compile", SCRIPT_PATH)
 assert SPEC is not None and SPEC.loader is not None
 xq_compile = importlib.util.module_from_spec(SPEC)
@@ -37,6 +40,18 @@ class XQCompileTests(unittest.TestCase):
             xq_compile.compiler_signals(current, before, r"編譯成功", r"編譯錯誤|錯誤"),
             (False, False),
         )
+
+    def test_compiler_source_contract_binds_identity_before_mutation(self) -> None:
+        source = SCRIPT_PATH.read_text(encoding="utf-8")
+        self.assertIn('parser.add_argument("--script-name")', source)
+        first_identity = source.index("verify_active_document")
+        mutation = source.index("replace_editor_text(editor, source, keyboard)")
+        last_identity = source.rindex("verify_active_document", 0, mutation)
+        self.assertLess(first_identity, last_identity)
+        self.assertLess(last_identity, mutation)
+        self.assertIn("source_mutated=False", source[first_identity:mutation])
+        self.assertIn("source_sha256", source)
+        self.assertIn("ensure_window_foreground", source[last_identity:mutation])
 
 
 if __name__ == "__main__":

@@ -123,7 +123,10 @@ def leave_maintenance(path: Path, *, confirmed: bool, rc_evidence: Path | None) 
             "error": "release_candidate_evidence_required",
         }
     try:
-        evidence = json.loads(rc_evidence.read_text(encoding="utf-8"))
+        # Windows PowerShell 5 writes a BOM for `Set-Content -Encoding utf8`.
+        # Accept it only on the externally produced, read-only evidence file;
+        # the maintenance state itself keeps the project's strict UTF-8 format.
+        evidence = json.loads(rc_evidence.read_text(encoding="utf-8-sig"))
     except (OSError, json.JSONDecodeError) as exc:
         return {
             "status": "automation_error",

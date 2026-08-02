@@ -8,6 +8,8 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
+import xq_ui_pacing
+
 
 CODEX_FOLDER_NAME = "CODEX"
 SCRIPT_TYPES = {"indicator", "screener", "alert", "function", "autotrade"}
@@ -57,6 +59,7 @@ class NewScriptStorageContract:
     action_settle_seconds: float
     poll_seconds: float
     dialog_timeout_seconds: float
+    ui_pacing: xq_ui_pacing.UiPacing
 
 
 def normalize_location(value: Any) -> str:
@@ -146,6 +149,7 @@ def load_new_script_storage_contract(
             "New-script storage dialog_timeout_seconds must exceed action_settle_seconds"
         )
 
+    ui_pacing = xq_ui_pacing.load_ui_pacing(config)
     return NewScriptStorageContract(
         folder_name=folder_name,
         expected_location=expected_location,
@@ -192,9 +196,10 @@ def load_new_script_storage_contract(
         creation_cancel_control_id=_required_control_id(
             creation_dialog.get("cancel_control_id"), "creation dialog cancel_control_id",
         ),
-        action_settle_seconds=float(action_settle),
+        action_settle_seconds=ui_pacing.action_interval(float(action_settle)),
         poll_seconds=float(poll_seconds),
         dialog_timeout_seconds=float(dialog_timeout),
+        ui_pacing=ui_pacing,
     )
 
 
@@ -364,6 +369,7 @@ def ensure_new_script_codex_storage(
     new_script_dialog: Any,
     contract: NewScriptStorageContract,
     *,
+    create_missing: bool = True,
     desktop_win32: Any | None = None,
     desktop_uia: Any | None = None,
     sleeper: Any = time.sleep,
@@ -409,6 +415,28 @@ def ensure_new_script_codex_storage(
     )
     custom_root, codex_children = _custom_root_and_codex_children(tree, contract)
     created_folder = False
+
+    if not codex_children and not create_missing:
+        folder_cancel = _control_by_id(
+            folder_dialog,
+            contract.folder_cancel_control_id,
+            "type-scoped folder cancel",
+            require_enabled=False,
+        )
+        folder_cancel.click()
+        sleeper(contract.action_settle_seconds)
+        return {
+            "folder_name": contract.folder_name,
+            "location": None,
+            "readback_verified": False,
+            "created_folder": False,
+            "would_create_folder": True,
+            "custom_root_count": 1,
+            "codex_direct_child_count": 0,
+            "coordinate_use": False,
+            "selection_source": "new_script_type_scoped_storage_dialog",
+            "ui_pacing": contract.ui_pacing.evidence(),
+        }
 
     if not codex_children:
         custom_root.select()
@@ -507,10 +535,12 @@ def ensure_new_script_codex_storage(
         "location": observed,
         "readback_verified": True,
         "created_folder": created_folder,
+        "would_create_folder": False,
         "custom_root_count": 1,
         "codex_direct_child_count": 1,
         "coordinate_use": False,
         "selection_source": "new_script_type_scoped_storage_dialog",
+        "ui_pacing": contract.ui_pacing.evidence(),
     }
 
 

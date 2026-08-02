@@ -1,11 +1,12 @@
 # 發布候選驗證與維護模式
 
-本文件定義第九階段的發布候選（Release Candidate，RC）流程。這次候選從正式版 `0.3.0` 升級到目標 `1.0.0`；在發布 PR 準備完成前不改動 `VERSION`，也不得建立 tag、推送分支或發布 GitHub Release。
+本文件源自第九階段的發布候選（Release Candidate，RC）流程，目前適用於從正式版 `1.0.0` 升級到目標 `1.1.0`；在發布 PR 準備完成前不改動 `VERSION`，也不得建立 tag、推送分支或發布 GitHub Release。
 
 ## 安全邊界
 
 - 維護模式狀態只寫入已忽略的 `.xq-auto-writer/release-candidate/maintenance.json`，不得包含帳號、商品、策略、報告內容或私人路徑以外的執行資料。
-- `release/rc-interface-v2.json` 是版本化、可公開且不含私人資料的 1.0.0 介面凍結契約，包含五類基礎產生器。任何 CLI 選項或 schema 常數差異都必須先人工審查並建立新版契約；檢查器不會自動覆寫。`release/rc-interface-v1.json` 保留為 0.x 已發布合約。
+- `release/rc-interface-v3.json` 是版本化、可公開且不含私人資料的 1.1.0 介面凍結契約，包含五類代表執行套件與公開證明蒸餾器。任何 CLI 選項或 schema 常數差異都必須先人工審查並建立新版契約；檢查器不會自動覆寫。`release/rc-interface-v1.json` 與 `release/rc-interface-v2.json` 是已發布歷史契約，保留且不得改寫。
+- `xq_existing_script_pipeline.py`、`xq_runtime_evidence_suite.py` 與 `xq_runtime_evidence_attestation.py` 已列入 v3 凍結介面。它們強化既有 CODEX 文件的名稱／類型／位置／來源與執行證據綁定，但不得用來繞過或自動改寫凍結契約。
 - 離線 CI 成功不等於真實 XQ 已驗證。XQ UI 驗證必須遵守操作憲法、先讀 recovery-status、只使用 `自訂/CODEX/`、慢速輸入及逐項清理。
 - XQ 五類任一類缺少唯一 CODEX 資料夾或可驗證選擇器時，相關真實測試標為 `blocked`，不得改用私人根目錄、座標或既有私人文件。
 - CI 與本文件中的演練不得建立 tag、Release、真實下單、故障注入或中斷網路。
@@ -18,9 +19,9 @@
 git status --short
 python scripts/release_maintenance.py status
 python scripts/release_maintenance.py enter `
-  --reason "phase-9-release-candidate" `
-  --current-version 0.3.0 `
-  --target-version 1.0.0 `
+  --reason "phase-11-runtime-evidence" `
+  --current-version 1.0.0 `
+  --target-version 1.1.0 `
   --confirm-maintenance-mode
 ```
 
@@ -75,10 +76,10 @@ Remove-Item Env:\PYTHONUTF8
 ## 4. 升級與復原演練
 
 ```powershell
-python scripts/rehearse_upgrade_rollback.py --source-tag v0.3.0
+python scripts/rehearse_upgrade_rollback.py --source-tag v1.0.0
 ```
 
-演練只在臨時目錄執行：從不可變的 `v0.3.0` tag 匯出舊 Skill、建立備份、安裝目前候選樹、驗證必要檔案，再還原舊樹並比較 byte-level SHA-256。路徑穿越、symlink、缺少 tag、缺少必要檔案或 digest 不同均失敗。演練不修改儲存庫、Codex 的實際 Skill 安裝或 XQ。
+演練只在臨時目錄執行：從不可變的 `v1.0.0` tag 匯出舊 Skill、建立備份、安裝目前候選樹、驗證必要檔案，再還原舊樹並比較 byte-level SHA-256。路徑穿越、symlink、缺少 tag、缺少必要檔案或 digest 不同均失敗。演練不修改儲存庫、Codex 的實際 Skill 安裝或 XQ。
 
 若升級演練失敗：
 
@@ -93,24 +94,28 @@ python scripts/rehearse_upgrade_rollback.py --source-tag v0.3.0
 
 1. 離線回歸、介面檢查、演練及 Skill validator 全部成功。
 2. XQ 已由使用者登入、桌面解鎖，且沒有登入／帳戶／實單操作需求。
-3. 五類測試所需的 `自訂/CODEX/` 都能用非座標選擇器唯一讀回。
+3. 五類測試所需的 `自訂/CODEX/` 都能以語意選擇器唯一讀回；若自繪控制項確實沒有語意介面，受控座標例外也必須在每次動作後唯一讀回相同結果。
 4. 唯讀 `xq_backtest.py --recovery-status` 回傳 `safe_to_start`。
 
 真實 RC 先以一組不含真實交易指令的代表 pair 慢速 smoke，再依第八階段批次 runner 逐 pair 執行完整矩陣。任何 Windows 無回應、`WaitGuiThreadIdle`、晚到對話框、timeout、非唯一報告、marker 不符或證據不足，都立即停止輸入並保存 incident；不得因任意新報告清除 checkpoint，也不得推測 XQ 未回報的錯誤碼。
+
+第十階段另以既有 CODEX 文件完成四組函數／caller 的來源綁定編譯 smoke，並對一份交易 caller 完成設定乾跑。這補足精確開啟到下游設定的交接證據，但沒有按開始回測，不可列為執行報告或績效證據；完整紀錄見 [第十階段端到端整合](PHASE-10-END-TO-END.md)。
+
+第十一階段已用四組函數／caller pair 覆蓋五類代表執行，並把私有 manifest 蒸餾為不含商品、日期、視窗 handle 或原始報告的公開證明。結果與限制見[第十一階段執行證據](PHASE-11-RUNTIME-EVIDENCE.md)；該證明不能取代後續版本或來源變更後的重新驗證。
 
 完成後只清理本次 manifest 且經名稱、類型、`自訂/CODEX/` 讀回一致的文件，以及本次報告、暫存與 checkpoint。保留使用者文件；隱藏 XScript、切回 ChatGPT 並驗證前景。
 
 ## 6. CI 與發布準備
 
-PR 的 `CI / verify` 必須 Passed。CI 是唯讀 Windows 工作，不接觸 XQ，並執行 metadata、repository hygiene、完整 unittest、Python 編譯、RC 介面及 `v0.3.0` 升級／復原演練。CI 顯示成功時，真實 XQ 欄仍應明列 `Unable to Test`，由人工證據補足。
+PR 的 `CI / verify` 必須 Passed。CI 是唯讀 Windows 工作，不接觸 XQ，並執行 metadata、repository hygiene、完整 unittest、Python 編譯、RC 介面及 `v1.0.0` 升級／復原演練。CI 顯示成功時，真實 XQ 欄仍應明列 CI 本身 `Unable to Test`，另引用人工 XQ 證據補足。
 
 全部閘門通過後才準備發布 PR：
 
-1. 把 `VERSION` 改為 `1.0.0`。
-2. 將 `[Unreleased]` 內容移到 `## [1.0.0] - YYYY-MM-DD`，保留新的空白 `[Unreleased]`。
+1. 把 `VERSION` 改為 `1.1.0`。
+2. 將 `[Unreleased]` 內容移到 `## [1.1.0] - YYYY-MM-DD`，保留新的空白 `[Unreleased]`。
 3. 更新比較連結與 Release Notes，區分離線測試、真實 XQ 已驗證及未驗證項目。
 4. 建立 Draft PR；CI Passed 後才合併。
-5. 合併後才建立 `v1.0.0` tag 與 Draft Release，核對後發布並執行 `gh release verify`。
+5. 合併後才建立 `v1.1.0` tag 與 Draft Release，核對後發布並執行 `gh release verify`。
 
 本階段不自動執行以上 GitHub 寫入。
 

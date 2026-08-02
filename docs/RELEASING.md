@@ -18,7 +18,7 @@
 | CLI、JSON 契約或設定格式的不相容變更 | MAJOR | `1.2.0` → `2.0.0` |
 | 只有文件或測試調整 | 通常不單獨發布 | 累積到下一版本 |
 
-`1.0.0` 以前代表公開介面仍可能調整。不相容變更仍必須在 CHANGELOG 與 Release Notes 中清楚說明。首次 `1.0.0` 發布必須建立新的版本化候選契約（目前為 `release/rc-interface-v2.json`）；已發布的 `release/rc-interface-v1.json` 保留為 0.x 歷史凍結介面，不得覆寫。
+`1.0.0` 以前代表公開介面仍可能調整。不相容變更仍必須在 CHANGELOG 與 Release Notes 中清楚說明。首次 `1.0.0` 使用 `release/rc-interface-v2.json`；目前 1.1.0 候選使用新的 `release/rc-interface-v3.json`。所有已建立的版本化契約都視為歷史凍結介面，不得覆寫；介面變更必須建立下一版契約。
 
 ## 每個功能的開發流程
 

@@ -103,7 +103,7 @@ class AdvancedLearningKnowledgeTests(unittest.TestCase):
             "全面禁止",
             "不能拿畫面標記代替 XQ 報告",
             "只能處理本次 manifest 項目",
-            "禁止固定、相對或推算座標",
+            "禁止固定螢幕座標及未驗證的幾何猜測",
         ):
             with self.subTest(required=required):
                 self.assertIn(required, text)

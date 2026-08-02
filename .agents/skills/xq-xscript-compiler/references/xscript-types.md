@@ -13,12 +13,14 @@ Use this file to keep the generated program aligned with the selected XQ compile
 - Express a deterministic inclusion condition for the current symbol.
 - Keep ranking, filters, and required data frequency explicit.
 - Avoid stateful trade execution.
+- For historical backtests, follow [backtest-configuration-contract.md](backtest-configuration-contract.md) and [screener-backtest-product-guide.md](screener-backtest-product-guide.md): screener backtests are daily-or-higher only. Read back the default market/range as `台股` / `普通股全部(系統)` unless the user specifies otherwise; take-profit, stop-loss, maximum holding period (days), rebalancing, exits, holdings, and allocation require the user's explicit definition.
 
 ## 警示 (`alert`)
 
 - Express the event condition and any cooldown or repeated-trigger behavior.
 - Make cross-over versus level conditions unambiguous.
 - Avoid placing orders unless the user changes the category to automatic trading.
+- For historical backtests, follow [backtest-configuration-contract.md](backtest-configuration-contract.md) and [alert-backtest-product-guide.md](alert-backtest-product-guide.md): alerts can use daily or minute frequency, but exits, take-profit, stop-loss, and holding rules are backtest settings rather than script-controlled behavior. Default to the public `商品` source only when the user has not specified another source; take-profit and stop-loss require the user's explicit definition.
 
 ## 函數 (`function`)
 
@@ -37,3 +39,4 @@ Use this file to keep the generated program aligned with the selected XQ compile
 - State assumptions about bar frequency, order timing, and existing positions.
 - Require explicit confirmation before adding live-account identifiers or broker-specific behavior.
 - Treat a successful compilation as syntax validation only; recommend simulation/backtesting before live use.
+- For historical backtests, follow [backtest-configuration-contract.md](backtest-configuration-contract.md) and [autotrade-backtest-product-guide.md](autotrade-backtest-product-guide.md): obtain the user's explicit frequency, take-profit, stop-loss, product/session, date range, position, and minute-bar closeout choices before running; before starting, also read back the selected product and verify the script has entry plus exit (or explicit position-adjustment) actions.

@@ -65,6 +65,8 @@ XSHelp 對 `SetBarMode` 的文件蒸餾指出：`0` 由系統判斷、`1` 指定
 6. 使用 `xq_compile.py` 編譯；只有當次 `success` 才是語法通過證據。
 7. 若函數將供其他類型腳本使用，再建立最小呼叫端腳本驗證參數順序、型別、序列行為與實際輸出。函數本身編譯成功不證明呼叫契約正確。
 
+既有 CODEX 函數與 caller 可用 `xq_existing_script_pipeline.py` 做來源綁定的依賴順序驗證。工具先以完整名稱唯一開啟函數，要求名稱、函數類型、回傳型別與 `自訂/CODEX/` 讀回一致，再以來源 SHA-256 綁定當次編譯；成功後才開啟並編譯 caller。任何一層失敗都不進入下游。這是既有文件的編譯與交接閘門，不取代紅／綠燈執行測試。
+
 ## 五類基礎範本的數值函數搭配
 
 若只需要一個可安全起步的單一類型來源，可用 `xq_generate_basic_script.py` 一次產生一份新 `.xs`，而非批次建立多個 XQ 文件。其函數範本是數值型別，輸入 `Offset(NumericSimple)`，以 `retval = Close - Open + Offset;` 回傳；先以實際 XQ 文件名稱建立並編譯這個函數，再針對指標、選股、警示或自動交易各自呼叫產生器的 `--with-function --function-name <函數名稱>`。
@@ -264,6 +266,12 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_function_caller_matrix.py `
 
 每個回傳型別都要有自己的三格證據；某一格的成功不能代替另一格。呼叫端的 expected 應由常數、原生欄位或獨立運算式計算，不能再次呼叫受測函數。完成後刪除本次建立的 XScript 文件與暫存策略，並關閉不再使用的 XQ 子視窗。
 
+## 2026-08-02 既有 CODEX 依賴鏈驗證
+
+已以來源綁定管線在 XQ 3.19.03 真實驗證四組依賴鏈：數值函數 `MyTrendScore` → 指標 `MyTrendScoreIndicator`、數值函數 `MyBreakoutStrength` → 選股 `MyBreakoutStrengthScreener`、邏輯值函數 `MyBullishSignal` → 警示 `MyBullishSignalAlert`、數值函數 `CodexV1FlowMomentum` → 交易 `CodexV1FlowAutotrade`。八份文件皆在精確名稱、類型、`自訂/CODEX/` 與來源 SHA-256 綁定後取得當次 0 錯誤、0 警告；這證明指定來源版本可編譯及依賴順序，未證明前三組的執行結果或任何策略績效。
+
+2026-08-02 第十一階段再以 `xq_runtime_evidence_suite.py` 對同四組依賴鏈取得當次編譯與代表執行證據：指標匯出 99 列；選股成功 50、失敗 0、交易 32；警示成功 1、失敗 0、交易 1；自動交易成功 1、失敗 0、交易 8。三份回測報告皆為唯一新增報告且 marker 相符，清理後 checkpoint 不存在；指標則完成原圖頁復原。公開正規化證明位於 `release/xq-runtime-evidence-v1.json`，不含商品、日期、handle、原始編譯文字或匯出列。這仍只證明指定 XQ 版本、來源與代表設定的流程結果，不是完整函數矩陣或策略績效證明。
+
 ## 來源與驗證狀態
 
 - 類型標頭與參數型態來自本地 `XScript_Preset` 函數樣本的結構觀察；上游內容不併入本專案授權。
@@ -290,4 +298,4 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_function_caller_matrix.py `
 
 函數矩陣進入發布候選時，先以根目錄 `release/rc-interface-v1.json` 鎖定案例 schema、boundary runner contract、batch contract、baseline／diff schema 及相關 CLI 長選項。`scripts/check_release_candidate.py` 只讀比較，不得因候選程式不同就自動更新契約；任何差異都要先判斷是相容新增、需遷移的契約版本或不相容變更，再人工建立新版凍結檔。
 
-完整矩陣仍只能由第八階段批次 runner 逐 pair 執行。CI、單元測試及 `v0.2.0` 升級／復原演練都不構成函數執行證據；五類所需的 `自訂/CODEX/` 與正式非座標選擇器未全部就緒時，真實 RC 回歸狀態必須是 `blocked`。不得用私人根目錄補跑、不得拆散 pair、不得因任意報告清 checkpoint，也不得把 XQ 未回報的錯誤碼補入 baseline。
+完整矩陣仍只能由第八階段批次 runner 逐 pair 執行。CI、單元測試及 `v0.2.0` 升級／復原演練都不構成函數執行證據；五類所需的 `自訂/CODEX/` 與可驗證控制路徑未全部就緒時，真實 RC 回歸狀態必須是 `blocked`。控制路徑必須優先使用語意選擇器；受控座標例外也要符合憲法第四條並在動作後唯一讀回結果。不得用私人根目錄補跑、不得拆散 pair、不得因任意報告清 checkpoint，也不得把 XQ 未回報的錯誤碼補入 baseline。

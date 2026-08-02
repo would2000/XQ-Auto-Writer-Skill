@@ -160,7 +160,8 @@ class AutotradeWindowKnowledgeTests(unittest.TestCase):
             "監控期限只決定何時停止等待終態",
             "環境復原第一、二階段",
             "`recovery-state.json`",
-            "`stale_checkpoint_cleared: true`",
+            "`xq_recovery_acknowledge.py`",
+            "`--confirm-manual-recovery`",
         ):
             self.assertIn(required, text)
         self.assertIn("不能把時間超過門檻或 0% 當失敗", text)

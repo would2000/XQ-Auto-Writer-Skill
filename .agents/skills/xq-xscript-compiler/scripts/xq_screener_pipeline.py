@@ -221,16 +221,19 @@ def main() -> int:
 
         current_stage = "prepare_script"
         xq_touched = True
-        prepare_result = run_json_tool(
+        prepare_arguments = [
+            "--config", str(args.config),
+            "--script-type", "screener",
+            "--name", args.script_name,
+            "--folder", "CODEX",
+        ]
+        preflight_result = run_json_tool(
             "xq_prepare_script.py",
-            [
-                "--config", str(args.config),
-                "--script-type", "screener",
-                "--name", args.script_name,
-                "--folder", "CODEX",
-            ],
+            [*prepare_arguments, "--dry-run"],
             45,
         )
+        completed_stages["preflight"] = require_success(preflight_result, "preflight_script")
+        prepare_result = run_json_tool("xq_prepare_script.py", prepare_arguments, 45)
         prepare = require_success(prepare_result, "prepare_script")
         completed_stages["prepare"] = prepare
 
@@ -241,6 +244,7 @@ def main() -> int:
                 "--config", str(args.config),
                 "--source", str(args.source),
                 "--script-type", "screener",
+                "--script-name", args.script_name,
             ],
             60,
         )

@@ -23,6 +23,19 @@ SPEC.loader.exec_module(xq_backtest)
 
 
 class XQBacktestTests(unittest.TestCase):
+    def test_explicit_script_name_must_match_active_codex_document(self):
+        args = xq_backtest.parse_args(
+            ["--config", "config.json", "--script-name", "CodexExpected"]
+        )
+        self.assertEqual(args.script_name, "CodexExpected")
+        xq_backtest.require_expected_script_name(
+            {"script_name": "CodexExpected"}, args.script_name
+        )
+        with self.assertRaisesRegex(RuntimeError, "explicitly requested"):
+            xq_backtest.require_expected_script_name(
+                {"script_name": "AnotherScript"}, args.script_name
+            )
+
     def healthy_runtime(self) -> object:
         return xq_backtest.RuntimeSnapshot(
             captured_at="2026-07-21T00:00:00+00:00",
@@ -50,7 +63,12 @@ class XQBacktestTests(unittest.TestCase):
         ):
             evidence = xq_backtest.apply_preload_records(object(), 5)
 
-        set_edit.assert_called_once_with(ANY, 2007, 5)
+        set_edit.assert_called_once_with(
+            ANY,
+            2007,
+            5,
+            foreground_records=None,
+        )
         self.assertEqual(
             evidence,
             {
@@ -76,6 +94,224 @@ class XQBacktestTests(unittest.TestCase):
                 "preload_control_enabled": False,
                 "preload_records_requested": 5,
                 "preload_records_applied": False,
+            },
+        )
+
+    def test_set_combo_invokes_the_native_selection_once(self) -> None:
+        control = Mock()
+        control.item_texts.return_value = ["day"]
+        control.window_text.return_value = "day"
+        owner = object()
+        guard = {"foreground_verified": True}
+        records = []
+        with (
+            patch.object(xq_backtest, "control_by_id", return_value=control),
+            patch.object(
+                xq_backtest,
+                "guarded_paced_select",
+                return_value=guard,
+            ) as guarded_select,
+        ):
+            xq_backtest.set_combo(
+                owner,
+                2091,
+                "day",
+                foreground_records=records,
+            )
+
+        guarded_select.assert_called_once_with(owner, control, "day")
+        self.assertEqual(records, [guard])
+
+    def test_foreground_guard_accepts_an_already_foreground_window(self) -> None:
+        window = Mock(handle=10)
+        window.is_visible.return_value = True
+        window.is_enabled.return_value = True
+        set_foreground = Mock(return_value=True)
+        show_window = Mock(return_value=True)
+        sleeper = Mock()
+
+        evidence = xq_backtest.ensure_window_foreground(
+            window,
+            get_foreground_handle=lambda: 10,
+            set_foreground=set_foreground,
+            show_window=show_window,
+            is_window=lambda _handle: True,
+            is_hung=lambda _handle: False,
+            sleeper=sleeper,
+        )
+
+        self.assertTrue(evidence["foreground_verified"])
+        self.assertFalse(evidence["foreground_request_sent"])
+        set_foreground.assert_not_called()
+        show_window.assert_not_called()
+        sleeper.assert_not_called()
+
+    def test_foreground_guard_switches_and_verifies_the_exact_handle(self) -> None:
+        window = Mock(handle=10)
+        window.is_visible.return_value = True
+        window.is_enabled.return_value = True
+        foreground = iter((99, 10))
+        set_foreground = Mock(return_value=True)
+        show_window = Mock(return_value=True)
+        sleeper = Mock()
+
+        evidence = xq_backtest.ensure_window_foreground(
+            window,
+            get_foreground_handle=lambda: next(foreground),
+            set_foreground=set_foreground,
+            show_window=show_window,
+            is_window=lambda _handle: True,
+            is_hung=lambda _handle: False,
+            sleeper=sleeper,
+        )
+
+        self.assertTrue(evidence["foreground_verified"])
+        self.assertTrue(evidence["foreground_request_sent"])
+        self.assertTrue(evidence["foreground_request_accepted"])
+        show_window.assert_called_once_with(10)
+        set_foreground.assert_called_once_with(10)
+        sleeper.assert_called_once()
+
+    def test_foreground_guard_refuses_a_covered_or_disabled_target(self) -> None:
+        visible = Mock(handle=10)
+        visible.is_visible.return_value = True
+        visible.is_enabled.return_value = True
+        foreground = iter((99, 99))
+        with self.assertRaises(xq_backtest.ForegroundGuardError):
+            xq_backtest.ensure_window_foreground(
+                visible,
+                get_foreground_handle=lambda: next(foreground),
+                set_foreground=lambda _handle: False,
+                show_window=lambda _handle: True,
+                is_window=lambda _handle: True,
+                is_hung=lambda _handle: False,
+                sleeper=lambda _seconds: None,
+            )
+
+        disabled = Mock(handle=10)
+        disabled.is_visible.return_value = True
+        disabled.is_enabled.return_value = False
+        set_foreground = Mock(return_value=True)
+        with self.assertRaises(xq_backtest.ForegroundGuardError):
+            xq_backtest.ensure_window_foreground(
+                disabled,
+                get_foreground_handle=lambda: 99,
+                set_foreground=set_foreground,
+                show_window=lambda _handle: True,
+                is_window=lambda _handle: True,
+                is_hung=lambda _handle: False,
+                sleeper=lambda _seconds: None,
+            )
+        set_foreground.assert_not_called()
+
+    def test_guarded_click_never_clicks_after_foreground_rejection(self) -> None:
+        control = Mock()
+        with (
+            patch.object(
+                xq_backtest,
+                "ensure_window_foreground",
+                side_effect=xq_backtest.ForegroundGuardError("covered"),
+            ),
+            self.assertRaises(xq_backtest.ForegroundGuardError),
+        ):
+            xq_backtest.guarded_paced_click(Mock(), control)
+        control.click_input.assert_not_called()
+
+    def test_timeout_and_wait_incidents_forbid_followup_input(self) -> None:
+        for exc in (
+            TimeoutError("dialog"),
+            xq_backtest.ForegroundGuardError("covered"),
+            RuntimeError("WaitGuiThreadIdle"),
+            RuntimeError("dialog_late"),
+            RuntimeError("window_disabled"),
+        ):
+            with self.subTest(exc=exc):
+                self.assertTrue(xq_backtest.input_must_stop(exc))
+        self.assertFalse(xq_backtest.input_must_stop(ValueError("final set mismatch")))
+
+    def test_selected_product_codes_reads_existing_product_group(self) -> None:
+        selected_list = Mock()
+        selected_list.item_texts.return_value = ["FITX*1.TF 台股指數近月(一般)", "2330.TW 台積電"]
+        with patch.object(xq_backtest, "control_by_id", return_value=selected_list):
+            self.assertEqual(
+                xq_backtest.selected_product_codes(object()),
+                ["FITX*1", "2330"],
+            )
+
+    def test_choose_products_replaces_only_transient_backtest_selection(self) -> None:
+        source = Mock()
+        source.window_text.return_value = "商品"
+        results = Mock()
+        results.item_count.return_value = 1
+        results.get_item.return_value.text.return_value = "FITX*1"
+        controls = {
+            2092: source,
+            2031: Mock(),
+            741: Mock(),
+            782: results,
+            802: Mock(),
+            803: Mock(),
+            805: Mock(),
+            806: Mock(),
+            1: Mock(),
+            2001: Mock(),
+        }
+        controls[2001].window_text.return_value = "FITX*1"
+        settings_window = Mock()
+        settings_window.handle = 123
+        settings_window.is_enabled.return_value = True
+        product_window = Mock()
+        product_window.handle = 456
+
+        def controls_by_id(_root: object, control_id: int) -> Mock:
+            return controls[control_id]
+
+        def foreground_evidence(window: object) -> dict[str, object]:
+            return {
+                "window_handle": int(window.handle),
+                "foreground_request_sent": False,
+                "foreground_verified": True,
+            }
+
+        with (
+            patch.object(xq_backtest, "control_by_id", side_effect=controls_by_id),
+            patch.object(
+                xq_backtest,
+                "visible_dialog_with_control",
+                return_value=product_window,
+            ),
+            patch.object(
+                xq_backtest,
+                "ensure_window_foreground",
+                side_effect=foreground_evidence,
+            ),
+            patch.object(
+                xq_backtest,
+                "selected_product_codes",
+                side_effect=[["7818"], [], ["FITX*1"]],
+            ),
+        ):
+            evidence = xq_backtest.choose_products(settings_window, ("FITX*1",), 1)
+
+        controls[805].click_input.assert_called_once_with()
+        controls[803].click_input.assert_called_once_with()
+        self.assertEqual(
+            evidence,
+            {
+                "selection_mode": "explicit_products",
+                "source": "product",
+                "requested_product_count": 1,
+                "preexisting_selection_present": True,
+                "cleared_selection_verified": True,
+                "final_selection_verified": True,
+                "private_source_touched": False,
+                "foreground_guard": {
+                    "required": True,
+                    "all_verified": True,
+                    "verification_count": 7,
+                    "focus_request_count": 0,
+                    "target_window_handles": [123, 456],
+                },
             },
         )
 
@@ -301,9 +537,64 @@ class XQBacktestTests(unittest.TestCase):
         payload = checkpoint.__dict__.copy()
         payload["baseline_report_handles"] = list(payload["baseline_report_handles"])
         self.assertEqual(xq_backtest.validate_checkpoint_payload(payload), checkpoint)
+        for stage in ("late_report", "completed"):
+            stage_payload = dict(payload)
+            stage_payload["stage"] = stage
+            self.assertEqual(
+                xq_backtest.validate_checkpoint_payload(stage_payload).stage,
+                stage,
+            )
         payload["product"] = "2330"
         with self.assertRaises(ValueError):
             xq_backtest.validate_checkpoint_payload(payload)
+
+    def test_report_enumeration_targets_only_native_dialog_candidates(self) -> None:
+        native = Mock(handle=20)
+        report_window = Mock(handle=20)
+        desktop = Mock()
+        desktop.window.return_value.wrapper_object.return_value = report_window
+        elements = [("Document", "XS回測報告")]
+
+        with (
+            patch.object(
+                xq_backtest,
+                "_native_dialog_windows",
+                return_value=[native],
+            ),
+            patch("pywinauto.Desktop", return_value=desktop) as desktop_factory,
+            patch.object(xq_backtest, "report_elements", return_value=elements),
+        ):
+            records = xq_backtest.visible_report_records({10})
+
+        self.assertEqual(records, [(report_window, elements)])
+        desktop_factory.assert_called_once_with(backend="uia")
+        desktop.window.assert_called_once_with(handle=20)
+        desktop.windows.assert_not_called()
+
+    def test_normal_monitor_routes_through_shared_one_shot_core(self) -> None:
+        with patch(
+            "xq_backtest_monitor.run_report_monitor",
+            return_value=("success", {"report_window_handle": 20}),
+        ) as monitor:
+            result = xq_backtest.run_and_monitor(
+                Mock(),
+                60,
+                False,
+                baseline_report_handles={10},
+                baseline_progress_handles={11},
+                expected_report_marker="CodexV1FlowAutotrade",
+            )
+
+        self.assertEqual(result[0], "success")
+        monitor.assert_called_once()
+        self.assertEqual(monitor.call_args.args[2], "CodexV1FlowAutotrade")
+        self.assertEqual(
+            monitor.call_args.kwargs["baseline_progress_handles"], {11}
+        )
+
+    def test_normal_monitor_requires_script_name_marker(self) -> None:
+        with self.assertRaisesRegex(ValueError, "report marker"):
+            xq_backtest.run_and_monitor(Mock(), 60, False)
 
     def test_recovery_assessment_has_five_conservative_decisions(self) -> None:
         healthy = self.healthy_runtime()

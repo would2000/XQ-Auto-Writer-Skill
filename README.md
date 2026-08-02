@@ -2,7 +2,7 @@
 
 讓 Codex 根據自然語言需求撰寫 XScript，操作 Windows 上的 XQ 全球贏家 XScript 編輯器，讀取真實編譯結果並反覆修正，直到編譯成功或達到安全停止條件。
 
-目前版本：[0.3.0](VERSION)｜1.0.0 發布候選｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)｜[XQ 操作憲法](docs/XQ-OPERATION-CONSTITUTION.md)
+目前版本：[1.0.0](VERSION)｜1.1.0 發布準備｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)｜[XQ 操作憲法](docs/XQ-OPERATION-CONSTITUTION.md)
 
 [![CI](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml/badge.svg)](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml)
 
@@ -11,7 +11,7 @@
 
 ## XQ 操作憲法
 
-所有 XQ 操作都受 [`docs/XQ-OPERATION-CONSTITUTION.md`](docs/XQ-OPERATION-CONSTITUTION.md) 約束。重點包括：原生私人內容只能複製與唯讀讀取；五類 XScript、選股中心、策略雷達及自動交易項目只能建立在各功能已讀回的 `CODEX` 專用資料夾；不得操作 XQ 登入／登出、實際證券帳號串接或實單；任何 XQ 視窗都禁止固定、相對、矩形計算或猜測座標，也不得傳入 `coords`，必須使用可讀回的控制項或正式命令；桌面輸入必須慢速並保存等待事件；任務後保留使用者成果、清除 manifest 測試產物並復原視窗；Print 檔案必須輸出至使用者確認的新隔離資料夾。
+所有 XQ 操作都受 [`docs/XQ-OPERATION-CONSTITUTION.md`](docs/XQ-OPERATION-CONSTITUTION.md) 約束。重點包括：原生私人內容只能複製與唯讀讀取；五類 XScript、選股中心、策略雷達及自動交易項目只能建立在各功能已讀回的 `CODEX` 專用資料夾；不得操作 XQ 登入／登出、實際證券帳號串接、帳號設定或實單；必須優先使用可讀回的控制項或正式命令，只有自繪控制項經探測後確實沒有語意介面時，才可在已識別的當次視窗內使用單步、節流且前後可驗證的局部相對座標，不得沿用固定螢幕座標或用 `coords` 規避安全邊界；桌面輸入必須慢速並保存等待事件；非伺服器步驟若未迅速取得狀態，先停止追加輸入並擷取精確 XQ 目標視窗，不截整個桌面，也不以截圖取代編譯、報告或 checkpoint 證據；任務後保留使用者成果、清除 manifest 測試產物並復原視窗；Print 檔案必須輸出至使用者確認的新隔離資料夾。
 
 ## 支援範圍
 
@@ -67,7 +67,7 @@ git submodule update --init --recursive
 python -m pip install -r .agents/skills/xq-xscript-compiler/scripts/requirements.txt
 ```
 
-第三方執行依賴包括 Windows UI 自動化使用的 `pywinauto>=0.6.9,<0.7`，以及讓 Python `zoneinfo` 在 Windows 正確解析 `Asia/Taipei` 的 `tzdata>=2025.2,<2027`。安裝只提供 UI 控制與時區資料，不會連接券商或在背景執行。
+第三方執行依賴包括 Windows UI 自動化使用的 `pywinauto>=0.6.9,<0.7`、畫面辨識與截圖測試使用的 `Pillow>=10,<13`，以及讓 Python `zoneinfo` 在 Windows 正確解析 `Asia/Taipei` 的 `tzdata>=2025.2,<2027`。安裝只提供 UI 控制、影像處理與時區資料，不會連接券商或在背景執行。
 
 ### 3. 加入 Codex 本機專案
 
@@ -104,7 +104,7 @@ Copy-Item `
 6. 使用最小測試碼驗證「開啟、建檔、寫入、編譯、擷取成功與錯誤訊息」整條流程。
 7. 全部通過後，才把設定中的 `calibrated` 改成 `true`。
 
-完整方法請閱讀 [Windows 校正指南](.agents/skills/xq-xscript-compiler/references/windows-calibration.md)。任何 XQ 視窗都不得使用固定、相對、矩形計算或猜測座標，也不得傳入 `coords`；缺少可讀回的唯一控制項時必須停止校正。不要把「等待後沒有看到錯誤」視為編譯成功。
+完整方法請閱讀 [Windows 校正指南](.agents/skills/xq-xscript-compiler/references/windows-calibration.md)。校正必須先探測可讀回的唯一控制項或正式命令；只有自繪控制項確實沒有語意介面時，才可依憲法第四條校正當次視窗內的局部相對座標及前後驗證。不得保存固定螢幕 `coords`，也不得把「等待後沒有看到錯誤」視為編譯成功。
 
 ## 使用方式
 
@@ -122,6 +122,25 @@ Copy-Item `
 ```text
 幫我寫一個選股腳本：收盤價突破 20 日均線，而且成交量大於 20 日均量的 1.5 倍。
 ```
+
+### XQ 操作節奏
+
+XQ 的兩次輸入之間採 1--10 級節奏，預設為第 5 級。第 1 級最慢，第 10 級最快；第 7 級在沒有碰到安全下限時約比預設快 50%。這個設定不會縮短逾時、對話框晚到判定、唯讀輪詢或既有安全下限，因此不會用速度掩蓋 XQ／Windows 的未回應問題。
+
+```powershell
+python .agents/skills/xq-xscript-compiler/scripts/xq_prepare_script.py `
+  --config .xq-auto-writer/xq-ui.json `
+  --script-type indicator `
+  --folder CODEX `
+  --name "CodexExample"
+
+python .agents/skills/xq-xscript-compiler/scripts/xq_compile.py `
+  --config .xq-auto-writer/xq-ui.json `
+  --source generated/example.xs `
+  --script-type indicator
+```
+
+若要在往後任務使用第 7 級，將本機 `.xq-auto-writer/xq-ui.json` 的 `ui_pacing.default_level` 改為 `7`；設定會在每次工具輸出的 `ui_pacing` 欄位讀回。
 
 ```text
 幫我寫一個回傳邏輯值的函數，判斷目前是否為多頭排列。
@@ -147,7 +166,7 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_prepare_script.py `
   --name "測試選股"
 ```
 
-建檔工具會先在「新增腳本」選取並讀回類型，再開啟該類型限定的「儲存位置」資料夾瀏覽器。它只接受唯一 `自訂 > CODEX` 直接階層；CODEX 缺少時才建立，重名或位置不符時停止，最後必須從新增腳本對話框讀回 `自訂/CODEX/` 才會建立文件。這個流程不依賴五個自繪分類頁籤，也不使用座標；`--dry-run` 會完成類型與位置驗證後取消，不留下文件。
+建檔工具會先在「新增腳本」選取並讀回類型，再開啟該類型限定的「儲存位置」資料夾瀏覽器。它只接受唯一 `自訂 > CODEX` 直接階層；正式建檔時 CODEX 缺少才會建立，重名或位置不符時停止，最後必須從新增腳本對話框讀回 `自訂/CODEX/` 才會建立文件。這個流程不依賴五個自繪分類頁籤，也不使用座標；`--dry-run` 若發現 CODEX 已存在，會驗證後取消；若資料夾缺少，會回傳 `would_create_folder: true` 並取消，絕不建立資料夾或文件。
 
 若只需要其中一類的基礎 `.xs`，使用單一類型產生器；它不開啟 XQ，且拒絕覆寫已存在檔案：
 
@@ -164,7 +183,9 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_generate_basic_script.py `
 
 支援 `indicator`、`screener`、`alert`、`function`、`autotrade` 五類。函數範本是數值型別；後四類可各自用 `--with-function` 產生呼叫同一函數的版本。必須先將函數以該名稱在 XQ 編譯成功，再編譯 caller。產生成功只代表來源檔已建立，不代表 XQ 編譯、指標繪值、選股執行、警示觸發、回測或交易行為已驗證；自動交易範本不含下單敘述。
 
-整理既有腳本前，請先由使用者手動切換到所需分類，再用 `xq_category_selector.py --config .xq-auto-writer/xq-ui.json --script-type <type>` 唯讀驗證目前自繪分類與唯一 `自訂/CODEX`。XQ 3.19.03 沒有暴露可讀回的分類 TabItem、正式切換命令或官方快捷鍵，因此工具不會自動切換：目標尚未由使用者切到前景時會回傳 `manual_switch_required` 與 `input_sent: false`，不會猜測 `WM_COMMAND`、顯示／隱藏內容 pane、建立臨時空白腳本或使用座標。
+整理或開啟既有腳本時，可用 `xq_category_selector.py --config .xq-auto-writer/xq-ui.json --script-type <type>` 自動切換五類自繪分類。XQ 3.19.03 未暴露分類 TabItem、正式命令或官方快捷鍵，因此工具每次從目前公式區的記憶體截圖重新辨識五個頁籤，只點擊一次，並立即讀回目標分類與唯一 `自訂/CODEX/`；不保存或沿用固定螢幕座標、比例或成功截圖。
+
+若要開啟既有文件，再執行 `xq_open_existing_script.py --config .xq-auto-writer/xq-ui.json --script-type <type> --script-name <完整名稱>`。工具只匹配 CODEX 直接子文件，以當次 TreeView 局部截圖定位一次雙擊，並讀回相同名稱、類型與 `自訂/CODEX/`。名稱不唯一、CODEX 缺少／重複、前景或畫面改變、Windows 等待異常時會停止，不會搜尋私人資料夾、猜測命令或建立臨時空白腳本。五類真實驗證與限制記錄在[安全切換五大頁籤並開啟既有腳本](docs/NEXT-SKILL-TASK.md)。
 
 編譯已產生的程式：
 
@@ -172,8 +193,27 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_generate_basic_script.py `
 python .agents/skills/xq-xscript-compiler/scripts/xq_compile.py `
   --config .xq-auto-writer/xq-ui.json `
   --source generated/example.xs `
-  --script-type screener
+  --script-type screener `
+  --script-name CodexExample
 ```
+
+若文件已存在於對應類型唯一的 `自訂/CODEX/`，可用發布候選內部整合管線完成「精確開啟 → 來源綁定編譯 → 可選下游交接」。函數與 caller 會按依賴順序各自取得當次編譯證據；任何編譯失敗都會在下游操作前停止：
+
+```powershell
+python .agents/skills/xq-xscript-compiler/scripts/xq_existing_script_pipeline.py `
+  --config .xq-auto-writer/xq-ui.json `
+  --source generated/my-bullish-signal-function.xs `
+  --script-type function `
+  --script-name MyBullishSignal `
+  --function-return-type boolean `
+  --caller-source generated/MyBullishSignalAlert.xs `
+  --caller-type alert `
+  --caller-name MyBullishSignalAlert
+```
+
+`--dry-run` 只驗證開啟計畫，不會編譯或進入下游。搭配 `--runtime-tool` 時，其後以 `--` 傳遞該類型工具的設定；下游乾跑只證明設定讀回與取消，不代表已執行或有績效。
+
+若要做五類代表性發布驗證，使用 `runtime-evidence-cases-v1.json` 與 `xq_runtime_evidence_suite.py`。四組函數／caller pair 共同涵蓋函數、指標、選股、警示及自動交易；所需最小 XScript 固定放在追蹤中的 `references/runtime-evidence-sources/`，乾淨 clone 不依賴本機 `generated/`。每案都重新編譯、執行、清理並做前後 recovery。私有 manifest 可安全續跑，completed 案不重做，failed 案必須明確 `--retry-failed`。公開結果只能透過 `xq_runtime_evidence_attestation.py` 蒸餾成新的不可覆寫檔案；詳見[第十一階段](docs/PHASE-11-RUNTIME-EVIDENCE.md)。
 
 已編譯的指標可在目前作用中的個股技術分析圖執行實際 Plot 擷取與逐列驗算：
 
@@ -287,7 +327,15 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_backtest.py `
 
 先加上 `--dry-run` 可只驗證並取消設定，不啟動回測；`--product` 可重複提供最多 20 個公開商品，每筆都會做代碼完全比對。經明確授權測試中止時，可用 `--cancel-after-seconds <秒數>`、`--cancel-after-completed-products <數量>` 或 `--cancel-on-timeout` 選擇一種觸發條件；若要保留已完成商品，再加上 `--show-partial-results-on-cancel`。監控期限與中止後復原期限互相獨立，短監控期限不會壓縮確認窗及 UI 復原時間。工具會分別回傳核取方塊是否保留、XQ 是否實際產生部分報告、可解析摘要、進度關閉及 XScript 可用等證據；勾選成功不保證 XQ 一定建立報告。工具不會選擇帳號、同步庫存、建立或啟動實盤策略；回測前仍須核對價格基礎、洗價、成交判定、費用、委託價格模式及三項安控限制。執行終態分為 `success`、`failure`、`partial_failure`、`indeterminate_timeout` 與 `cancelled`，另以 `automation_error` 表示 UI 或輸入失敗。
 
-正式啟動回測前，工具會在 `.xq-auto-writer/recovery-state.json` 原子寫入本機 checkpoint，並以 XQ PID、視窗 handle、開始前可見報告 handle 基準與心跳分類行程退出、無回應、XQ 視窗遺失或 XScript 關閉。checkpoint 不含商品、腳本、參數、帳號或績效；明確終態後自動刪除。若上次狀態仍可能存活，新回測會回傳 `environment_interruption` 並停止。使用者確認沒有殘留工作後，可加 `--acknowledge-stale-checkpoint` 清除同 PID 的 stale 狀態；只要仍有可見進度就不會清除，也不會自動重跑。
+正式啟動回測前，工具會在 `.xq-auto-writer/recovery-state.json` 原子寫入本機 checkpoint，並以 XQ PID、視窗 handle、開始前可見報告 handle 基準與心跳分類行程退出、無回應、XQ 視窗遺失或 XScript 關閉。checkpoint 不含商品、腳本、參數、帳號或績效；明確終態後自動刪除。若上次狀態仍可能存活，新回測會回傳 `environment_interruption` 並停止。`--acknowledge-stale-checkpoint` 已停用為安全拒絕，不能清除狀態；不會自動重跑。
+
+若 `recovery-status` 指示 `manual_review_required` 或 `safe_to_clear_checkpoint`，先由使用者在 XQ 人工確認指定 run 已結束，接著使用 recovery-status 回傳的精確 run ID 執行：
+
+```powershell
+python .agents/skills/xq-xscript-compiler/scripts/xq_recovery_acknowledge.py --config .xq-auto-writer/xq-ui.json --run-id <exact-run-id> --confirm-manual-recovery
+```
+
+該命令不開啟回測視窗或送出 XQ 輸入。它重新檢查 checkpoint、進度與視窗健康，先將不含商品、腳本、帳號、參數與績效的復原紀錄封存於私有 `.xq-auto-writer/recovery-archive/`，確認 checkpoint 未變更才清除。舊 PID 已確定結束且判定為 `safe_to_clear_checkpoint` 時，允許新 XQ 已啟動但 XScript 尚未重開；仍須讀回不同的新 PID、健康主視窗及完整原因碼。
 
 新的工作階段應先執行唯讀復原診斷：
 
@@ -451,21 +499,56 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_function_batch_runner.py `
 
 聚合器拒絕不同 suite digest、案例 schema、runner contract 或 XQ 版本，也拒絕缺 pair、重複案例、控制／不足角色不完整、清理未完成或含 Windows wait incident 的結果。只有全部 pair 完成後才產生 aggregate JSON／JUnit；`baseline-v2.json` 只能由完整 aggregate 明確確認建立，`baseline-v1.json` 與 migration diff 必須保留。
 
-憲法隔離同步提升為 fail-closed：`xq_prepare_script.py` 必須帶 `--folder CODEX`，且 `.xq-auto-writer/xq-ui.json` 必須提供 `new_script_storage_scope`。工具先選腳本類型，再透過儲存位置 Button `30003` 開啟類型限定的 TreeView `30065`，只接受唯一 `自訂 > CODEX`；缺少時才用標準 `#32768`「新增資料夾」及建立對話框 Edit `30021` 補建，最後要求儲存位置 Edit `30023` 精確讀回 `自訂/CODEX/`。重名、類型或位置不符、selector 缺失與 dialog timeout 都 fail closed，不會退回 `自訂/`、猜測自繪頁籤命令或使用幾何位置。2026-07-25 真實 XQ 3.19.03 已在函數、指標、選股、警示與交易五類各自以類型限定路徑讀回唯一 CODEX，並編譯共同數值函數及四類 caller；所有五份均為 0 錯誤、0 警告。這是編譯相容證據，不代表指標繪值、選股結果、警示觸發、回測或交易績效。
+憲法隔離同步提升為 fail-closed：`xq_prepare_script.py` 必須帶 `--folder CODEX`，且 `.xq-auto-writer/xq-ui.json` 必須提供 `new_script_storage_scope`。所有五類腳本在正式建檔前，會先以 `--dry-run` 無副作用偵測類型限定的 CODEX 範圍；只有該檢查成功後才正式建檔。工具先選腳本類型，再透過儲存位置 Button `30003` 開啟類型限定的 TreeView `30065`，只接受唯一 `自訂 > CODEX`；缺少時才用標準 `#32768`「新增資料夾」及建立對話框 Edit `30021` 補建，最後要求儲存位置 Edit `30023` 精確讀回 `自訂/CODEX/`。重名、類型或位置不符、selector 缺失與 dialog timeout 都 fail closed，不會退回 `自訂/`、猜測自繪頁籤命令或使用幾何位置。2026-07-25 真實 XQ 3.19.03 已在函數、指標、選股、警示與交易五類各自以類型限定路徑讀回唯一 CODEX，並編譯共同數值函數及四類 caller；所有五份均為 0 錯誤、0 警告。這是編譯相容證據，不代表指標繪值、選股結果、警示觸發、回測或交易績效。
 
 ### 第九階段：發布候選驗證與維護模式
 
 第九階段的 1.0.0 候選以 `release/rc-interface-v2.json` 凍結公開 CLI 與 schema／runner contract，並加入五類基礎範本產生器的公開介面；候選建立時的正式版為 `0.3.0`，發布 PR 才將 `VERSION` 升為 `1.0.0`。`scripts/check_release_candidate.py` 唯讀比對凍結介面、必要文件與 CI 閘門，差異時 fail closed，絕不自動改寫契約。
 
-`scripts/release_maintenance.py` 將維護狀態原子保存在 Git 忽略區，重複進入、損壞狀態或缺少版本一致的 RC 成功證據都拒絕離開。`scripts/rehearse_upgrade_rollback.py` 從 `v0.3.0` 匯出舊 Skill，只在臨時目錄完成備份、候選升級與 byte-level SHA-256 還原；不修改實際安裝、儲存庫或 XQ。完整命令、失敗復原、真實 XQ 閘門及發布準備見[發布候選驗證與維護模式](docs/RELEASE-CANDIDATE-MAINTENANCE.md)。
+`scripts/release_maintenance.py` 將維護狀態原子保存在 Git 忽略區，重複進入、損壞狀態或缺少版本一致的 RC 成功證據都拒絕離開。1.1.0 準備期間，`scripts/rehearse_upgrade_rollback.py` 從 `v1.0.0` 匯出舊 Skill，只在臨時目錄完成備份、候選升級與 byte-level SHA-256 還原；不修改實際安裝、儲存庫或 XQ。完整命令、失敗復原、真實 XQ 閘門及發布準備見[發布候選驗證與維護模式](docs/RELEASE-CANDIDATE-MAINTENANCE.md)。
 
-真實 XQ RC 回歸仍受憲法約束：五類所需的 `自訂/CODEX/` 與非座標選擇器未全部完成前，狀態是 `blocked`，不能用私人根目錄替代。CI 成功也只證明離線檢查；XQ 欄必須維持 `Unable to Test（未驗證）`，直到慢速 smoke、完整清理與桌面復原都取得當次證據。
+真實 XQ RC 回歸仍受憲法約束：五類所需的 `自訂/CODEX/` 與可驗證控制路徑未全部完成前，狀態是 `blocked`，不能用私人根目錄替代。可驗證控制路徑應優先使用語意選擇器；受控座標例外也必須有當次視窗基準及前後驗證。CI 成功只證明離線檢查；XQ 欄必須維持 `Unable to Test（未驗證）`，直到慢速 smoke、完整清理與桌面復原都取得當次證據。
+
+### 第十一階段：五類實際執行證據與 1.1.0 發布準備
+
+第十一階段新增可續跑的四 pair 執行套件及不含私人資料的公開證明。2026-08-02 在 XQ 3.19.03 取得五類當次編譯與代表執行證據：指標匯出 99 列；選股成功 50、失敗 0、交易 32；警示成功 1、失敗 0、交易 1；自動交易成功 1、失敗 0、交易 8。三份回測報告都以唯一新增 handle 與 marker 證明後精確清理，最終 recovery-status 為 `safe_to_start` 且無 checkpoint。公開蒸餾見 `release/xq-runtime-evidence-v1.json`；這些數字只證明測試流程，不代表策略績效。
+
+1.1.0 使用新的 `release/rc-interface-v3.json` 凍結介面；v1／v2 歷史契約不改寫。`VERSION` 在發布 PR 前仍維持 1.0.0，且本階段不自動建立 tag、推送或發布 GitHub Release。
 
 工具會輸出單一 JSON 物件：
 
 - `success`：已取得明確的成功訊息。
 - `compile_error`：XQ 已回傳編譯錯誤，可依 `compiler_output` 修正。
 - `automation_error`：UI、校正或執行環境失敗；不應為了掩蓋此錯誤而修改 XScript。
+
+## 三類回測的商品範圍
+
+自動交易、警示與選股都以同一個「設定後讀回」原則處理回測範圍，但不假設它們的 XQ 視窗控制項相同。
+
+- 自動交易與警示：只接受公開商品代碼；清空暫時清單、讀回確認後逐檔精確加入，再確認最終集合。
+- 選股：只能使用系統預設範圍或使用者自選股組合。CODEX 只會自動設定名稱以 `(系統)` 結尾且由使用者明確指定的系統範圍；自選組合必須由使用者手動選定，名稱與內容不會被讀取或保留。
+- 私人自選、群組與原生內容不會被讀取、變更或刪除。
+
+警示、選股與自動交易目前都提供只驗證範圍的 dry-run runner，完成後會取消設定視窗，不會啟動回測或建立報告。自動交易的 scope-only runner 不會填寫頻率、日期、資金、成本或風控欄位：
+
+```powershell
+python .agents/skills/xq-xscript-compiler/scripts/xq_alert_backtest.py --config .xq-auto-writer/xq-ui.json --product 2330 --dry-run
+python .agents/skills/xq-xscript-compiler/scripts/xq_screener_backtest.py --config .xq-auto-writer/xq-ui.json --market 台股 --system-default-scope '普通股全部(系統)' --dry-run
+python .agents/skills/xq-xscript-compiler/scripts/xq_screener_backtest.py --config .xq-auto-writer/xq-ui.json --manual-watchlist-group-selected --dry-run
+python .agents/skills/xq-xscript-compiler/scripts/xq_autotrade_backtest.py --config .xq-auto-writer/xq-ui.json --product 2330 --dry-run
+```
+
+三個命令與完整自動交易回測都會先檢查安全復原狀態；若仍是 `manual_review_required`，不會開始新的工作。每次實體輸入前還會驗證精確目標 handle 已位於 Windows 前景；被其他應用程式遮住、前景切換遭拒、視窗 disabled／hung、對話框晚到或 timeout 時，會停止輸入且不補送取消或重試。
+
+警示要執行真實歷史回測時，先逐項確認精確腳本名稱、方向、頻率、日期、價格基礎、進出場價、模擬逐筆、最大同時進場、停利、停損、最大持有、成本及 Print，再使用 `xq_alert_backtest_run.py`。工具先唯讀驗證腳本名稱、警示類型與 `自訂/CODEX/` 位置，再以既有報告 handle 作基準。Start 只送出一次；設定視窗晚關閉時改為唯讀監控，並能追蹤隱藏進度與晚到報告。只有唯一新增報告、標題中的指定腳本名稱 marker 與可解析摘要都吻合才會完成，之後只關閉該新增報告；報告不唯一、marker 不符、timeout 或證據不足均保留 checkpoint 並要求人工檢視。timeout 時若精確進度窗仍可見且健康，會先把該視窗截圖及已顯示的商品執行狀態保存到私有 incident；不截整個桌面，也不因此清除 checkpoint 或重跑。`--dry-run` 只套用、讀回並取消設定；真正開始必須另加 `--confirm-historical-backtest`。
+
+警示、選股與自動交易的正常完成流程共用 `xq_backtest_monitor.py`：Start 只送一次，依序記錄狀態，只接受唯一且腳本名稱 marker 相符的新增報告。三類設定頁仍分開校正；尚未在真實 XQ 讀回的選股控制項不會借用其他類型的 control ID。自動交易的明確取消測試因為需要再送 Stop，仍保留獨立復原流程。
+
+選股完整回測使用 `xq_screener_backtest_run.py`。它只接受名稱以 `(系統)` 結尾的公開系統範圍，並要求方向、日頻、日期、進出場價、停利／停損、最大持有、成本與 Print 全部明確指定；私人自選組合仍只能由使用者手動處理，不會把名稱傳給完整 runner。XQ 版本或版面改變時，可先用 `xq_screener_backtest_probe.py --open-settings` 做白名單唯讀校正。
+
+2026-08-02 已以 `MyBreakoutStrengthScreener` 和 `普通股全部(系統)` 完成一組真實 XQ smoke：成功商品 1,920、失敗商品 21、交易 494，唯一新增報告 marker 相符並完成精確清理。XQ 對這 21 項只顯示「選股策略執行錯誤」而沒有錯誤碼，因此結構化結果保留 `null`，不推測代碼。報告關閉確認晚到但已讀回不存在時，會保留 `late_wait_observed` 證據並視為安全清理；若無法證明報告消失，仍會停止並要求人工檢視。
+
+同日亦完成 `CodexV1FlowMomentum` 與 `CodexV1FlowAutotrade` 的當次真實編譯，以及公開商品 2330 的日頻自動交易 smoke：成功商品 1、失敗 0、交易 8，唯一報告 marker 相符並完成精確清理。腳本的 `SetTotalBar(20)` 使 XQ 停用預載欄位，因此結果明確區分「要求 1」與「未實際套用」；不得把停用欄位推定為已套用。這些數字只代表 XQ 回測流程的實際輸出，不代表策略績效或實盤安全。
 
 ## 知識庫
 

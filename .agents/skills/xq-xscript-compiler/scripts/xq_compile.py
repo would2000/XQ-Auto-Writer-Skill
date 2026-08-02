@@ -4,12 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
 import time
 from pathlib import Path
 from typing import Any
+
+import xq_ui_pacing
 
 
 SCRIPT_TYPES = {"indicator", "screener", "alert", "function", "autotrade"}
@@ -152,7 +155,9 @@ def copy_error_details(window_selector: dict[str, Any], selector: dict[str, Any]
     return str(details).replace("\r\n", "\n").strip()
 
 
-def run_actions(root: Any, actions: list[dict[str, Any]], keyboard: Any) -> None:
+def run_actions(
+    root: Any, actions: list[dict[str, Any]], keyboard: Any, pacing: xq_ui_pacing.UiPacing,
+) -> None:
     for item in actions:
         action = item.get("action")
         if action == "click":
@@ -160,9 +165,9 @@ def run_actions(root: Any, actions: list[dict[str, Any]], keyboard: Any) -> None
         elif action == "select":
             find(root, item["selector"]).select(item["value"])
         elif action == "keys":
-            keyboard.send_keys(item["keys"], pause=0.05, with_spaces=True)
+            keyboard.send_keys(item["keys"], pause=pacing.keyboard_pause(0.05), with_spaces=True)
         elif action == "wait":
-            time.sleep(float(item.get("seconds", 1)))
+            time.sleep(pacing.scale(float(item.get("seconds", 1)), floor_seconds=0.25))
         else:
             raise ValueError(f"Unsupported action: {action!r}")
 
@@ -261,6 +266,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--script-type", choices=sorted(SCRIPT_TYPES), required=True)
+    parser.add_argument("--script-name")
     parser.add_argument("--function-return-type", choices=sorted(FUNCTION_RETURN_TYPES))
     parser.add_argument("--calibration-mode", action="store_true")
     return parser.parse_args()
@@ -273,6 +279,10 @@ def main() -> int:
         source = args.source.read_text(encoding="utf-8")
     except Exception as exc:
         return emit("automation_error", f"Unable to read input: {exc}")
+    try:
+        pacing = xq_ui_pacing.load_ui_pacing(config)
+    except xq_ui_pacing.UiPacingError as exc:
+        return emit("automation_error", str(exc))
 
     if not config.get("calibrated"):
         return emit("automation_error", "XQ UI configuration is not calibrated")
@@ -299,8 +309,48 @@ def main() -> int:
     if not source.strip():
         return emit("automation_error", "Source file is empty")
 
+    source_sha256 = hashlib.sha256(source.encode("utf-8")).hexdigest()
+
     try:
         from pywinauto import Application, Desktop, keyboard
+
+        import xq_backtest
+        import xq_category_observer
+        import xq_category_selector
+
+        expected_script_name = None
+        identity_evidence = None
+        identity_window = None
+        if args.script_name:
+            expected_script_name = xq_category_selector.validate_script_name(
+                args.script_name
+            )
+            xscript_windows = xq_category_observer.find_xscript(
+                Desktop(backend="win32")
+            )
+            if len(xscript_windows) != 1:
+                return emit(
+                    "automation_error",
+                    f"Expected one visible XScript window for identity readback, found {len(xscript_windows)}",
+                )
+            identity_window = xscript_windows[0]
+            if not xq_category_selector.verify_active_document(
+                identity_window, expected_script_name, args.script_type
+            ):
+                return emit(
+                    "automation_error",
+                    "Active XScript name, type, or 自訂/CODEX/ location did not match before source mutation",
+                    script_name=expected_script_name,
+                    script_type=args.script_type,
+                    source_sha256=source_sha256,
+                    source_mutated=False,
+                )
+            identity_evidence = {
+                "script_name": expected_script_name,
+                "script_type": args.script_type,
+                "location": "自訂/CODEX/",
+                "readback_verified": True,
+            }
 
         executable = config.get("executable")
         if executable:
@@ -313,10 +363,12 @@ def main() -> int:
 
         open_keys = config.get("open_compiler_keys")
         if open_keys:
-            keyboard.send_keys(open_keys, pause=0.05)
-            time.sleep(float(config.get("open_wait_seconds", 1)))
+            keyboard.send_keys(open_keys, pause=pacing.keyboard_pause(0.05))
+            time.sleep(pacing.scale(float(config.get("open_wait_seconds", 1)), floor_seconds=0.25))
 
-        run_actions(root, config.get("actions_by_type", {}).get(args.script_type, []), keyboard)
+        run_actions(
+            root, config.get("actions_by_type", {}).get(args.script_type, []), keyboard, pacing,
+        )
         expected_type = config.get("active_type_title_regex", {}).get(args.script_type)
         active_title = root.wrapper_object().window_text()
         if expected_type and not re.search(expected_type, active_title):
@@ -342,11 +394,31 @@ def main() -> int:
                     "automation_error",
                     f"Active XQ function return type does not match {args.function_return_type}: expected {return_label}",
                 )
+        if expected_script_name and (
+            identity_window is None
+            or not xq_category_selector.verify_active_document(
+                identity_window, expected_script_name, args.script_type
+            )
+        ):
+            return emit(
+                "automation_error",
+                "Active XScript identity changed before source mutation",
+                script_name=expected_script_name,
+                script_type=args.script_type,
+                source_sha256=source_sha256,
+                source_mutated=False,
+            )
+        source_foreground_guard = xq_backtest.ensure_window_foreground(
+            root.wrapper_object()
+        )
         editor = find_editor(root, config["editor"])
         replace_editor_text(editor, source, keyboard)
 
         result = find_result(root, config["result"], config["window"])
         before = result_text(result)
+        compile_foreground_guard = xq_backtest.ensure_window_foreground(
+            root.wrapper_object()
+        )
         find(root, config["compile_button"]).click_input()
 
         deadline = time.monotonic() + float(config.get("compile_timeout_seconds", 30))
@@ -364,7 +436,20 @@ def main() -> int:
             conclusive = current and current != before
             if conclusive and (success or failure) and time.monotonic() - stable_since >= 0.5:
                 if success:
-                    return emit("success", current, compiler_output=current)
+                    return emit(
+                        "success",
+                        current,
+                        compiler_output=current,
+                        script_name=expected_script_name,
+                        script_type=args.script_type,
+                        source_sha256=source_sha256,
+                        identity_evidence=identity_evidence,
+                        source_mutated=True,
+                        foreground_guards=[
+                            source_foreground_guard, compile_foreground_guard
+                        ],
+                        ui_pacing=pacing.evidence(),
+                    )
                 details = ""
                 detail_error = ""
                 if config.get("error_report"):
@@ -374,8 +459,19 @@ def main() -> int:
                         detail_error = f"{type(exc).__name__}: {exc}"
                 compiler_output = current + (f"\n{details}" if details else "")
                 extra = {"compiler_output": compiler_output}
+                extra.update({
+                    "script_name": expected_script_name,
+                    "script_type": args.script_type,
+                    "source_sha256": source_sha256,
+                    "identity_evidence": identity_evidence,
+                    "source_mutated": True,
+                    "foreground_guards": [
+                        source_foreground_guard, compile_foreground_guard
+                    ],
+                })
                 if detail_error:
                     extra["error_detail_capture_error"] = detail_error
+                extra["ui_pacing"] = pacing.evidence()
                 return emit("compile_error", compiler_output, **extra)
             time.sleep(0.25)
 

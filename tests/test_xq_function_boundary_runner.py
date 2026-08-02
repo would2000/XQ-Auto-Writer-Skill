@@ -58,6 +58,19 @@ def report(handle: int, marker: str) -> dict:
 
 
 class XQFunctionBoundaryRunnerTests(unittest.TestCase):
+    def test_late_report_close_is_complete_only_with_absence_evidence(self) -> None:
+        outcome = runner.report_close_wait_outcome(
+            {"status": "late", "value": True}
+        )
+        self.assertEqual(
+            outcome,
+            {"closed": True, "late_wait_observed": True},
+        )
+        with self.assertRaises(runner.UiWaitIncident):
+            runner.report_close_wait_outcome(
+                {"status": "late", "value": None}
+            )
+
     def sample_case(self, **changes):
         case = runner.BoundaryCase(
             case_id="daily-control",
@@ -721,6 +734,14 @@ class XQFunctionBoundaryRunnerTests(unittest.TestCase):
             )
             self.assertIsNone(incident)
             self.assertNotIn("windows_wait_incidents", manifest)
+
+    def test_pace_level_seven_keeps_boundary_action_floor(self) -> None:
+        args = runner.parse_args([
+            "--config", "xq-ui.json", "--cases", "cases.json",
+        ])
+        policy = runner.wait_policy_from_args(args, {"ui_pacing": {"default_level": 7}})
+        self.assertEqual(policy.action_settle_seconds, runner.UI_ACTION_SETTLE_SECONDS)
+        self.assertAlmostEqual(policy.inter_case_seconds, 5.0 / 1.5)
 
 
 if __name__ == "__main__":

@@ -282,6 +282,15 @@ class XQCodexScopeTests(unittest.TestCase):
         with self.assertRaisesRegex(scope.CodexScopeError, "expected_location"):
             scope.load_new_script_storage_contract(bad)
 
+    def test_storage_contract_applies_requested_pace_without_bypassing_floor(self) -> None:
+        config = self.storage_config()
+        config["new_script_storage_scope"]["action_settle_seconds"] = 2.5
+        config["new_script_storage_scope"]["dialog_timeout_seconds"] = 3
+        config["ui_pacing"] = {"default_level": 7}
+        contract = scope.load_new_script_storage_contract(config)
+        self.assertEqual(contract.ui_pacing.level, 7)
+        self.assertAlmostEqual(contract.action_settle_seconds, 2.5 / 1.5)
+
     def test_existing_storage_codex_is_selected_without_creation(self) -> None:
         environment = self.storage_environment(codex_count=1)
         result = scope.ensure_new_script_codex_storage(
@@ -310,6 +319,25 @@ class XQCodexScopeTests(unittest.TestCase):
         self.assertEqual(result["codex_direct_child_count"], 1)
         self.assertEqual(len(environment["custom_root"].children()), 1)
         self.assertEqual(environment["custom_root"].right_click_count, 1)
+
+    def test_dry_run_missing_storage_codex_is_not_created(self) -> None:
+        environment = self.storage_environment(codex_count=0)
+        result = scope.ensure_new_script_codex_storage(
+            environment["new_script"],
+            scope.load_new_script_storage_contract(self.storage_config()),
+            create_missing=False,
+            desktop_win32=environment["desktop_win32"],
+            desktop_uia=environment["desktop_uia"],
+            sleeper=environment["sleeper"],
+            monotonic=environment["monotonic"],
+        )
+        self.assertFalse(result["created_folder"])
+        self.assertTrue(result["would_create_folder"])
+        self.assertFalse(result["readback_verified"])
+        self.assertEqual(result["codex_direct_child_count"], 0)
+        self.assertEqual(len(environment["custom_root"].children()), 0)
+        self.assertEqual(environment["custom_root"].right_click_count, 0)
+        self.assertFalse(environment["desktop_win32"]._windows[0].is_visible())
 
     def test_duplicate_storage_codex_is_refused(self) -> None:
         environment = self.storage_environment(codex_count=2)

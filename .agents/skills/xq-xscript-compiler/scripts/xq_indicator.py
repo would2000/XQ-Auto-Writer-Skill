@@ -165,6 +165,20 @@ def unique(items: Iterable[Any], label: str) -> Any:
     return values[0]
 
 
+def codex_indicator_item(custom: Any, script_name: str) -> Any:
+    """Return one exact direct indicator in the unique 自訂/CODEX folder."""
+    custom.expand()
+    codex = unique(
+        [item for item in custom.children() if item.text() == "CODEX"],
+        "CODEX indicator folder",
+    )
+    codex.expand()
+    return unique(
+        [item for item in codex.children() if item.text() == script_name],
+        f"CODEX indicator {script_name!r}",
+    )
+
+
 def active_chart_page(main_win32: Any) -> tuple[Any, Any]:
     pages = []
     for child in main_win32.children():
@@ -257,9 +271,7 @@ def add_indicator(main_uia: Any, main_win32: Any, script_name: str) -> str:
             [item for item in xs_root.children() if item.text() == "自訂"],
             "custom-indicator node",
         )
-        custom.expand()
-        matches = [item for item in custom.children() if item.text() == script_name]
-        unique(matches, f"compiled indicator {script_name!r}").click_input()
+        codex_indicator_item(custom, script_name).click_input()
         time.sleep(0.3)
         dialog.child_window(control_id=1, class_name="Button").click_input()
         completed = True

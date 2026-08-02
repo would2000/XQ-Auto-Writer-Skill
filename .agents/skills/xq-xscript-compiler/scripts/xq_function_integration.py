@@ -141,10 +141,16 @@ def compile_document(
         str(source),
         "--script-type",
         script_type,
+        "--script-name",
+        name,
     ]
     if function_return_type:
         prepare_args.extend(["--function-return-type", function_return_type])
         compile_args.extend(["--function-return-type", function_return_type])
+    require_success(
+        run_json_tool("xq_prepare_script.py", [*prepare_args, "--dry-run"], 45),
+        f"preflight_{name}",
+    )
     require_success(
         run_json_tool("xq_prepare_script.py", prepare_args, 45),
         f"prepare_{name}",
