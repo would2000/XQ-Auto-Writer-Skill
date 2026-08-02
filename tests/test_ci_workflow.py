@@ -54,6 +54,7 @@ class CIWorkflowTests(unittest.TestCase):
 
     def test_windows_timezone_dependency_is_declared_and_installed(self) -> None:
         requirements = REQUIREMENTS_PATH.read_text(encoding="utf-8").splitlines()
+        self.assertIn("Pillow>=10,<13", requirements)
         self.assertIn("tzdata>=2025.2,<2027", requirements)
         self.assertIn(
             "python -m pip install --disable-pip-version-check "

@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 
+- 修正乾淨 Windows CI 的依賴與隔離：正式宣告 Pillow 截圖／畫面辨識依賴，並讓 runtime evidence 單元測試使用獨立系統暫存根目錄，不再假設本機 `.xq-auto-writer/` 已存在或寫入真實私有狀態。
 - 修正乾淨 clone／GitHub CI 無法載入第十一階段案例來源：將八份不含私人資料且已由公開 SHA-256 識別的最小 XScript 移入追蹤中的 `runtime-evidence-sources/`，案例不再依賴被忽略的本機 `generated/`；同步更新 suite digest，並新增公開證據與目前案例、來源雜湊一致性測試。來源內容與既有 XQ 編譯證據的 SHA-256 完全不變，未重新解讀或推測執行結果。
 - 完成第十一階段五類代表執行證據與 1.1.0 發布準備：新增可續跑的四組函數／caller runner、JSON／JUnit／Markdown 私有彙總及拒絕覆寫的公開蒸餾器；2026-08-02 在 XQ 3.19.03 重新取得八份文件當次編譯成功，指標匯出 99 列、選股成功 50／失敗 0／交易 32、警示成功 1／失敗 0／交易 1、自動交易成功 1／失敗 0／交易 8，三份回測報告均以唯一 marker 證明後清理且最終無 checkpoint。修正 Windows 子程序 UTF-8 JSON、指標 `自訂/CODEX/` 選擇、自動交易顯式腳本身分驗證，以及 PowerShell 5 UTF-8 BOM 發布證據讀取；新建 `rc-interface-v3.json` 與不含私人資料的 `xq-runtime-evidence-v1.json`，保留已發布 v1／v2 契約。以上只證明代表流程可執行，不代表策略績效。
 

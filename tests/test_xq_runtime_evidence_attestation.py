@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -106,11 +107,17 @@ class RuntimeEvidenceAttestationTests(unittest.TestCase):
 
     def test_write_requires_confirmation_and_refuses_overwrite(self):
         manifest, _cases, _digest = self.completed_manifest()
-        with tempfile.TemporaryDirectory(dir=attestation.PRIVATE_ROOT) as raw_private:
-            manifest_path = Path(raw_private) / "manifest.json"
+        with tempfile.TemporaryDirectory() as raw_root:
+            private_root = Path(raw_root) / "private"
+            release_root = Path(raw_root) / "release"
+            private_root.mkdir()
+            release_root.mkdir()
+            manifest_path = private_root / "manifest.json"
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-            with tempfile.TemporaryDirectory(dir=attestation.RELEASE_ROOT) as raw_release:
-                output = Path(raw_release) / "attestation.json"
+            with patch.object(attestation, "PRIVATE_ROOT", private_root), patch.object(
+                attestation, "RELEASE_ROOT", release_root
+            ):
+                output = release_root / "attestation.json"
                 args = argparse.Namespace(
                     manifest=manifest_path, cases=CASE_FILE, xq_version="3.19.03",
                     output=output, confirm_public_attestation=False, dry_run=False,

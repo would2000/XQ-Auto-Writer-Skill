@@ -67,7 +67,7 @@ git submodule update --init --recursive
 python -m pip install -r .agents/skills/xq-xscript-compiler/scripts/requirements.txt
 ```
 
-第三方執行依賴包括 Windows UI 自動化使用的 `pywinauto>=0.6.9,<0.7`，以及讓 Python `zoneinfo` 在 Windows 正確解析 `Asia/Taipei` 的 `tzdata>=2025.2,<2027`。安裝只提供 UI 控制與時區資料，不會連接券商或在背景執行。
+第三方執行依賴包括 Windows UI 自動化使用的 `pywinauto>=0.6.9,<0.7`、畫面辨識與截圖測試使用的 `Pillow>=10,<13`，以及讓 Python `zoneinfo` 在 Windows 正確解析 `Asia/Taipei` 的 `tzdata>=2025.2,<2027`。安裝只提供 UI 控制、影像處理與時區資料，不會連接券商或在背景執行。
 
 ### 3. 加入 Codex 本機專案
 

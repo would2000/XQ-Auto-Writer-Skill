@@ -124,8 +124,11 @@ class RuntimeEvidenceSuiteTests(unittest.TestCase):
 
     def test_resume_skips_completed_case_and_rejects_failed_without_confirmation(self) -> None:
         _raw, cases, digest = suite.load_cases(CASE_FILE)
-        with tempfile.TemporaryDirectory(dir=suite.PRIVATE_ROOT) as raw_directory:
-            output = Path(raw_directory)
+        with tempfile.TemporaryDirectory() as raw_directory, patch.object(
+            suite, "PRIVATE_ROOT", Path(raw_directory)
+        ):
+            output = Path(raw_directory) / "run"
+            output.mkdir()
             manifest = suite._new_manifest(output, digest, cases)
             manifest["cases"][cases[0].case_id]["status"] = "completed"
             manifest["cases"][cases[1].case_id]["status"] = "failed"
@@ -144,8 +147,11 @@ class RuntimeEvidenceSuiteTests(unittest.TestCase):
 
     def test_summaries_are_json_junit_and_markdown(self) -> None:
         _raw, cases, digest = suite.load_cases(CASE_FILE)
-        with tempfile.TemporaryDirectory(dir=suite.PRIVATE_ROOT) as raw_directory:
-            output = Path(raw_directory)
+        with tempfile.TemporaryDirectory() as raw_directory, patch.object(
+            suite, "PRIVATE_ROOT", Path(raw_directory)
+        ):
+            output = Path(raw_directory) / "run"
+            output.mkdir()
             manifest = suite._new_manifest(output, digest, cases)
             for case in cases:
                 manifest["cases"][case.case_id] = {
@@ -161,7 +167,9 @@ class RuntimeEvidenceSuiteTests(unittest.TestCase):
 
     def test_unexpected_exception_is_persisted_and_active_case_is_cleared(self) -> None:
         _raw, cases, _digest = suite.load_cases(CASE_FILE)
-        with tempfile.TemporaryDirectory(dir=suite.PRIVATE_ROOT) as raw_directory:
+        with tempfile.TemporaryDirectory() as raw_directory, patch.object(
+            suite, "PRIVATE_ROOT", Path(raw_directory)
+        ):
             output = Path(raw_directory) / "run"
             args = argparse.Namespace(
                 config=Path("config.json"), cases=CASE_FILE, output_directory=output,
