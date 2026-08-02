@@ -112,6 +112,8 @@ class RuntimeEvidenceAttestationTests(unittest.TestCase):
             release_root = Path(raw_root) / "release"
             private_root.mkdir()
             release_root.mkdir()
+            private_root = private_root.resolve()
+            release_root = release_root.resolve()
             manifest_path = private_root / "manifest.json"
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
             with patch.object(attestation, "PRIVATE_ROOT", private_root), patch.object(

@@ -124,53 +124,52 @@ class RuntimeEvidenceSuiteTests(unittest.TestCase):
 
     def test_resume_skips_completed_case_and_rejects_failed_without_confirmation(self) -> None:
         _raw, cases, digest = suite.load_cases(CASE_FILE)
-        with tempfile.TemporaryDirectory() as raw_directory, patch.object(
-            suite, "PRIVATE_ROOT", Path(raw_directory)
-        ):
-            output = Path(raw_directory) / "run"
+        with tempfile.TemporaryDirectory() as raw_directory:
+            private_root = Path(raw_directory).resolve()
+            output = private_root / "run"
             output.mkdir()
-            manifest = suite._new_manifest(output, digest, cases)
-            manifest["cases"][cases[0].case_id]["status"] = "completed"
-            manifest["cases"][cases[1].case_id]["status"] = "failed"
-            suite._atomic_json(output / "manifest.json", manifest)
-            args = argparse.Namespace(
-                config=Path("config.json"), cases=CASE_FILE, output_directory=None,
-                resume_manifest=output / "manifest.json", only_case=[cases[0].case_id],
-                confirm_historical_backtest=True, retry_failed=False, dry_run=False,
-            )
-            result = suite.run_suite(args, runner=lambda *_: self.fail("completed case reran"))
-            self.assertIn(cases[0].case_id, result["completed_case_ids"])
+            with patch.object(suite, "PRIVATE_ROOT", private_root):
+                manifest = suite._new_manifest(output, digest, cases)
+                manifest["cases"][cases[0].case_id]["status"] = "completed"
+                manifest["cases"][cases[1].case_id]["status"] = "failed"
+                suite._atomic_json(output / "manifest.json", manifest)
+                args = argparse.Namespace(
+                    config=Path("config.json"), cases=CASE_FILE, output_directory=None,
+                    resume_manifest=output / "manifest.json", only_case=[cases[0].case_id],
+                    confirm_historical_backtest=True, retry_failed=False, dry_run=False,
+                )
+                result = suite.run_suite(args, runner=lambda *_: self.fail("completed case reran"))
+                self.assertIn(cases[0].case_id, result["completed_case_ids"])
 
-            args.only_case = [cases[1].case_id]
-            with self.assertRaisesRegex(suite.SuiteError, "retry-failed"):
-                suite.run_suite(args, runner=lambda *_: self.fail("failed case reran"))
+                args.only_case = [cases[1].case_id]
+                with self.assertRaisesRegex(suite.SuiteError, "retry-failed"):
+                    suite.run_suite(args, runner=lambda *_: self.fail("failed case reran"))
 
     def test_summaries_are_json_junit_and_markdown(self) -> None:
         _raw, cases, digest = suite.load_cases(CASE_FILE)
-        with tempfile.TemporaryDirectory() as raw_directory, patch.object(
-            suite, "PRIVATE_ROOT", Path(raw_directory)
-        ):
-            output = Path(raw_directory) / "run"
+        with tempfile.TemporaryDirectory() as raw_directory:
+            private_root = Path(raw_directory).resolve()
+            output = private_root / "run"
             output.mkdir()
-            manifest = suite._new_manifest(output, digest, cases)
-            for case in cases:
-                manifest["cases"][case.case_id] = {
-                    "status": "completed",
-                    "caller_type": case.caller_type,
-                    "result": {"normalized": {"runtime_status": "success"}},
-                }
-            suite._write_summaries(output, manifest, cases)
-            summary = json.loads((output / "summary.json").read_text(encoding="utf-8"))
-            self.assertEqual(summary["completed"], 4)
-            self.assertIn("testsuite", (output / "junit.xml").read_text(encoding="utf-8"))
-            self.assertIn("| Case | Caller |", (output / "summary.md").read_text(encoding="utf-8"))
+            with patch.object(suite, "PRIVATE_ROOT", private_root):
+                manifest = suite._new_manifest(output, digest, cases)
+                for case in cases:
+                    manifest["cases"][case.case_id] = {
+                        "status": "completed",
+                        "caller_type": case.caller_type,
+                        "result": {"normalized": {"runtime_status": "success"}},
+                    }
+                suite._write_summaries(output, manifest, cases)
+                summary = json.loads((output / "summary.json").read_text(encoding="utf-8"))
+                self.assertEqual(summary["completed"], 4)
+                self.assertIn("testsuite", (output / "junit.xml").read_text(encoding="utf-8"))
+                self.assertIn("| Case | Caller |", (output / "summary.md").read_text(encoding="utf-8"))
 
     def test_unexpected_exception_is_persisted_and_active_case_is_cleared(self) -> None:
         _raw, cases, _digest = suite.load_cases(CASE_FILE)
-        with tempfile.TemporaryDirectory() as raw_directory, patch.object(
-            suite, "PRIVATE_ROOT", Path(raw_directory)
-        ):
-            output = Path(raw_directory) / "run"
+        with tempfile.TemporaryDirectory() as raw_directory:
+            private_root = Path(raw_directory).resolve()
+            output = private_root / "run"
             args = argparse.Namespace(
                 config=Path("config.json"), cases=CASE_FILE, output_directory=output,
                 resume_manifest=None, only_case=[cases[0].case_id],
@@ -180,8 +179,9 @@ class RuntimeEvidenceSuiteTests(unittest.TestCase):
             def exploding_runner(*_args):
                 raise RuntimeError("simulated child crash")
 
-            with self.assertRaises(suite.SuiteError) as raised:
-                suite.run_suite(args, runner=exploding_runner)
+            with patch.object(suite, "PRIVATE_ROOT", private_root):
+                with self.assertRaises(suite.SuiteError) as raised:
+                    suite.run_suite(args, runner=exploding_runner)
 
             self.assertEqual(raised.exception.stage, "unexpected_exception")
             manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))

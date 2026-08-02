@@ -288,11 +288,12 @@ def execute_case(config: Path, case: RuntimeCase, runner: Runner = run_json_tool
 
 
 def _private_path(path: Path, label: str) -> Path:
+    private_root = PRIVATE_ROOT.resolve()
     resolved = path.resolve()
     try:
-        resolved.relative_to(PRIVATE_ROOT)
+        resolved.relative_to(private_root)
     except ValueError as exc:
-        raise SuiteError("validation", f"{label} must stay below {PRIVATE_ROOT}") from exc
+        raise SuiteError("validation", f"{label} must stay below {private_root}") from exc
     return resolved
 
 

@@ -26,11 +26,12 @@ class AttestationError(RuntimeError):
 
 
 def _inside(path: Path, root: Path) -> Path:
+    resolved_root = root.resolve()
     resolved = path.resolve()
     try:
-        resolved.relative_to(root)
+        resolved.relative_to(resolved_root)
     except ValueError as exc:
-        raise AttestationError(f"Path must stay inside {root}: {resolved}") from exc
+        raise AttestationError(f"Path must stay inside {resolved_root}: {resolved}") from exc
     return resolved
 
 
