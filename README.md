@@ -2,7 +2,7 @@
 
 讓 Codex 根據自然語言需求撰寫 XScript，操作 Windows 上的 XQ 全球贏家 XScript 編輯器，讀取真實編譯結果並反覆修正，直到編譯成功或達到安全停止條件。
 
-目前版本：[1.0.0](VERSION)｜1.1.0 發布準備｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)｜[XQ 操作憲法](docs/XQ-OPERATION-CONSTITUTION.md)
+目前版本：[1.1.0](VERSION)｜1.1.0 發布候選｜[更新紀錄](CHANGELOG.md)｜[發布流程](docs/RELEASING.md)｜[XQ 操作憲法](docs/XQ-OPERATION-CONSTITUTION.md)
 
 [![CI](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml/badge.svg)](https://github.com/would2000/XQ-Auto-Writer-Skill/actions/workflows/ci.yml)
 
@@ -513,7 +513,7 @@ python .agents/skills/xq-xscript-compiler/scripts/xq_function_batch_runner.py `
 
 第十一階段新增可續跑的四 pair 執行套件及不含私人資料的公開證明。2026-08-02 在 XQ 3.19.03 取得五類當次編譯與代表執行證據：指標匯出 99 列；選股成功 50、失敗 0、交易 32；警示成功 1、失敗 0、交易 1；自動交易成功 1、失敗 0、交易 8。三份回測報告都以唯一新增 handle 與 marker 證明後精確清理，最終 recovery-status 為 `safe_to_start` 且無 checkpoint。公開蒸餾見 `release/xq-runtime-evidence-v1.json`；這些數字只證明測試流程，不代表策略績效。
 
-1.1.0 使用新的 `release/rc-interface-v3.json` 凍結介面；v1／v2 歷史契約不改寫。`VERSION` 在發布 PR 前仍維持 1.0.0，且本階段不自動建立 tag、推送或發布 GitHub Release。
+1.1.0 使用新的 `release/rc-interface-v3.json` 凍結介面；v1／v2 歷史契約不改寫。本發布 PR 已將 `VERSION` 更新為 1.1.0；tag 與 GitHub Release 仍須等發布 PR 合併並完成驗證後建立。
 
 工具會輸出單一 JSON 物件：
 
